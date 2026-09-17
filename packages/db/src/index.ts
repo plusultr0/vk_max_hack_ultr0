@@ -6,3 +6,4 @@ export * from './profile.js';
 export * from './impacts.js';
 export * from './notifications.js';
 export * from './ingestion.js';
+export * from './review.js';

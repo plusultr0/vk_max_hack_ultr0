@@ -1,6 +1,6 @@
 {
   "name": "max-regulatory-control",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "npm run test --workspace @reg/domain && npm run test --workspace @reg/max && npm run test --workspace @reg/llm && npm run test --workspace @reg/ingestion",
+    "test": "npm run test --workspace @reg/domain && npm run test --workspace @reg/max && npm run test --workspace @reg/llm && npm run test --workspace @reg/ingestion && npm run test --workspace @reg/review",
     "test:domain": "npm run test --workspace @reg/domain",
     "dev:api": "npm run dev --workspace @reg/api",
     "dev:web": "npm run dev --workspace @reg/web",

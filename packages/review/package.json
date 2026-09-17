@@ -1,0 +1,9 @@
+{
+  "name": "@reg/review",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": { "test": "vitest run" },
+  "dependencies": { "@reg/domain": "0.1.0", "@reg/llm": "0.1.0", "zod": "3.25.76" }
+}

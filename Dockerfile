@@ -12,6 +12,7 @@ COPY packages/config/package.json packages/config/package.json
 COPY packages/llm/package.json packages/llm/package.json
 COPY packages/max/package.json packages/max/package.json
 COPY packages/ingestion/package.json packages/ingestion/package.json
+COPY packages/review/package.json packages/review/package.json
 
 RUN npm ci --no-audit --no-fund
 COPY . .

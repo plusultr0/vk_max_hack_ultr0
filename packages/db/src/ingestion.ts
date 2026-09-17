@@ -166,9 +166,13 @@ export async function listRuleCandidates(state = 'pending', limit = 100) {
 
 export async function rejectRuleCandidate(id: string, note?: string) {
   const result = await getPool().query(
-    `UPDATE legal_rule_candidates SET review_state='rejected',reviewer_note=$2,reviewed_at=now() WHERE id=$1 RETURNING *`,
+    `UPDATE legal_rule_candidates SET review_state='rejected',reviewer_note=$2,reviewed_at=now() WHERE id=$1 AND review_state='pending' RETURNING *`,
     [id, note ?? null],
   );
+  if (!result.rowCount) {
+    const exists = await getPool().query('SELECT 1 FROM legal_rule_candidates WHERE id=$1', [id]);
+    if (exists.rowCount) throw new Error('CANDIDATE_ALREADY_REVIEWED');
+  }
   return result.rows[0] ?? null;
 }
 
@@ -187,6 +191,8 @@ export async function publishReviewedRuleCandidate(input: {
     const candidate = await client.query('SELECT * FROM legal_rule_candidates WHERE id=$1 FOR UPDATE', [input.candidateId]);
     if (!candidate.rowCount) throw new Error('CANDIDATE_NOT_FOUND');
     if (candidate.rows[0].review_state !== 'pending') throw new Error('CANDIDATE_ALREADY_REVIEWED');
+    const review = await client.query('SELECT 1 FROM review_drafts WHERE candidate_id=$1', [input.candidateId]);
+    if (review.rowCount) throw new Error('REVIEW_REVISION_REQUIRES_BUNDLE_PUBLICATION');
     if (!candidate.rows[0].source_snapshot_id) throw new Error('LEGACY_CANDIDATE_REEXTRACTION_REQUIRED');
     const snapshotResult = await client.query('SELECT snapshot FROM source_snapshots WHERE id=$1', [candidate.rows[0].source_snapshot_id]);
     const extraction = validateRegulatoryExtraction({ ...candidate.rows[0].draft, sourceSnapshot: snapshotResult.rows[0]?.snapshot });

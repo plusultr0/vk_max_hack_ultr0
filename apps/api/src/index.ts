@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import { z } from 'zod';
 import { getConfig } from '@reg/config';
 import {
   addImpactFeedback,
@@ -31,8 +32,15 @@ import {
   upsertMaxIdentity,
   getSourceDocument,
   getRuleCandidate,
+  createCandidateReview,
+  getCandidateReview,
+  listReviewRevisions,
+  saveCandidateReview,
+  previewCandidateReview,
+  ReviewError,
 } from '@reg/db';
-import { assessRule, LegalRuleSchema } from '@reg/domain';
+import { assessRule, CompanyProfileSchema, LegalRuleSchema } from '@reg/domain';
+import { calendarDate } from '@reg/review';
 import {
   fetchOfficialHtmlSource,
   fetchPravoOpenData,
@@ -147,7 +155,7 @@ function apiIngestionSources() {
 app.get('/health', async (_request, reply) => {
   try {
     await getPool().query('SELECT 1');
-    return { status: 'ok', database: 'ok', service: 'api', stage: 's9.4-source-segments' };
+    return { status: 'ok', database: 'ok', service: 'api', stage: 's9.5ab-review-revisions' };
   } catch (error) {
     reply.code(503);
     return { status: 'degraded', database: 'error', service: 'api', error: error instanceof Error ? error.message : 'unknown error' };
@@ -477,8 +485,61 @@ app.post('/admin/candidates/:id/reject', async (request, reply) => {
   if (!requireAdmin(request, reply)) return;
   const id = (request.params as { id: string }).id;
   const body = request.body as { note?: string } | null;
-  const result = await rejectRuleCandidate(id, body?.note);
-  return result ?? reply.code(404).send({ error: 'CANDIDATE_NOT_FOUND' });
+  try {
+    const result = await rejectRuleCandidate(id, body?.note);
+    return result ?? reply.code(404).send({ error: 'CANDIDATE_NOT_FOUND' });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'CANDIDATE_ALREADY_REVIEWED') return reply.code(409).send({ error: error.message });
+    throw error;
+  }
+});
+
+function reviewFailure(error: unknown, reply: any) {
+  if (error instanceof ReviewError) return reply.code(error.statusCode).send({ error: error.code, details: error.details });
+  if (error instanceof z.ZodError) return reply.code(400).send({ error: 'INVALID_REVIEW_INPUT', issues: error.issues });
+  if (error instanceof Error && error.message === 'REVIEW_DOCUMENT_TOO_DEEP') return reply.code(400).send({ error: error.message });
+  throw error;
+}
+
+app.post('/admin/candidates/:id/review', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  try {
+    // Current credential authenticates one shared principal; no client-supplied author identity.
+    z.object({}).strict().parse(request.body ?? {});
+    const result = await createCandidateReview((request.params as { id: string }).id, 'admin-token');
+    return reply.code(201).send(result);
+  } catch (error) { return reviewFailure(error, reply); }
+});
+
+app.get('/admin/candidates/:id/review', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  try {
+    const query = z.object({ revision: z.coerce.number().int().positive().max(2147483647).optional() }).strict().parse(request.query);
+    const result = await getCandidateReview((request.params as { id: string }).id, query.revision);
+    return result ?? reply.code(404).send({ error: 'REVIEW_NOT_FOUND' });
+  } catch (error) { return reviewFailure(error, reply); }
+});
+
+app.get('/admin/candidates/:id/review/history', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  const id = (request.params as { id: string }).id;
+  if (!await getCandidateReview(id)) return reply.code(404).send({ error: 'REVIEW_NOT_FOUND' });
+  return { items: await listReviewRevisions(id) };
+});
+
+app.put('/admin/candidates/:id/review', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  try { return await saveCandidateReview((request.params as { id: string }).id, request.body, 'admin-token'); }
+  catch (error) { return reviewFailure(error, reply); }
+});
+
+app.post('/admin/candidates/:id/review/preview', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  try {
+    const body = z.object({ revision: z.number().int().positive(), contentHash: z.string().regex(/^[a-f0-9]{64}$/),
+      asOf: calendarDate, profile: CompanyProfileSchema.strict(), tradeObjectId: z.string().trim().min(1).max(200).optional() }).strict().parse(request.body);
+    return await previewCandidateReview((request.params as { id: string }).id, body);
+  } catch (error) { return reviewFailure(error, reply); }
 });
 
 app.post('/admin/candidates/:id/publish', async (request, reply) => {

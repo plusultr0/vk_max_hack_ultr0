@@ -15,6 +15,7 @@
     "@reg/ingestion": "0.1.0",
     "@reg/llm": "0.1.0",
     "@reg/max": "0.1.0",
+    "@reg/review": "0.1.0",
     "fastify": "5.4.0",
     "zod": "3.25.76"
   }

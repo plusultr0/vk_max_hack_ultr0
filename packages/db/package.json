@@ -7,7 +7,7 @@
   "scripts": {
     "migrate": "tsx src/migrate.ts",
     "seed": "tsx src/seed.ts",
-    "test:integration": "tsx src/grounding.integration.ts"
+    "test:integration": "tsx src/grounding.integration.ts && tsx src/review.integration.ts"
   },
   "dependencies": {
     "@reg/config": "0.1.0",
@@ -15,7 +15,9 @@
     "@reg/ingestion": "0.1.0",
     "@reg/max": "0.1.0",
     "pg": "8.16.0",
-    "@reg/llm": "0.1.0"
+    "@reg/llm": "0.1.0",
+    "@reg/review": "0.1.0",
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@types/pg": "8.15.0"
