@@ -16,6 +16,7 @@ const provider = createProvider({
 const result = await extractRegulatoryDraft(provider, {
   sourceTitle: 'Smoke test source',
   officialUrl: 'https://example.test/source',
+  sourceTextOrigin: 'synthetic',
   sourceText: 'Организации, которые осуществляют дистанционную продажу товаров, обязаны разместить на сайте сведения о продавце. Требование применяется с 1 января 2027 года.',
 });
 console.log(JSON.stringify({ provider: provider.name, model: provider.model, result }, null, 2));

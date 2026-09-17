@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { extractRegulatoryDraft, GigaChatProvider, MockLlmProvider, regulatoryExtractionQualityIssues } from './index.js';
+import { extractRegulatoryDraft, GigaChatProvider, MockLlmProvider, createSourceSnapshot, regulatoryExtractionQualityIssues } from './index.js';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -23,15 +23,9 @@ describe('LLM adapter', () => {
         choices: [{ message: { content: JSON.stringify({
           title: 'Требование',
           summary: 'Кратко',
-          subjectRole: 'организация',
-          validFrom: '2027-01-01',
-          validTo: null,
-          conditions: [],
-          exceptions: [],
-          affectedProcesses: ['сайт'],
-          actionDrafts: [],
-          uncertaintyNotes: [],
-          evidence: [{ index: 0, quote: 'обязаны разместить на сайте сведения о продавце' }],
+          phases: [],
+          dateNotes: [],
+          uncertaintyNotes: ['Недостаточно данных.'],
         }) } }],
       }), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
@@ -43,7 +37,7 @@ describe('LLM adapter', () => {
       sourceText: 'Организации обязаны разместить на сайте сведения о продавце.',
     });
 
-    expect(result.validFrom).toBe('2027-01-01');
+    expect(result.schemaVersion).toBe('reg-extract-v4-source-segments');
     expect(fetchMock).toHaveBeenCalledTimes(2);
     const oauthInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
     expect((oauthInit.headers as Record<string, string>).Authorization).toBe('Basic abc');
@@ -51,7 +45,8 @@ describe('LLM adapter', () => {
     const chatBody = JSON.parse(String(chatInit.body));
     expect(chatBody.response_format.type).toBe('json_schema');
     expect(chatBody.response_format.strict).toBe(true);
-    expect(chatBody.response_format.schema.properties.evidence).toBeDefined();
+    expect(chatBody.response_format.schema.properties.evidence).toBeUndefined();
+    expect(chatBody.response_format.schema.properties.phases).toBeDefined();
   });
 
   it('reuses a non-expired GigaChat token', async () => {
@@ -70,16 +65,8 @@ describe('LLM adapter', () => {
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
-  it('rejects missing or non-verbatim evidence links in the quality gate', () => {
-    const draft = {
-      title: 'Требование', summary: 'Кратко', subjectRole: 'продавец', validFrom: '2026-09-01', validTo: null,
-      conditions: [{ fieldHint: 'выручка', operatorHint: 'gt' as const, valueHint: 120000000, text: 'выручка выше порога', evidenceIndexes: [9] }],
-      exceptions: [], affectedProcesses: ['платежи'], actionDrafts: [], uncertaintyNotes: [],
-      evidence: [{ index: 0, quote: 'цитата, которой нет в источнике' }],
-    };
-    const issues = regulatoryExtractionQualityIssues(draft, 'Выручка за прошлый год превышает 120 млн рублей.');
-    expect(issues.some((item) => item.includes('not verbatim'))).toBe(true);
-    expect(issues.some((item) => item.includes('missing evidence index 9'))).toBe(true);
+  it('rejects an empty extraction without an explanation', () => {
+    const issues = regulatoryExtractionQualityIssues({ title: 'Тест', summary: 'Тест', phases: [], dateNotes: [], uncertaintyNotes: [] }, createSourceSnapshot({ sourceTitle: 'Тест', officialUrl: 'https://example.test', sourceText: 'Текст' }));
+    expect(issues).toContain('Empty extraction requires uncertaintyNotes');
   });
-
 });

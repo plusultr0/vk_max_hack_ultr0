@@ -1,6 +1,6 @@
 {
   "name": "max-regulatory-control",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -20,7 +20,10 @@
     "bot:subscribe": "npm run subscribe --workspace @reg/bot",
     "llm:smoke": "npm run llm:smoke --workspace @reg/worker",
     "ingest:once": "npm run ingest:once --workspace @reg/worker",
-    "check": "npm test && npm run build:web"
+    "check": "npm run typecheck && npm test && npm run build:web",
+    "test:integration": "npm run test:integration --workspace @reg/db",
+    "typecheck": "tsc -p tsconfig.backend.json",
+    "llm:source-check": "npm run llm:source-check --workspace @reg/worker"
   },
   "engines": {
     "node": ">=22"

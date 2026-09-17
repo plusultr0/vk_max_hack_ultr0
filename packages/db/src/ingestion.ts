@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { LegalRuleSchema, type LegalRule } from '@reg/domain';
 import type { SourceDocument } from '@reg/ingestion';
+import { EXTRACTION_VERSION, regulatoryReviewWarnings, validateRegulatoryExtraction, type RegulatoryExtraction } from '@reg/llm';
 import { seedHash } from './canonical.js';
 import { getPool } from './client.js';
 import { recalculateRuleForAllCompanies } from './impacts.js';
@@ -107,24 +108,56 @@ export async function saveRuleCandidate(input: {
   sourceDocumentId: string;
   provider: string;
   model?: string | null;
-  promptVersion: string;
-  draft: unknown;
-  evidence?: unknown[];
+  draft: RegulatoryExtraction;
 }) {
+  const extraction = validateRegulatoryExtraction(input.draft);
+  const { sourceSnapshot, ...draft } = extraction;
   const id = randomUUID();
-  await getPool().query(
-    `INSERT INTO legal_rule_candidates(id,source_document_id,provider,model,prompt_version,draft,evidence)
-     VALUES($1,$2,$3,$4,$5,$6,$7)`,
-    [id, input.sourceDocumentId, input.provider, input.model ?? null, input.promptVersion,
-      JSON.stringify(input.draft), JSON.stringify(input.evidence ?? [])],
-  );
+  const snapshotId = randomUUID();
+  const client = await getPool().connect();
+  try {
+    await client.query('BEGIN');
+    const source = await client.query('SELECT official_url FROM source_documents WHERE id=$1 FOR SHARE', [input.sourceDocumentId]);
+    if (!source.rowCount) throw new Error('SOURCE_DOCUMENT_NOT_FOUND');
+    if (source.rows[0].official_url !== sourceSnapshot.officialUrl) throw new Error('SOURCE_SNAPSHOT_URL_MISMATCH');
+    await client.query(
+      'INSERT INTO source_snapshots(id,source_document_id,text_hash,snapshot) VALUES($1,$2,$3,$4)',
+      [snapshotId, input.sourceDocumentId, sourceSnapshot.textHash, JSON.stringify(sourceSnapshot)],
+    );
+    await client.query(
+      `INSERT INTO legal_rule_candidates(id,source_document_id,source_snapshot_id,provider,model,prompt_version,draft,evidence)
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [id, input.sourceDocumentId, snapshotId, input.provider, input.model ?? null, EXTRACTION_VERSION,
+        JSON.stringify(draft), JSON.stringify(extraction.evidence)],
+    );
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally { client.release(); }
   return id;
+}
+
+export async function getRuleCandidate(id: string) {
+  const result = await getPool().query(
+    `SELECT c.*, s.snapshot AS source_snapshot
+     FROM legal_rule_candidates c LEFT JOIN source_snapshots s ON s.id=c.source_snapshot_id WHERE c.id=$1`, [id],
+  );
+  const candidate = result.rows[0];
+  if (!candidate) return null;
+  if (candidate.source_snapshot) {
+    const extraction = validateRegulatoryExtraction({ ...candidate.draft, sourceSnapshot: candidate.source_snapshot });
+    return { ...candidate, review_warnings: regulatoryReviewWarnings(extraction) };
+  }
+  return { ...candidate, review_warnings: [{ code: 'LEGACY_REEXTRACTION_REQUIRED', message: 'Для этого черновика нет неизменяемого снимка; требуется повторное извлечение.' }] };
 }
 
 export async function listRuleCandidates(state = 'pending', limit = 100) {
   const result = await getPool().query(
-    `SELECT c.*, d.title AS source_title, d.official_url
+    `SELECT c.*, COALESCE(s.snapshot->>'sourceTitle',d.title) AS source_title,
+       COALESCE(s.snapshot->>'officialUrl',d.official_url) AS official_url
      FROM legal_rule_candidates c JOIN source_documents d ON d.id=c.source_document_id
+     LEFT JOIN source_snapshots s ON s.id=c.source_snapshot_id
      WHERE c.review_state=$1 ORDER BY c.created_at DESC LIMIT $2`,
     [state, limit],
   );
@@ -154,6 +187,10 @@ export async function publishReviewedRuleCandidate(input: {
     const candidate = await client.query('SELECT * FROM legal_rule_candidates WHERE id=$1 FOR UPDATE', [input.candidateId]);
     if (!candidate.rowCount) throw new Error('CANDIDATE_NOT_FOUND');
     if (candidate.rows[0].review_state !== 'pending') throw new Error('CANDIDATE_ALREADY_REVIEWED');
+    if (!candidate.rows[0].source_snapshot_id) throw new Error('LEGACY_CANDIDATE_REEXTRACTION_REQUIRED');
+    const snapshotResult = await client.query('SELECT snapshot FROM source_snapshots WHERE id=$1', [candidate.rows[0].source_snapshot_id]);
+    const extraction = validateRegulatoryExtraction({ ...candidate.rows[0].draft, sourceSnapshot: snapshotResult.rows[0]?.snapshot });
+    if (extraction.phases.length !== 1) throw new Error('MULTI_PHASE_OR_EMPTY_CANDIDATE_REQUIRES_REVIEW_WORKFLOW');
     const actExisting = await client.query('SELECT 1 FROM legal_acts WHERE act_id=$1', [rule.actId]);
     if (!actExisting.rowCount) {
       const source = await client.query('SELECT * FROM source_documents WHERE id=$1', [candidate.rows[0].source_document_id]);
@@ -162,8 +199,9 @@ export async function publishReviewedRuleCandidate(input: {
       await client.query(
         `INSERT INTO legal_acts(act_id,title,number,issuer,publication_date,official_url,retrieved_at,verification_status,raw_text_hash,data)
          VALUES($1,$2,$3,$4,$5,$6,now(),'reviewed',$7,$8)`,
-        [rule.actId, doc.title, doc.number, doc.issuer ?? 'Не указан', doc.publication_date || null,
-          doc.official_url, doc.raw_hash, JSON.stringify({ sourceDocumentId: doc.id, source: doc.source })],
+        [rule.actId, extraction.sourceSnapshot.sourceTitle, doc.number, doc.issuer ?? 'Не указан', doc.publication_date || null,
+          extraction.sourceSnapshot.officialUrl, extraction.sourceSnapshot.textHash,
+          JSON.stringify({ sourceDocumentId: doc.id, source: doc.source, sourceSnapshotId: candidate.rows[0].source_snapshot_id })],
       );
     }
     const existing = await client.query('SELECT seed_hash FROM legal_rules WHERE rule_id=$1 AND version=$2', [rule.ruleId, rule.version]);

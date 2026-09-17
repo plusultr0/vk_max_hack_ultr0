@@ -1,6 +1,12 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 
+const MAX_OFFICIAL_TEXT_LENGTH = 120_000;
+function requireCompleteText(text: string): string {
+  if (text.length > MAX_OFFICIAL_TEXT_LENGTH) throw new Error('SOURCE_TEXT_TOO_LONG: split the official document explicitly; text must not be silently truncated');
+  return text;
+}
+
 export const SourceDocumentSchema = z.object({
   source: z.string().min(1),
   externalId: z.string(),
@@ -117,7 +123,7 @@ export function htmlToText(html: string): string {
 
 function pageTitle(html: string): string | null {
   const match = html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
-  return match ? htmlToText(match[1]) : null;
+  return match ? htmlToText(match[1]!) : null;
 }
 
 function dateFromText(value: string): string | null {
@@ -171,7 +177,7 @@ export function parseCsv(text: string): Array<Record<string, string>> {
     if (currentRow.some((cell) => cell.trim() !== '')) rows.push(currentRow);
   }
   if (rows.length < 2) return [];
-  const headers = rows[0].map((value, index) => value.trim() || `column_${index + 1}`);
+  const headers = rows[0]!.map((value, index) => value.trim() || `column_${index + 1}`);
   return rows.slice(1).map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index]?.trim() ?? ''])));
 }
 
@@ -184,7 +190,7 @@ export async function resolveCsvUrl(input: {
   const html = await response.text();
   const matches = [...html.matchAll(/href=["']([^"']+\.csv(?:\?[^"']*)?)["']/gi)];
   if (matches.length === 0) throw new Error('CSV link was not found on the official open-data page');
-  return new URL(matches[0][1], input.openDataUrl).toString();
+  return new URL(matches[0]![1]!, input.openDataUrl).toString();
 }
 
 export async function fetchPravoOpenData(input: {
@@ -259,7 +265,7 @@ export async function fetchOfficialHtmlSource(input: OfficialHtmlSource & FetchO
       rawHash: sha256(text),
       raw: {
         sourceKind: 'official-regulator-page',
-        text: text.slice(0, 120_000),
+        text: requireCompleteText(text),
       },
     });
     return { datasetUrl: input.url, documents: [document], rawCount: 1 };
@@ -269,8 +275,8 @@ export async function fetchOfficialHtmlSource(input: OfficialHtmlSource & FetchO
   const seen = new Set<string>();
   const anchorRegex = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
   for (const match of html.matchAll(anchorRegex)) {
-    const href = decodeHtml(match[1]).trim();
-    const title = htmlToText(match[2]);
+    const href = decodeHtml(match[1]!).trim();
+    const title = htmlToText(match[2]!);
     if (!href || !title) continue;
     let officialUrl: string;
     try {
@@ -311,7 +317,7 @@ export async function fetchReadableOfficialText(input: { url: string } & FetchOp
   }
   const text = htmlToText(await response.text());
   if (text.length < 80) throw new Error('Official page did not contain enough readable text');
-  return text.slice(0, 120_000);
+  return requireCompleteText(text);
 }
 
 export function makeManualOfficialDocument(input: {
@@ -335,7 +341,7 @@ export function makeManualOfficialDocument(input: {
     officialUrl: input.officialUrl,
     sourceDatasetUrl: input.officialUrl,
     rawHash: sha256(text),
-    raw: { sourceKind: 'manual-official', text: text.slice(0, 120_000) },
+    raw: { sourceKind: 'manual-official', text: requireCompleteText(text) },
   });
 }
 

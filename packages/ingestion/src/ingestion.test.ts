@@ -41,11 +41,17 @@ describe('ingestion CSV', () => {
     expect(result.rawCount).toBe(1);
     expect(result.documents).toHaveLength(1);
     expect(SourceDocumentSchema.parse(result.documents[0]).publicationDate).toBe('2026-09-16');
-    expect(result.documents[0].officialUrl).toBe('https://publication.pravo.gov.ru/document/42');
+    expect(result.documents[0]!.officialUrl).toBe('https://publication.pravo.gov.ru/document/42');
   });
 });
 
 describe('official HTML fallbacks', () => {
+  it('rejects oversized official text rather than silently dropping the end', async () => {
+    const text = 'x'.repeat(120001);
+    const fakeFetch = async () => new Response(`<html><body>${text}</body></html>`, { headers: { 'content-type': 'text/html' } });
+    await expect(fetchOfficialHtmlSource({ source: 'test', url: 'https://example.test', issuer: 'Test', mode: 'page', fetchImpl: fakeFetch as typeof fetch })).rejects.toThrow('SOURCE_TEXT_TOO_LONG');
+    expect(() => makeManualOfficialDocument({ title: 'Test', officialUrl: 'https://example.test', sourceText: text })).toThrow('SOURCE_TEXT_TOO_LONG');
+  });
   it('extracts matching government document links and ignores navigation', async () => {
     const fakeFetch = async () => new Response(`
       <html><body>
@@ -61,8 +67,8 @@ describe('official HTML fallbacks', () => {
       fetchImpl: fakeFetch as typeof fetch,
     });
     expect(result.documents).toHaveLength(1);
-    expect(result.documents[0].officialUrl).toBe('https://government.ru/docs/all/163178/');
-    expect(result.documents[0].source).toBe('government.ru');
+    expect(result.documents[0]!.officialUrl).toBe('https://government.ru/docs/all/163178/');
+    expect(result.documents[0]!.source).toBe('government.ru');
   });
 
   it('stages a regulator page with readable text', async () => {
@@ -78,8 +84,8 @@ describe('official HTML fallbacks', () => {
       fetchImpl: fakeFetch as typeof fetch,
     });
     expect(result.documents).toHaveLength(1);
-    expect(String(result.documents[0].raw.text)).toContain('НДС для УСН');
-    expect(scorePilotRelevance(result.documents[0]).score).toBeGreaterThan(0);
+    expect(String(result.documents[0]!.raw.text)).toContain('НДС для УСН');
+    expect(scorePilotRelevance(result.documents[0]!).score).toBeGreaterThan(0);
   });
 
   it('converts HTML to readable compact text', () => {

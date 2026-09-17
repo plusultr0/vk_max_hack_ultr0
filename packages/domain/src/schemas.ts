@@ -115,9 +115,10 @@ export type Condition =
   | { op: 'and' | 'or'; conditions: Condition[] }
   | { op: 'not'; condition: Condition };
 
+const ConditionValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(z.unknown()), z.record(z.unknown())]);
 export const ConditionSchema: z.ZodType<Condition> = z.lazy(() => z.union([
-  z.object({ op: z.literal('eq'), field: z.string(), value: z.any() }),
-  z.object({ op: z.literal('neq'), field: z.string(), value: z.any() }),
+  z.object({ op: z.literal('eq'), field: z.string(), value: ConditionValueSchema }),
+  z.object({ op: z.literal('neq'), field: z.string(), value: ConditionValueSchema }),
   z.object({ op: z.literal('gt'), field: z.string(), value: z.union([z.number(), z.string()]) }),
   z.object({ op: z.literal('gte'), field: z.string(), value: z.union([z.number(), z.string()]) }),
   z.object({ op: z.literal('lt'), field: z.string(), value: z.union([z.number(), z.string()]) }),

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   DemoProfileFixtureSchema,
+  ConditionSchema,
   LegalRuleSchema,
   assessRule,
   evaluateCondition,
@@ -33,6 +34,11 @@ function assess(profileData: CompanyProfile, ruleId: string) {
 }
 
 describe('tri-state conditions', () => {
+  it('rejects equality without a value while retaining explicit null', () => {
+    expect(ConditionSchema.safeParse({ op: 'eq', field: 'distanceSales' }).success).toBe(false);
+    expect(ConditionSchema.safeParse({ op: 'neq', field: 'distanceSales' }).success).toBe(false);
+    expect(ConditionSchema.safeParse({ op: 'eq', field: 'distanceSales', value: null }).success).toBe(true);
+  });
   it('short-circuits AND on false and does not request later unknown fields', () => {
     const result = evaluateCondition({
       op: 'and',

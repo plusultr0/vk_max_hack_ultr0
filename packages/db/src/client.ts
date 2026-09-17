@@ -2,9 +2,10 @@ import pg from 'pg';
 import { getConfig } from '@reg/config';
 
 const { Pool } = pg;
-let pool: pg.Pool | null = null;
+type PgPool = InstanceType<typeof Pool>;
+let pool: PgPool | null = null;
 
-export function getPool(): pg.Pool {
+export function getPool(): PgPool {
   if (!pool) {
     const config = getConfig();
     pool = new Pool({ connectionString: config.DATABASE_URL });

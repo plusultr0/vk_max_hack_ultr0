@@ -1,221 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { z } from 'zod';
-
-export const RegulatoryExtractionSchema = z.object({
-  title: z.string(),
-  summary: z.string(),
-  subjectRole: z.string().nullable(),
-  validFrom: z.string().nullable(),
-  validTo: z.string().nullable(),
-  conditions: z.array(z.object({
-    fieldHint: z.string(),
-    operatorHint: z.enum(['eq','gt','gte','lt','lte','in','exists','date_eq','date_before','date_after','other']),
-    valueHint: z.unknown().optional(),
-    text: z.string(),
-    evidenceIndexes: z.array(z.number().int().nonnegative()).min(1),
-  })),
-  exceptions: z.array(z.object({
-    text: z.string(),
-    evidenceIndexes: z.array(z.number().int().nonnegative()).min(1),
-  })),
-  affectedProcesses: z.array(z.string()),
-  actionDrafts: z.array(z.object({
-    title: z.string(),
-    description: z.string(),
-    deadlineHint: z.string().nullable(),
-    evidenceIndexes: z.array(z.number().int().nonnegative()).min(1),
-  })),
-  uncertaintyNotes: z.array(z.string()),
-  evidence: z.array(z.object({
-    index: z.number().int().nonnegative(),
-    quote: z.string(),
-  })),
-});
-export type RegulatoryExtraction = z.infer<typeof RegulatoryExtractionSchema>;
-
-export const REGULATORY_EXTRACTION_JSON_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  properties: {
-    title: { type: 'string' },
-    summary: { type: 'string' },
-    subjectRole: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-    validFrom: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-    validTo: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-    conditions: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          fieldHint: { type: 'string' },
-          operatorHint: { type: 'string', enum: ['eq','gt','gte','lt','lte','in','exists','date_eq','date_before','date_after','other'] },
-          valueHint: {
-            anyOf: [
-              { type: 'string' },
-              { type: 'number' },
-              { type: 'boolean' },
-              { type: 'null' },
-            ],
-          },
-          text: { type: 'string' },
-          evidenceIndexes: { type: 'array', minItems: 1, items: { type: 'integer', minimum: 0 } },
-        },
-        required: ['fieldHint', 'operatorHint', 'text', 'evidenceIndexes'],
-      },
-    },
-    exceptions: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          text: { type: 'string' },
-          evidenceIndexes: { type: 'array', minItems: 1, items: { type: 'integer', minimum: 0 } },
-        },
-        required: ['text', 'evidenceIndexes'],
-      },
-    },
-    affectedProcesses: { type: 'array', items: { type: 'string' } },
-    actionDrafts: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          title: { type: 'string' },
-          description: { type: 'string' },
-          deadlineHint: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-          evidenceIndexes: { type: 'array', minItems: 1, items: { type: 'integer', minimum: 0 } },
-        },
-        required: ['title', 'description', 'deadlineHint', 'evidenceIndexes'],
-      },
-    },
-    uncertaintyNotes: { type: 'array', items: { type: 'string' } },
-    evidence: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          index: { type: 'integer', minimum: 0 },
-          quote: { type: 'string' },
-        },
-        required: ['index', 'quote'],
-      },
-    },
-  },
-  required: [
-    'title', 'summary', 'subjectRole', 'validFrom', 'validTo', 'conditions', 'exceptions',
-    'affectedProcesses', 'actionDrafts', 'uncertaintyNotes', 'evidence',
-  ],
-} as const;
-
-export type LlmSourceInput = {
-  sourceTitle: string;
-  officialUrl: string;
-  sourceText: string;
-};
-
-export interface LlmProvider {
-  readonly name: string;
-  readonly model: string;
-  generateJson(input: { system: string; user: string }): Promise<unknown>;
-}
-
-const SYSTEM_PROMPT = `Ты извлекаешь структуру нормативного требования только из переданного официального текста.
-Нельзя заполнять пробелы из памяти модели. Если факт не содержится в тексте, добавь его в uncertaintyNotes.
-Каждое условие, исключение и действие ОБЯЗАНО иметь хотя бы один evidenceIndexes, который указывает на реально существующий элемент evidence.
-Каждая quote в evidence должна быть короткой дословной цитатой из sourceText, а не пересказом.
-operatorHint используй только как один из машинных операторов: eq, gt, gte, lt, lte, in, exists, date_eq, date_before, date_after, other.
-Не делай вывод о применимости требования к конкретной компании: это делает отдельный детерминированный rule engine.
-Схема описывает один rule draft. Если источник содержит несколько этапов с разными датами/порогами, выдели самый ранний явно описанный этап, а остальные этапы обязательно перечисли в uncertaintyNotes с их датами/порогами; не смешивай их условия в один этап.
-Возвращай только данные по заданной JSON-схеме. Результат является черновиком для проверки человеком и НЕ является юридическим заключением.`;
-
-function normalizeEvidenceText(value: string): string {
-  return value.replace(/\s+/g, ' ').trim();
-}
-
-export function regulatoryExtractionQualityIssues(draft: RegulatoryExtraction, sourceText: string): string[] {
-  const issues: string[] = [];
-  const evidenceIndexes = new Set<number>();
-  const normalizedSource = normalizeEvidenceText(sourceText);
-
-  for (const item of draft.evidence) {
-    if (evidenceIndexes.has(item.index)) issues.push(`duplicate evidence index ${item.index}`);
-    evidenceIndexes.add(item.index);
-    const quote = normalizeEvidenceText(item.quote);
-    if (!quote) issues.push(`evidence ${item.index} has an empty quote`);
-    else if (!normalizedSource.includes(quote)) issues.push(`evidence ${item.index} quote is not verbatim from sourceText`);
-  }
-
-  const checkRefs = (label: string, refs: number[]) => {
-    if (refs.length === 0) issues.push(`${label} has no evidenceIndexes`);
-    for (const ref of refs) if (!evidenceIndexes.has(ref)) issues.push(`${label} references missing evidence index ${ref}`);
-  };
-
-  draft.conditions.forEach((item, index) => checkRefs(`condition[${index}]`, item.evidenceIndexes));
-  draft.exceptions.forEach((item, index) => checkRefs(`exception[${index}]`, item.evidenceIndexes));
-  draft.actionDrafts.forEach((item, index) => checkRefs(`actionDraft[${index}]`, item.evidenceIndexes));
-
-  return issues;
-}
-
-function extractionUserPayload(input: LlmSourceInput) {
-  return {
-    task: 'Extract a structured regulatory-rule draft from the supplied source only.',
-    sourceTitle: input.sourceTitle,
-    officialUrl: input.officialUrl,
-    sourceText: input.sourceText,
-    instructions: [
-      'Use only sourceText as evidence.',
-      'Do not infer missing dates, thresholds, exceptions, subjects or duties.',
-      'If the text is insufficient, keep fields nullable/empty and explain the gap in uncertaintyNotes.',
-      'Every condition, exception and actionDraft must contain at least one evidenceIndexes value.',
-      'Every evidenceIndexes value must point to an element in evidence returned in the same response.',
-      'Every evidence.quote must be a verbatim substring of sourceText.',
-      'Use machine-like operatorHint values only: eq, gt, gte, lt, lte, in, exists, date_eq, date_before, date_after, other.',
-      'If the source contains multiple dated phases, draft only the earliest explicit phase and list every later phase in uncertaintyNotes with the date and threshold/criterion stated in sourceText.',
-    ],
-  };
-}
-
-export async function extractRegulatoryDraft(provider: LlmProvider, input: LlmSourceInput): Promise<RegulatoryExtraction> {
-  const sourceText = input.sourceText.trim();
-  if (!sourceText) throw new Error('SOURCE_TEXT_REQUIRED');
-  const normalizedInput = { ...input, sourceText };
-
-  const firstRaw = await provider.generateJson({ system: SYSTEM_PROMPT, user: JSON.stringify(extractionUserPayload(normalizedInput)) });
-  const first = RegulatoryExtractionSchema.parse(firstRaw);
-  const firstIssues = regulatoryExtractionQualityIssues(first, sourceText);
-  if (firstIssues.length === 0) return first;
-
-  const repairUser = JSON.stringify({
-    task: 'Repair the previous regulatory extraction so it passes the evidence-grounding quality gate.',
-    sourceTitle: input.sourceTitle,
-    officialUrl: input.officialUrl,
-    sourceText,
-    previousDraft: first,
-    qualityIssues: firstIssues,
-    instructions: [
-      'Return the complete draft again, not a patch.',
-      'Use only sourceText. Do not add facts from memory.',
-      'Fix every qualityIssues item.',
-      'Every condition, exception and actionDraft must cite one or more evidence indexes.',
-      'Every cited index must exist in evidence.',
-      'Every evidence.quote must occur verbatim in sourceText.',
-      'Preserve a fact from previousDraft only if sourceText supports it.',
-      'If multiple dated phases exist, keep the earliest phase in the rule and explicitly list later phases in uncertaintyNotes.',
-    ],
-  });
-  const repairedRaw = await provider.generateJson({ system: SYSTEM_PROMPT, user: repairUser });
-  const repaired = RegulatoryExtractionSchema.parse(repairedRaw);
-  const repairedIssues = regulatoryExtractionQualityIssues(repaired, sourceText);
-  if (repairedIssues.length > 0) {
-    throw new Error(`EXTRACTION_QUALITY_GATE_FAILED: ${repairedIssues.join('; ')}`);
-  }
-  return repaired;
-}
+import { REGULATORY_EXTRACTION_JSON_SCHEMA, type LlmProvider } from './extraction.js';
+export * from './extraction.js';
+export * from './source.js';
 
 function parseJsonContent(value: unknown): unknown {
   if (typeof value !== 'string') return value;
@@ -244,21 +30,15 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
 export class MockLlmProvider implements LlmProvider {
   readonly name = 'mock';
   readonly model = 'mock-regulatory-v1';
-  async generateJson(input: { system: string; user: string }): Promise<unknown> {
-    const parsed = JSON.parse(input.user) as { sourceTitle: string; sourceText: string };
-    const excerpt = parsed.sourceText.replace(/\s+/g, ' ').trim().slice(0, 220);
+  async generateJson(input: { system: string; user: string; jsonSchema?: Record<string, unknown> }): Promise<unknown> {
+    const parsed = JSON.parse(input.user) as { sourceTitle: string; detectedDates: string[]; sourceSegments: Array<{ sourceSegmentIndex: number; text: string }> };
+
     return {
       title: parsed.sourceTitle,
       summary: 'Черновая структура из mock-провайдера для проверки конвейера.',
-      subjectRole: null,
-      validFrom: null,
-      validTo: null,
-      conditions: [],
-      exceptions: [],
-      affectedProcesses: [],
-      actionDrafts: [],
+      phases: [],
+      dateNotes: parsed.detectedDates.map((date) => ({ date, reason: 'Mock: дата обнаружена в тексте, нормативная роль не определена.', sourceSegmentIndexes: parsed.sourceSegments.map((s) => s.sourceSegmentIndex) })),
       uncertaintyNotes: ['Mock provider does not infer legal conditions.'],
-      evidence: excerpt ? [{ index: 0, quote: excerpt }] : [],
     };
   }
 }
@@ -270,7 +50,7 @@ export class DeepSeekProvider implements LlmProvider {
   ) {}
   get model() { return this.options.model ?? 'deepseek-chat'; }
 
-  async generateJson(input: { system: string; user: string }): Promise<unknown> {
+  async generateJson(input: { system: string; user: string; jsonSchema?: Record<string, unknown> }): Promise<unknown> {
     const response = await fetchWithTimeout(`${this.options.baseUrl ?? 'https://api.deepseek.com'}/chat/completions`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${this.options.apiKey}`, 'Content-Type': 'application/json' },
@@ -324,7 +104,7 @@ export class GigaChatProvider implements LlmProvider {
     return body.access_token;
   }
 
-  async generateJson(input: { system: string; user: string }): Promise<unknown> {
+  async generateJson(input: { system: string; user: string; jsonSchema?: Record<string, unknown> }): Promise<unknown> {
     const token = await this.accessToken();
     const base = (this.options.baseUrl ?? 'https://api.giga.chat/v1').replace(/\/$/, '');
     const response = await fetchWithTimeout(`${base}/chat/completions`, {
@@ -336,7 +116,7 @@ export class GigaChatProvider implements LlmProvider {
         temperature: 0,
         response_format: {
           type: 'json_schema',
-          schema: REGULATORY_EXTRACTION_JSON_SCHEMA,
+          schema: input.jsonSchema ?? REGULATORY_EXTRACTION_JSON_SCHEMA,
           strict: true,
         },
       }),

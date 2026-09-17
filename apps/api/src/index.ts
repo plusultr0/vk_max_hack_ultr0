@@ -30,6 +30,7 @@ import {
   updateActionStatus,
   upsertMaxIdentity,
   getSourceDocument,
+  getRuleCandidate,
 } from '@reg/db';
 import { assessRule, LegalRuleSchema } from '@reg/domain';
 import {
@@ -39,7 +40,7 @@ import {
   makeManualOfficialDocument,
   scorePilotRelevance,
 } from '@reg/ingestion';
-import { createProvider, extractRegulatoryDraft } from '@reg/llm';
+import { createProvider, extractRegulatoryDraft, regulatoryReviewWarnings } from '@reg/llm';
 import { makeSession, validateWebAppData, verifySession, type SessionClaims } from '@reg/max';
 
 const config = getConfig();
@@ -146,7 +147,7 @@ function apiIngestionSources() {
 app.get('/health', async (_request, reply) => {
   try {
     await getPool().query('SELECT 1');
-    return { status: 'ok', database: 'ok', service: 'api', stage: 'through-s9-gigachat-live-ready' };
+    return { status: 'ok', database: 'ok', service: 'api', stage: 's9.4-source-segments' };
   } catch (error) {
     reply.code(503);
     return { status: 'degraded', database: 'error', service: 'api', error: error instanceof Error ? error.message : 'unknown error' };
@@ -334,6 +335,7 @@ app.post('/admin/llm/smoke', async (request, reply) => {
     const draft = await extractRegulatoryDraft(provider, {
       sourceTitle: 'LLM smoke test',
       officialUrl: 'https://example.test/source',
+      sourceTextOrigin: 'synthetic',
       sourceText: 'Организации, которые осуществляют дистанционную продажу товаров, обязаны разместить на сайте сведения о продавце. Требование применяется с 1 января 2027 года.',
     });
     return { status: 'ok', provider: provider.name, model: provider.model, draft };
@@ -421,13 +423,13 @@ app.post('/admin/source-documents/:id/extract', async (request, reply) => {
   if (!source) return reply.code(404).send({ error: 'SOURCE_DOCUMENT_NOT_FOUND' });
   const body = request.body as { sourceText?: string } | null;
   try {
-    let sourceText = body?.sourceText?.trim() ?? '';
+    let sourceText = body?.sourceText ?? '';
     let sourceTextOrigin: 'request' | 'staged-official-page' | 'official-url-fetch' = 'request';
-    if (!sourceText && typeof source.raw?.text === 'string' && source.raw.text.trim()) {
-      sourceText = source.raw.text.trim();
-      sourceTextOrigin = 'staged-official-page';
+    if (!sourceText.trim() && typeof source.raw?.text === 'string' && source.raw.text.trim()) {
+      sourceText = source.raw.text;
+      sourceTextOrigin = source.raw.sourceKind === 'manual-official' ? 'request' : 'staged-official-page';
     }
-    if (!sourceText) {
+    if (!sourceText.trim()) {
       sourceText = await fetchReadableOfficialText({
         url: source.official_url,
         timeoutMs: config.INGESTION_TIMEOUT_MS,
@@ -447,9 +449,13 @@ app.post('/admin/source-documents/:id/extract', async (request, reply) => {
       model: config.LLM_MODEL,
       timeoutMs: config.LLM_TIMEOUT_MS,
     });
-    const draft = await extractRegulatoryDraft(provider, { sourceTitle: source.title, officialUrl: source.official_url, sourceText });
-    const candidateId = await saveRuleCandidate({ sourceDocumentId: id, provider: provider.name, model: provider.model, promptVersion: 'reg-extract-v3-grounded-repair', draft, evidence: draft.evidence });
-    return { candidateId, provider: provider.name, model: provider.model, sourceTextOrigin, draft };
+    const draft = await extractRegulatoryDraft(provider, {
+      sourceTitle: source.title, officialUrl: source.official_url, sourceText, sourceTextOrigin,
+      sourceRetrievedAt: sourceTextOrigin === 'official-url-fetch' ? new Date().toISOString()
+        : sourceTextOrigin === 'staged-official-page' ? new Date(source.last_seen_at).toISOString() : null,
+    });
+    const candidateId = await saveRuleCandidate({ sourceDocumentId: id, provider: provider.name, model: provider.model, draft });
+    return { candidateId, provider: provider.name, model: provider.model, sourceTextOrigin, reviewWarnings: regulatoryReviewWarnings(draft), draft };
   } catch (error) {
     return reply.code(502).send({ error: 'EXTRACTION_FAILED', message: error instanceof Error ? error.message : 'unknown error' });
   }
@@ -459,6 +465,12 @@ app.get('/admin/candidates', async (request, reply) => {
   if (!requireAdmin(request, reply)) return;
   const query = request.query as { state?: string };
   return { items: await listRuleCandidates(query.state ?? 'pending') };
+});
+
+app.get('/admin/candidates/:id', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  const candidate = await getRuleCandidate((request.params as { id: string }).id);
+  return candidate ?? reply.code(404).send({ error: 'CANDIDATE_NOT_FOUND' });
 });
 
 app.post('/admin/candidates/:id/reject', async (request, reply) => {
