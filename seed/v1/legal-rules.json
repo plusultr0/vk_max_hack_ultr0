@@ -1,0 +1,779 @@
+[
+  {
+    "ruleId": "kkt_online_receipts_v1",
+    "version": 1,
+    "actId": "fns_ed_7_20_236_2025",
+    "category": "kkt",
+    "title": "Реквизиты кассового чека при интернет-расчете",
+    "userTitle": "Проверьте реквизиты кассового чека для интернет-оплаты",
+    "summary": "Проверка требований к формату фискального документа в уже квалифицированном интернет-расчете.",
+    "subjectRole": "Пользователь ККТ, формирующий чек при соответствующем интернет-расчете",
+    "legalStatus": "active",
+    "reviewStatus": "reviewed",
+    "validFrom": "2025-09-01",
+    "validTo": "2031-09-01",
+    "checkedAt": "2026-09-16",
+    "applicability": {
+      "condition": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "internetSettlement",
+            "value": true
+          },
+          {
+            "op": "eq",
+            "field": "receiptIssuer",
+            "value": "company"
+          },
+          {
+            "op": "known",
+            "field": "usesKkt"
+          }
+        ]
+      },
+      "requiredFields": [
+        "internetSettlement",
+        "receiptIssuer",
+        "usesKkt"
+      ],
+      "questionMap": {
+        "internetSettlement": "Есть ли у вас расчеты, квалифицируемые как расчеты в сети Интернет?",
+        "receiptIssuer": "Кто формирует кассовый чек по этой схеме продажи?",
+        "usesKkt": "Использует ли компания ККТ для этого расчета?"
+      }
+    },
+    "manualReviewGates": [
+      {
+        "condition": {
+          "op": "and",
+          "conditions": [
+            {
+              "op": "eq",
+              "field": "internetSettlement",
+              "value": true
+            },
+            {
+              "op": "eq",
+              "field": "usesKkt",
+              "value": false
+            }
+          ]
+        },
+        "code": "kkt_obligation_outside_scope",
+        "message": "Карточка не определяет обязанность применять ККТ; требуется отдельная проверка модели расчета."
+      }
+    ],
+    "compliance": {
+      "mode": "not_assessed",
+      "compliantWhen": null,
+      "actionRequiredWhen": null,
+      "requiredFields": []
+    },
+    "effectiveFrom": {
+      "type": "fixed",
+      "value": "2025-09-01"
+    },
+    "actions": [
+      {
+        "actionKey": "check_kkt_software",
+        "title": "Проверить кассовое ПО и ФФД",
+        "description": "Проверить поддержку актуальных реквизитов интернет-чека.",
+        "when": null,
+        "deadline": {
+          "type": "none"
+        }
+      },
+      {
+        "actionKey": "test_online_receipt",
+        "title": "Провести тестовый интернет-расчет",
+        "description": "Проверить фактический состав реквизитов сформированного электронного чека.",
+        "when": null,
+        "deadline": {
+          "type": "none"
+        }
+      }
+    ],
+    "evidenceRefs": [
+      {
+        "id": "kkt_official",
+        "url": "https://publication.pravo.gov.ru/documents/block/foiv284?index=3",
+        "label": "Официальная публикация приказа"
+      },
+      {
+        "id": "kkt_fns",
+        "url": "https://www.nalog.gov.ru/rn91/ifns/ifns_yalta/info/16511739/",
+        "label": "Разъяснение ФНС о реквизитах"
+      }
+    ],
+    "tags": [
+      "ecommerce",
+      "kkt",
+      "receipt"
+    ],
+    "seedHash": "AUTO"
+  },
+  {
+    "ruleId": "usn_vat_start_2026_v1",
+    "version": 1,
+    "actId": "nk_rf_article_145_2026",
+    "category": "tax",
+    "title": "НДС на УСН с 01.01.2026 по доходу 2025 года",
+    "userTitle": "Возникла ли у вас обязанность по НДС с 1 января 2026 года?",
+    "summary": "Для поддерживаемого MVP-кейса проверяется превышение дохода 20 млн рублей за 2025 год у действующего налогоплательщика УСН.",
+    "subjectRole": "Налогоплательщик УСН",
+    "legalStatus": "active",
+    "reviewStatus": "reviewed",
+    "validFrom": "2026-01-01",
+    "validTo": null,
+    "checkedAt": "2026-09-16",
+    "applicability": {
+      "condition": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "taxRegime",
+            "value": "USN"
+          },
+          {
+            "op": "known",
+            "field": "hasCombinedTaxRegimes"
+          },
+          {
+            "op": "lt",
+            "field": "registrationDate",
+            "value": "2026-01-01"
+          },
+          {
+            "op": "gt",
+            "field": "income2025Usn",
+            "value": 20000000
+          }
+        ]
+      },
+      "requiredFields": [
+        "taxRegime",
+        "hasCombinedTaxRegimes",
+        "registrationDate",
+        "income2025Usn"
+      ],
+      "questionMap": {
+        "taxRegime": "Какой налоговый режим применяет компания?",
+        "registrationDate": "Когда зарегистрированы ИП или организация?",
+        "income2025Usn": "Какой доход по правилам УСН был за 2025 год?",
+        "hasCombinedTaxRegimes": "Совмещает ли компания УСН с другим налоговым режимом?"
+      }
+    },
+    "manualReviewGates": [
+      {
+        "condition": {
+          "op": "eq",
+          "field": "hasCombinedTaxRegimes",
+          "value": true
+        },
+        "code": "combined_tax_regimes",
+        "message": "Совмещение режимов не покрыто первой версией правила."
+      }
+    ],
+    "compliance": {
+      "mode": "not_assessed",
+      "compliantWhen": null,
+      "actionRequiredWhen": null,
+      "requiredFields": []
+    },
+    "effectiveFrom": {
+      "type": "fixed",
+      "value": "2026-01-01"
+    },
+    "actions": [
+      {
+        "actionKey": "prepare_vat_process_start_2026",
+        "title": "Проверить НДС-процесс с 01.01.2026",
+        "description": "Проверить учет, кассу, договоры и документы с учетом возникшей обязанности.",
+        "when": null,
+        "deadline": {
+          "type": "none"
+        }
+      }
+    ],
+    "evidenceRefs": [
+      {
+        "id": "vat_usn_fns",
+        "url": "https://www.nalog.gov.ru/rn77/taxation/taxes/nds_usn/",
+        "label": "ФНС — НДС при УСН"
+      },
+      {
+        "id": "vat_usn_new_company",
+        "url": "https://www.nalog.gov.ru/rn75/news/activities_fts/16590314/",
+        "label": "ФНС — вновь созданные организации и ИП"
+      }
+    ],
+    "tags": [
+      "usn",
+      "vat",
+      "tax"
+    ],
+    "seedHash": "AUTO"
+  },
+  {
+    "ruleId": "usn_vat_threshold_during_2026_v1",
+    "version": 1,
+    "actId": "nk_rf_article_145_2026",
+    "category": "tax",
+    "title": "НДС после превышения порога в течение 2026 года",
+    "userTitle": "Вы превысили порог НДС на УСН в течение 2026 года",
+    "summary": "Если доход с начала 2026 года превысил 20 млн рублей, обязанность возникает с первого числа следующего месяца.",
+    "subjectRole": "Налогоплательщик УСН",
+    "legalStatus": "active",
+    "reviewStatus": "reviewed",
+    "validFrom": "2026-01-01",
+    "validTo": "2026-12-31",
+    "checkedAt": "2026-09-16",
+    "applicability": {
+      "condition": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "taxRegime",
+            "value": "USN"
+          },
+          {
+            "op": "known",
+            "field": "hasCombinedTaxRegimes"
+          },
+          {
+            "op": "gt",
+            "field": "incomeYtd2026",
+            "value": 20000000
+          },
+          {
+            "op": "known",
+            "field": "incomeAsOf"
+          }
+        ]
+      },
+      "requiredFields": [
+        "taxRegime",
+        "hasCombinedTaxRegimes",
+        "incomeYtd2026",
+        "incomeAsOf"
+      ],
+      "questionMap": {
+        "taxRegime": "Какой налоговый режим применяет компания?",
+        "incomeYtd2026": "Какой доход по правилам УСН накоплен с начала 2026 года?",
+        "incomeAsOf": "На какую дату рассчитан доход с начала года?",
+        "hasCombinedTaxRegimes": "Совмещает ли компания УСН с другим налоговым режимом?"
+      }
+    },
+    "manualReviewGates": [
+      {
+        "condition": {
+          "op": "eq",
+          "field": "hasCombinedTaxRegimes",
+          "value": true
+        },
+        "code": "combined_tax_regimes",
+        "message": "Совмещение режимов не покрыто первой версией правила."
+      }
+    ],
+    "compliance": {
+      "mode": "not_assessed",
+      "compliantWhen": null,
+      "actionRequiredWhen": null,
+      "requiredFields": []
+    },
+    "effectiveFrom": {
+      "type": "first_day_next_month",
+      "sourceField": "incomeAsOf"
+    },
+    "actions": [
+      {
+        "actionKey": "prepare_vat_next_month",
+        "title": "Подготовить НДС-процесс к следующему месяцу",
+        "description": "Зафиксировать месяц превышения и подготовить учетные процессы до даты возникновения обязанности.",
+        "when": null,
+        "deadline": {
+          "type": "before_effective_from"
+        }
+      }
+    ],
+    "evidenceRefs": [
+      {
+        "id": "vat_usn_fns",
+        "url": "https://www.nalog.gov.ru/rn77/taxation/taxes/nds_usn/",
+        "label": "ФНС — НДС при УСН"
+      },
+      {
+        "id": "tax_2026_fns",
+        "url": "https://www.nalog.gov.ru/new2026/",
+        "label": "ФНС — налоги 2026"
+      }
+    ],
+    "tags": [
+      "usn",
+      "vat",
+      "threshold"
+    ],
+    "seedHash": "AUTO"
+  },
+  {
+    "ruleId": "child_goods_marking_v1",
+    "version": 2,
+    "actId": "pp_rf_819_2025_amended_1116_2026",
+    "category": "marking",
+    "title": "Маркировка и вывод из оборота детских игр и игрушек",
+    "userTitle": "Подготовьтесь к следующему этапу маркировки детских игр и игрушек",
+    "summary": "Поддерживаемый MVP-кейс покрывает заранее определенные коды товаров и обновленные сроки после постановления № 1116.",
+    "subjectRole": "Участник оборота товаров из поддерживаемого перечня",
+    "legalStatus": "upcoming",
+    "reviewStatus": "reviewed",
+    "validFrom": "2027-03-01",
+    "validTo": null,
+    "checkedAt": "2026-09-16",
+    "applicability": {
+      "condition": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "contains_any",
+            "field": "productCodes",
+            "values": [
+              "9503 00",
+              "9504 40 000 0",
+              "9504 90 100 0",
+              "9504 90 800 9",
+              "32.40"
+            ]
+          },
+          {
+            "op": "eq",
+            "field": "isExcludedProduct",
+            "value": false
+          },
+          {
+            "op": "eq",
+            "field": "isTurnoverParticipant",
+            "value": true
+          }
+        ]
+      },
+      "requiredFields": [
+        "productCodes",
+        "isExcludedProduct",
+        "isTurnoverParticipant"
+      ],
+      "questionMap": {
+        "productCodes": "Какие коды ТН ВЭД ЕАЭС или ОКПД2 у продаваемых товаров?",
+        "isExcludedProduct": "Подпадает ли товар под исключения из перечня?",
+        "isTurnoverParticipant": "Является ли компания участником оборота этих товаров?"
+      }
+    },
+    "manualReviewGates": [],
+    "compliance": {
+      "mode": "not_assessed",
+      "compliantWhen": null,
+      "actionRequiredWhen": null,
+      "requiredFields": []
+    },
+    "effectiveFrom": {
+      "type": "fixed",
+      "value": "2027-03-01"
+    },
+    "actions": [
+      {
+        "actionKey": "prepare_output_reporting",
+        "title": "Подготовить передачу сведений об обороте и выводе",
+        "description": "Подготовить учетный и кассовый процесс к этапу, начинающемуся 01.03.2027.",
+        "when": null,
+        "deadline": {
+          "type": "before_effective_from"
+        }
+      },
+      {
+        "actionKey": "mark_residual_stock",
+        "title": "Проверить маркировку предусмотренных остатков",
+        "description": "Если у компании есть соответствующие немаркированные остатки, завершить предусмотренные действия в срок.",
+        "when": {
+          "op": "eq",
+          "field": "hasResidualStock",
+          "value": true
+        },
+        "deadline": {
+          "type": "fixed",
+          "value": "2027-02-28"
+        }
+      }
+    ],
+    "evidenceRefs": [
+      {
+        "id": "marking_819",
+        "url": "https://government.ru/docs/all/159347/",
+        "label": "Постановление № 819"
+      },
+      {
+        "id": "marking_1116",
+        "url": "https://www.consultant.ru/document/cons_doc_LAW_543394/",
+        "label": "Изменения постановлением № 1116"
+      }
+    ],
+    "tags": [
+      "marking",
+      "toys",
+      "ecommerce"
+    ],
+    "seedHash": "AUTO"
+  },
+  {
+    "ruleId": "pd_consent_separate_v1",
+    "version": 1,
+    "actId": "fz_156_2025_pd_consent",
+    "category": "personal_data",
+    "title": "Отдельное согласие на обработку персональных данных",
+    "userTitle": "Если вы используете согласие на обработку ПДн, оно должно быть отдельным",
+    "summary": "Карточка проверяет отдельность согласия только в процессах, где согласие действительно используется как правовое основание.",
+    "subjectRole": "Оператор персональных данных, использующий согласие субъекта",
+    "legalStatus": "active",
+    "reviewStatus": "reviewed",
+    "validFrom": "2025-09-01",
+    "validTo": null,
+    "checkedAt": "2026-09-16",
+    "applicability": {
+      "condition": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "collectsPersonalData",
+            "value": true
+          },
+          {
+            "op": "eq",
+            "field": "usesConsent",
+            "value": true
+          }
+        ]
+      },
+      "requiredFields": [
+        "collectsPersonalData",
+        "usesConsent"
+      ],
+      "questionMap": {
+        "collectsPersonalData": "Собирает ли компания персональные данные в этом процессе?",
+        "usesConsent": "Используется ли согласие пользователя как правовое основание обработки в этом процессе?"
+      }
+    },
+    "manualReviewGates": [],
+    "compliance": {
+      "mode": "condition",
+      "compliantWhen": {
+        "op": "eq",
+        "field": "consentSeparate",
+        "value": true
+      },
+      "actionRequiredWhen": {
+        "op": "eq",
+        "field": "consentSeparate",
+        "value": false
+      },
+      "requiredFields": [
+        "consentSeparate"
+      ]
+    },
+    "effectiveFrom": {
+      "type": "fixed",
+      "value": "2025-09-01"
+    },
+    "actions": [
+      {
+        "actionKey": "separate_consent",
+        "title": "Отделить согласие от других документов",
+        "description": "Проверить текст, способ подтверждения и фиксацию версии согласия.",
+        "when": {
+          "op": "eq",
+          "field": "consentSeparate",
+          "value": false
+        },
+        "deadline": {
+          "type": "none"
+        }
+      }
+    ],
+    "evidenceRefs": [
+      {
+        "id": "pd_156",
+        "url": "https://government.ru/docs/all/159592/",
+        "label": "Федеральный закон № 156-ФЗ"
+      },
+      {
+        "id": "pd_152_art6",
+        "url": "https://www.consultant.ru/document/cons_doc_LAW_61801/315f051396c88f1e4f827ba3f2ae313d999a1873/",
+        "label": "Статья 6 Федерального закона № 152-ФЗ"
+      }
+    ],
+    "tags": [
+      "personal_data",
+      "consent",
+      "website"
+    ],
+    "seedHash": "AUTO"
+  },
+  {
+    "ruleId": "distance_seller_identity_v1",
+    "version": 1,
+    "actId": "pp_rf_657_2026",
+    "category": "distance_sales",
+    "title": "Обязательные сведения о дистанционном продавце",
+    "userTitle": "Проверьте обязательные сведения о продавце на сайте или в приложении",
+    "summary": "Карточка проверяет применимость пункта 22 Правил продажи к B2C дистанционной продаже и состояние чек-листа обязательных сведений.",
+    "subjectRole": "Продавец при дистанционной розничной продаже потребителю",
+    "legalStatus": "active",
+    "reviewStatus": "reviewed",
+    "validFrom": "2026-09-01",
+    "validTo": "2032-09-01",
+    "checkedAt": "2026-09-16",
+    "applicability": {
+      "condition": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "sellsToConsumers",
+            "value": true
+          },
+          {
+            "op": "eq",
+            "field": "distanceSales",
+            "value": true
+          },
+          {
+            "op": "in",
+            "field": "legalForm",
+            "values": [
+              "IP",
+              "LLC",
+              "other"
+            ]
+          }
+        ]
+      },
+      "requiredFields": [
+        "sellsToConsumers",
+        "distanceSales",
+        "legalForm"
+      ],
+      "questionMap": {
+        "sellsToConsumers": "Продает ли компания товары физическим лицам-потребителям?",
+        "distanceSales": "Заключаются ли договоры розничной продажи дистанционным способом?",
+        "legalForm": "Какова организационно-правовая форма продавца?"
+      }
+    },
+    "manualReviewGates": [],
+    "compliance": {
+      "mode": "condition",
+      "compliantWhen": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "sellerIdentityInfoChecked",
+            "value": true
+          },
+          {
+            "op": "is_empty",
+            "field": "sellerIdentityMissingFields"
+          }
+        ]
+      },
+      "actionRequiredWhen": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "sellerIdentityInfoChecked",
+            "value": true
+          },
+          {
+            "op": "not",
+            "condition": {
+              "op": "is_empty",
+              "field": "sellerIdentityMissingFields"
+            }
+          }
+        ]
+      },
+      "requiredFields": [
+        "sellerIdentityInfoChecked",
+        "sellerIdentityMissingFields"
+      ]
+    },
+    "effectiveFrom": {
+      "type": "fixed",
+      "value": "2026-09-01"
+    },
+    "actions": [
+      {
+        "actionKey": "add_missing_seller_identity",
+        "title": "Добавить недостающие сведения о продавце",
+        "description": "Обновить реквизиты/контакты в поддерживаемом дистанционном канале продажи.",
+        "when": {
+          "op": "and",
+          "conditions": [
+            {
+              "op": "eq",
+              "field": "sellerIdentityInfoChecked",
+              "value": true
+            },
+            {
+              "op": "not",
+              "condition": {
+                "op": "is_empty",
+                "field": "sellerIdentityMissingFields"
+              }
+            }
+          ]
+        },
+        "deadline": {
+          "type": "none"
+        }
+      }
+    ],
+    "evidenceRefs": [
+      {
+        "id": "pp657",
+        "url": "https://www.consultant.ru/document/cons_doc_LAW_535649/",
+        "label": "Постановление Правительства РФ № 657"
+      },
+      {
+        "id": "pp657_text",
+        "url": "https://pravo.ppt.ru/postanovlenie/pravitelstvo/n-657-339275",
+        "label": "Текст пункта 22 и дистанционных правил"
+      }
+    ],
+    "tags": [
+      "ecommerce",
+      "distance_sales",
+      "seller_info"
+    ],
+    "seedHash": "AUTO"
+  },
+  {
+    "ruleId": "digital_ruble_acceptance_v1",
+    "version": 1,
+    "actId": "fz_248_2025_digital_ruble",
+    "category": "payments",
+    "title": "Обязанность принимать цифровые рубли с 01.09.2026",
+    "userTitle": "Нужно ли вам принимать оплату цифровыми рублями с 1 сентября 2026 года?",
+    "summary": "Первый этап проверяет выручку за предыдущий год и статус договора приема электронных средств платежа с банком нужной категории на 01.01.2026.",
+    "subjectRole": "Продавец, исполнитель или владелец агрегатора в поддерживаемом первом этапе",
+    "legalStatus": "active",
+    "reviewStatus": "reviewed",
+    "validFrom": "2026-09-01",
+    "validTo": null,
+    "checkedAt": "2026-09-16",
+    "applicability": {
+      "condition": {
+        "op": "and",
+        "conditions": [
+          {
+            "op": "eq",
+            "field": "sellsToConsumers",
+            "value": true
+          },
+          {
+            "op": "gt",
+            "field": "revenuePreviousYear",
+            "value": 120000000
+          },
+          {
+            "op": "eq",
+            "field": "hasEpaymentAcceptanceAgreementAsOf2026_01_01",
+            "value": true
+          },
+          {
+            "op": "in",
+            "field": "acquiringBankCategoryAsOf2026_01_01",
+            "values": [
+              "systemically_important",
+              "significant_payment_market"
+            ]
+          }
+        ]
+      },
+      "requiredFields": [
+        "sellsToConsumers",
+        "revenuePreviousYear",
+        "hasEpaymentAcceptanceAgreementAsOf2026_01_01",
+        "acquiringBankCategoryAsOf2026_01_01"
+      ],
+      "questionMap": {
+        "sellsToConsumers": "Продает ли компания товары или услуги потребителям?",
+        "revenuePreviousYear": "Какова выручка от реализации за 2025 год?",
+        "hasEpaymentAcceptanceAgreementAsOf2026_01_01": "Был ли на 01.01.2026 договор о приеме электронных средств платежа?",
+        "acquiringBankCategoryAsOf2026_01_01": "К какой категории относился обслуживающий банк на 01.01.2026?"
+      }
+    },
+    "manualReviewGates": [
+      {
+        "condition": {
+          "op": "or",
+          "conditions": [
+            {
+              "op": "lte",
+              "field": "tradeObjectRevenuePreviousYear",
+              "value": 5000000
+            },
+            {
+              "op": "eq",
+              "field": "paymentLocationHasInternet",
+              "value": false
+            }
+          ]
+        },
+        "code": "possible_payment_exception",
+        "message": "Заявлено обстоятельство, которое может влиять на применение обязанности к конкретной точке или каналу; требуется локальная проверка."
+      }
+    ],
+    "compliance": {
+      "mode": "not_assessed",
+      "compliantWhen": null,
+      "actionRequiredWhen": null,
+      "requiredFields": []
+    },
+    "effectiveFrom": {
+      "type": "fixed",
+      "value": "2026-09-01"
+    },
+    "actions": [
+      {
+        "actionKey": "prepare_digital_ruble_acceptance",
+        "title": "Подготовить прием цифровых рублей",
+        "description": "Уточнить участника платформы цифрового рубля, настроить платежный сценарий и провести тест.",
+        "when": null,
+        "deadline": {
+          "type": "none"
+        }
+      }
+    ],
+    "evidenceRefs": [
+      {
+        "id": "dr_fz248",
+        "url": "https://government.ru/docs/all/160192/",
+        "label": "Федеральный закон № 248-ФЗ"
+      },
+      {
+        "id": "dr_cbr",
+        "url": "https://cbr.ru/PSystem/dr/dr_for_business/accepting_payments_dr/",
+        "label": "Банк России — прием оплаты цифровыми рублями"
+      }
+    ],
+    "tags": [
+      "payments",
+      "digital_ruble",
+      "ecommerce"
+    ],
+    "seedHash": "AUTO"
+  }
+]

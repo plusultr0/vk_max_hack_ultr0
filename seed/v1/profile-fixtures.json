@@ -1,0 +1,79 @@
+[
+  {
+    "fixtureId": "toys_small_shop",
+    "profileVersion": 1,
+    "legalForm": "LLC",
+    "registrationDate": "2022-04-01",
+    "taxRegime": "USN",
+    "hasCombinedTaxRegimes": false,
+    "sellsToConsumers": true,
+    "salesChannels": [
+      "own_site"
+    ],
+    "distanceSales": true,
+    "onlinePayment": true,
+    "internetSettlement": true,
+    "usesKkt": true,
+    "receiptIssuer": "company",
+    "productCodes": [
+      "9503 00"
+    ],
+    "isExcludedProduct": false,
+    "isTurnoverParticipant": true,
+    "collectsPersonalData": true,
+    "personalDataLegalBasis": [
+      "consent"
+    ],
+    "usesConsent": true,
+    "consentSeparate": false,
+    "income2025Usn": 12000000,
+    "incomeYtd2026": 16000000,
+    "incomeAsOf": "2026-09-01",
+    "revenuePreviousYear": 12000000,
+    "sellerIdentityInfoChecked": true,
+    "sellerIdentityMissingFields": [
+      "ogrn",
+      "address"
+    ]
+  },
+  {
+    "fixtureId": "usn_above_previous_threshold",
+    "profileVersion": 1,
+    "legalForm": "IP",
+    "registrationDate": "2021-03-10",
+    "taxRegime": "USN",
+    "hasCombinedTaxRegimes": false,
+    "income2025Usn": 27000000
+  },
+  {
+    "fixtureId": "usn_crosses_in_august",
+    "profileVersion": 1,
+    "legalForm": "LLC",
+    "registrationDate": "2023-07-01",
+    "taxRegime": "USN",
+    "hasCombinedTaxRegimes": false,
+    "income2025Usn": 17000000,
+    "incomeYtd2026": 21400000,
+    "incomeAsOf": "2026-08-23"
+  },
+  {
+    "fixtureId": "digital_ruble_unknown_bank",
+    "profileVersion": 1,
+    "legalForm": "LLC",
+    "registrationDate": "2018-01-01",
+    "sellsToConsumers": true,
+    "revenuePreviousYear": 180000000,
+    "hasEpaymentAcceptanceAgreementAsOf2026_01_01": true,
+    "acquiringBankCategoryAsOf2026_01_01": null
+  },
+  {
+    "fixtureId": "new_usn_2026",
+    "profileVersion": 1,
+    "legalForm": "IP",
+    "registrationDate": "2026-04-15",
+    "taxRegime": "USN",
+    "hasCombinedTaxRegimes": false,
+    "incomeYtd2026": 8000000,
+    "incomeAsOf": "2026-09-01"
+  }
+]

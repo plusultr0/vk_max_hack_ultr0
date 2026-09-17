@@ -1,0 +1,17 @@
+{
+  "name": "@reg/bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "subscribe": "tsx src/subscribe.ts"
+  },
+  "dependencies": {
+    "@reg/config": "0.1.0",
+    "@reg/db": "0.1.0",
+    "@reg/max": "0.1.0",
+    "fastify": "5.4.0"
+  }
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "actId": "fns_ed_7_20_236_2025",
+    "title": "Приказ ФНС России от 26.03.2025 № ЕД-7-20/236@",
+    "number": "ЕД-7-20/236@",
+    "issuer": "ФНС России",
+    "publicationDate": "2025-06-02",
+    "officialUrl": "https://publication.pravo.gov.ru/documents/block/foiv284?index=3",
+    "retrievedAt": "2026-09-16T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "nk_rf_article_145_2026",
+    "title": "Налоговый кодекс РФ, статья 145 — правила освобождения от НДС для УСН в редакции, применяемой в 2026 году",
+    "number": null,
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.nalog.gov.ru/rn77/taxation/taxes/nds_usn/",
+    "retrievedAt": "2026-09-16T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "pp_rf_819_2025_amended_1116_2026",
+    "title": "Постановление Правительства РФ от 31.05.2025 № 819 с изменениями постановления от 31.08.2026 № 1116",
+    "number": "819 / 1116",
+    "issuer": "Правительство РФ",
+    "publicationDate": "2025-05-31",
+    "officialUrl": "https://government.ru/docs/all/159347/",
+    "retrievedAt": "2026-09-16T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_156_2025_pd_consent",
+    "title": "Федеральный закон от 24.06.2025 № 156-ФЗ",
+    "number": "156-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": "2025-06-24",
+    "officialUrl": "https://government.ru/docs/all/159592/",
+    "retrievedAt": "2026-09-16T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "pp_rf_657_2026",
+    "title": "Постановление Правительства РФ от 30.05.2026 № 657",
+    "number": "657",
+    "issuer": "Правительство РФ",
+    "publicationDate": "2026-06-01",
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_535649/",
+    "retrievedAt": "2026-09-16T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_248_2025_digital_ruble",
+    "title": "Федеральный закон от 23.07.2025 № 248-ФЗ",
+    "number": "248-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": "2025-07-23",
+    "officialUrl": "https://government.ru/docs/all/160192/",
+    "retrievedAt": "2026-09-16T00:00:00Z",
+    "verificationStatus": "reviewed"
+  }
+]

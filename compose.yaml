@@ -1,0 +1,83 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-regcontrol}
+      POSTGRES_USER: ${POSTGRES_USER:-regcontrol}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-regcontrol}
+    ports: ["5432:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-regcontrol} -d ${POSTGRES_DB:-regcontrol}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-regcontrol}:${POSTGRES_PASSWORD:-regcontrol}@postgres:5432/${POSTGRES_DB:-regcontrol}
+    command: ["npm", "run", "db:migrate"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  seed:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-regcontrol}:${POSTGRES_PASSWORD:-regcontrol}@postgres:5432/${POSTGRES_DB:-regcontrol}
+    command: ["npm", "run", "seed"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-regcontrol}:${POSTGRES_PASSWORD:-regcontrol}@postgres:5432/${POSTGRES_DB:-regcontrol}
+      API_HOST: 0.0.0.0
+      API_PORT: 3000
+    command: ["npm", "run", "start", "--workspace", "@reg/api"]
+    ports: ["3000:3000"]
+    depends_on:
+      seed: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  web:
+    build: .
+    env_file: .env
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    command: ["npm", "run", "dev", "--workspace", "@reg/web", "--", "--host", "0.0.0.0"]
+    ports: ["5173:5173"]
+    depends_on:
+      api: { condition: service_healthy }
+
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-regcontrol}:${POSTGRES_PASSWORD:-regcontrol}@postgres:5432/${POSTGRES_DB:-regcontrol}
+      BOT_HOST: 0.0.0.0
+      BOT_PORT: 3001
+    command: ["npm", "run", "start", "--workspace", "@reg/bot"]
+    ports: ["3001:3001"]
+    depends_on:
+      seed: { condition: service_completed_successfully }
+
+  worker:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-regcontrol}:${POSTGRES_PASSWORD:-regcontrol}@postgres:5432/${POSTGRES_DB:-regcontrol}
+    command: ["npm", "run", "start", "--workspace", "@reg/worker"]
+    depends_on:
+      seed: { condition: service_completed_successfully }
+
+volumes:
+  postgres_data:

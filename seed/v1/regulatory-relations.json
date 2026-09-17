@@ -1,0 +1,12 @@
+[
+  {
+    "fromRuleId": "child_goods_marking_v1",
+    "fromVersion": 1,
+    "toRuleId": "child_goods_marking_v1",
+    "toVersion": 2,
+    "relationType": "amends",
+    "effectiveFrom": "2026-08-31",
+    "evidenceRef": "synthetic regression fixture based on the verified deadline amendment",
+    "isSynthetic": true
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "name": "max-regulatory-control",
+  "version": "0.9.3",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "npm run test --workspace @reg/domain && npm run test --workspace @reg/max && npm run test --workspace @reg/llm && npm run test --workspace @reg/ingestion",
+    "test:domain": "npm run test --workspace @reg/domain",
+    "dev:api": "npm run dev --workspace @reg/api",
+    "dev:web": "npm run dev --workspace @reg/web",
+    "dev:bot": "npm run dev --workspace @reg/bot",
+    "dev:worker": "npm run dev --workspace @reg/worker",
+    "db:migrate": "npm run migrate --workspace @reg/db",
+    "seed": "npm run seed --workspace @reg/db",
+    "build:web": "npm run build --workspace @reg/web",
+    "bot:subscribe": "npm run subscribe --workspace @reg/bot",
+    "llm:smoke": "npm run llm:smoke --workspace @reg/worker",
+    "ingest:once": "npm run ingest:once --workspace @reg/worker",
+    "check": "npm test && npm run build:web"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.0",
+    "tsx": "4.20.0",
+    "typescript": "5.8.3",
+    "vitest": "3.2.0"
+  }
+}

@@ -1,0 +1,9 @@
+[
+  {"fixtureKey":"kkt.applies","ruleId":"kkt_online_receipts_v1","profileFixture":"toys_small_shop","expected":{"verdict":"applies","reviewState":"auto","complianceState":"not_assessed","effectiveFrom":"2025-09-01"}},
+  {"fixtureKey":"usn_start.applies","ruleId":"usn_vat_start_2026_v1","profileFixture":"usn_above_previous_threshold","expected":{"verdict":"applies","reviewState":"auto","effectiveFrom":"2026-01-01"}},
+  {"fixtureKey":"usn_during.applies","ruleId":"usn_vat_threshold_during_2026_v1","profileFixture":"usn_crosses_in_august","expected":{"verdict":"applies","reviewState":"auto","effectiveFrom":"2026-09-01"}},
+  {"fixtureKey":"marking.applies","ruleId":"child_goods_marking_v1","profileFixture":"toys_small_shop","expected":{"verdict":"applies","reviewState":"auto","effectiveFrom":"2027-03-01"}},
+  {"fixtureKey":"pd.action_required","ruleId":"pd_consent_separate_v1","profileFixture":"toys_small_shop","expected":{"verdict":"applies","complianceState":"action_required"}},
+  {"fixtureKey":"seller_info.action_required","ruleId":"distance_seller_identity_v1","profileFixture":"toys_small_shop","expected":{"verdict":"applies","complianceState":"action_required"}},
+  {"fixtureKey":"digital_ruble.needs_info","ruleId":"digital_ruble_acceptance_v1","profileFixture":"digital_ruble_unknown_bank","expected":{"verdict":"needs_info","missingFields":["acquiringBankCategoryAsOf2026_01_01"]}}
+]
