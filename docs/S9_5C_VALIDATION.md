@@ -9,3 +9,5 @@ Local API health check passed. GET http://localhost:5173/review returned HTTP 20
 Outstanding: interactive editor acceptance test, confirmed MAX connectivity, webhook setup, atomic publication and outbox. The web image must be rebuilt to deploy the logout fix; the integration run used the rebuilt API image.
 
 Browser smoke check: /review login form rendered, empty key disabled submit, invalid key displayed a Russian error and cleared the field. Browser error/warning logs were empty. Authenticated editor workflows remain pending.
+
+Runtime follow-up: local API /health returned 200 with database ok; /review returned 200. MAX token verification was attempted without exposing the token, but the network command was rejected by the approval service before execution, so token validity remains unconfirmed.
