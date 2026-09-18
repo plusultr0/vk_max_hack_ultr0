@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+const ReviewApp = React.lazy(() => import('./review/ReviewApp.js'));
 
 declare global {
   interface Window {
@@ -338,4 +339,5 @@ function QuestionInput({q,onSubmit}:{q:ImpactQuestion;onSubmit:(v:unknown)=>Prom
   </div></div>;
 }
 
-createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<React.StrictMode>{location.pathname === '/review' || location.pathname.startsWith('/review/')
+  ? <React.Suspense fallback={<div className="loading-card">Загрузка редактора…</div>}><ReviewApp /></React.Suspense> : <App />}</React.StrictMode>);

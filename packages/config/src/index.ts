@@ -44,6 +44,7 @@ const ConfigSchema = z.object({
   INGESTION_TIMEOUT_MS: z.coerce.number().int().positive().default(20000),
   INGESTION_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
   ADMIN_TOKEN: z.string().optional(),
+  REVIEW_UI_ORIGIN: z.string().url().optional(),
   NOTIFICATION_POLL_SECONDS: z.coerce.number().int().positive().default(60),
 });
 

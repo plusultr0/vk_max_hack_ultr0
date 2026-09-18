@@ -5,6 +5,7 @@ import { EXTRACTION_VERSION, regulatoryReviewWarnings, validateRegulatoryExtract
 import { seedHash } from './canonical.js';
 import { getPool } from './client.js';
 import { recalculateRuleForAllCompanies } from './impacts.js';
+import { reviewRequirements } from '@reg/review';
 
 export async function startIngestionRun(source: string, sourceUrl: string) {
   const id = randomUUID();
@@ -140,14 +141,15 @@ export async function saveRuleCandidate(input: {
 
 export async function getRuleCandidate(id: string) {
   const result = await getPool().query(
-    `SELECT c.*, s.snapshot AS source_snapshot
-     FROM legal_rule_candidates c LEFT JOIN source_snapshots s ON s.id=c.source_snapshot_id WHERE c.id=$1`, [id],
+    `SELECT c.*, s.snapshot AS source_snapshot, COALESCE(s.snapshot->>'sourceTitle',d.title) AS source_title
+     FROM legal_rule_candidates c JOIN source_documents d ON d.id=c.source_document_id
+     LEFT JOIN source_snapshots s ON s.id=c.source_snapshot_id WHERE c.id=$1`, [id],
   );
   const candidate = result.rows[0];
   if (!candidate) return null;
   if (candidate.source_snapshot) {
     const extraction = validateRegulatoryExtraction({ ...candidate.draft, sourceSnapshot: candidate.source_snapshot });
-    return { ...candidate, review_warnings: regulatoryReviewWarnings(extraction) };
+    return { ...candidate, review_warnings: regulatoryReviewWarnings(extraction), review_requirements: reviewRequirements(extraction) };
   }
   return { ...candidate, review_warnings: [{ code: 'LEGACY_REEXTRACTION_REQUIRED', message: 'Для этого черновика нет неизменяемого снимка; требуется повторное извлечение.' }] };
 }

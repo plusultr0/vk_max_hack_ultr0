@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { z } from 'zod';
+import { registerReviewAuth } from './review-auth.js';
 import { getConfig } from '@reg/config';
 import {
   addImpactFeedback,
@@ -40,7 +41,7 @@ import {
   ReviewError,
 } from '@reg/db';
 import { assessRule, CompanyProfileSchema, LegalRuleSchema } from '@reg/domain';
-import { calendarDate } from '@reg/review';
+import { calendarDate, reviewFieldCatalog } from '@reg/review';
 import {
   fetchOfficialHtmlSource,
   fetchPravoOpenData,
@@ -77,13 +78,11 @@ function requireAuth(request: any, reply: any): Authed | null {
   }
 }
 
-function requireAdmin(request: any, reply: any): boolean {
-  if (!config.ADMIN_TOKEN || request.headers['x-admin-token'] !== config.ADMIN_TOKEN) {
-    reply.code(403).send({ error: 'ADMIN_TOKEN_REQUIRED' });
-    return false;
-  }
-  return true;
-}
+const requireAdmin = registerReviewAuth(app, config);
+app.get('/admin/review-fields', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  return { items: reviewFieldCatalog() };
+});
 
 function apiIngestionSources() {
   const common = {

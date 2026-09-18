@@ -112,6 +112,27 @@ try {
   }
   assert.ok(healthy, 'Test API must start');
   const apiCandidate = await makeCandidate();
+  const uiOrigin = 'http://localhost:5173';
+  assert.equal((await fetch(`${base}/admin/session`)).status, 401);
+  assert.equal((await fetch(`${base}/admin/session`, {method:'POST',headers:{'Content-Type':'application/json',Origin:'https://untrusted.example'},body:JSON.stringify({adminToken:token})})).status,403);
+  assert.equal((await fetch(`${base}/admin/session`, {method:'POST',headers:{'Content-Type':'application/json',Origin:uiOrigin},body:JSON.stringify({adminToken:'wrong'})})).status,401);
+  const sessionResponse = await fetch(`${base}/admin/session`, {method:'POST',headers:{'Content-Type':'application/json',Origin:uiOrigin},body:JSON.stringify({adminToken:token})});
+  assert.equal(sessionResponse.status,200);
+  const setCookie = sessionResponse.headers.get('set-cookie')!;
+  assert.match(setCookie,/HttpOnly/); assert.match(setCookie,/SameSite=Strict/); assert.match(setCookie,/Path=\/admin/);
+  const cookie = setCookie.split(';')[0]!;
+  const session = await sessionResponse.json() as {csrf:string};
+  const cookieHeaders = {Cookie:cookie,Origin:uiOrigin,'Content-Type':'application/json','X-Review-CSRF':session.csrf};
+  assert.equal((await fetch(`${base}/admin/session`,{headers:{Cookie:cookie}})).status,200);
+  const catalogResponse = await fetch(`${base}/admin/review-fields`,{headers:{Cookie:cookie}});
+  assert.equal(catalogResponse.status,200); assert.ok(((await catalogResponse.json()) as {items:unknown[]}).items.length>30);
+  const cookieCandidate = await makeCandidate();
+  const cookieUrl = `${base}/admin/candidates/${cookieCandidate}/review`;
+  assert.equal((await fetch(cookieUrl,{method:'POST',headers:{Cookie:cookie,Origin:uiOrigin,'Content-Type':'application/json'},body:'{}'})).status,403);
+  assert.equal((await fetch(cookieUrl,{method:'POST',headers:{...cookieHeaders,Origin:'https://untrusted.example'},body:'{}'})).status,403);
+  assert.equal((await fetch(cookieUrl,{method:'POST',headers:cookieHeaders,body:'{}'})).status,201);
+  const logout = await fetch(`${base}/admin/session`,{method:'DELETE',headers:cookieHeaders});
+  assert.equal(logout.status,200); assert.match(logout.headers.get('set-cookie')!,/Max-Age=0/);
   const url = `${base}/admin/candidates/${apiCandidate}/review`;
   const call = (method: string, suffix = '', body?: unknown, authorized = true) => fetch(url + suffix, { method,
     headers: { 'Content-Type': 'application/json', ...(authorized ? { 'X-Admin-Token': token } : {}) }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -135,7 +156,7 @@ try {
   assert.equal((await (await call('GET', '?revision=1')).json() as typeof first).state, 'draft');
   const counters = await pool.query('SELECT (SELECT count(*) FROM legal_rules) AS rules,(SELECT count(*) FROM impact_assessments) AS impacts,(SELECT count(*) FROM notifications) AS notifications');
   assert.deepEqual(counters.rows[0], { rules: '0', impacts: '0', notifications: '0' });
-  console.log(JSON.stringify({ status: 'ok', checks: ['migrations twice', 'concurrent create/save conflicts', 'immutable revisions and extraction', 'atomic audit rollback', 'ready validation', 'revision/hash preview binding', 'legacy publish blocked', 'terminal reject guard', 'legacy extraction blocked', 'HTTP auth/errors/history/preview', 'no publication or notification side effects'] }));
+  console.log(JSON.stringify({ status: 'ok', checks: ['migrations twice', 'concurrent create/save conflicts', 'immutable revisions and extraction', 'atomic audit rollback', 'ready validation', 'revision/hash preview binding', 'legacy publish blocked', 'terminal reject guard', 'legacy extraction blocked', 'HTTP auth/errors/history/preview', 'review cookie session/origin/CSRF/logout/catalog', 'no publication or notification side effects'] }));
 } finally {
   if (api && api.exitCode === null) {
     const exited = new Promise<void>((resolve) => api!.once('exit', () => resolve()));
