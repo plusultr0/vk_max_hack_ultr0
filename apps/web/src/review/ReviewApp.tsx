@@ -35,7 +35,7 @@ export default function ReviewApp() {
   const changes=document && review ? documentChanges(historical ? document : review.document, historical ? head!.document : document) : [];
 
   async function request<T>(path:string, init:RequestInit={}):Promise<T> {
-    const response=await fetch(path,{...init,credentials:'same-origin',headers:{'Content-Type':'application/json',...(session?{'X-Review-CSRF':session.csrf}:{}),...init.headers}});
+    const response=await fetch(path,{...init,credentials:'same-origin',headers:{...(init.body!==undefined?{'Content-Type':'application/json'}:{}),...(session?{'X-Review-CSRF':session.csrf}:{}),...init.headers}});
     const body=await response.json().catch(()=>({error:'SERVER_RESPONSE_INVALID'}));
     if(!response.ok) {
       if((response.status===401 || body.error==='REVIEW_LOGIN_REQUIRED') && path!=='/admin/session') { setSession(null); setKey(''); }

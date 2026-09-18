@@ -131,7 +131,7 @@ try {
   assert.equal((await fetch(cookieUrl,{method:'POST',headers:{Cookie:cookie,Origin:uiOrigin,'Content-Type':'application/json'},body:'{}'})).status,403);
   assert.equal((await fetch(cookieUrl,{method:'POST',headers:{...cookieHeaders,Origin:'https://untrusted.example'},body:'{}'})).status,403);
   assert.equal((await fetch(cookieUrl,{method:'POST',headers:cookieHeaders,body:'{}'})).status,201);
-  const logout = await fetch(`${base}/admin/session`,{method:'DELETE',headers:cookieHeaders});
+  const logout = await fetch(`${base}/admin/session`,{method:'DELETE',headers:{Cookie:cookie,Origin:uiOrigin,'X-Review-CSRF':session.csrf}});
   assert.equal(logout.status,200); assert.match(logout.headers.get('set-cookie')!,/Max-Age=0/);
   const url = `${base}/admin/candidates/${apiCandidate}/review`;
   const call = (method: string, suffix = '', body?: unknown, authorized = true) => fetch(url + suffix, { method,
