@@ -10,6 +10,13 @@ const compile = (doc: ReviewDocument) => compileReview(doc, extraction, asOf);
 const profile = { profileVersion: 1, revenuePreviousYear: 121, hasEpaymentAcceptanceAgreementAsOf2026_01_01: true, isExcludedProduct: false };
 
 describe('review provenance and readiness', () => {
+  it('bounds rule versions to PostgreSQL INTEGER before ready compilation', () => {
+    const document = readyTestDocument();
+    document.phases[0]!.version = 2147483647;
+    expect(compile(document).ready).toBe(true);
+    document.phases[0]!.version = 2147483648;
+    expect(() => compile(document)).toThrow();
+  });
   it('keeps the extraction unchanged and requires explicit review', () => {
     const original = structuredClone(extraction);
     const doc = createReviewDocument(extraction);

@@ -41,7 +41,7 @@ export const ReviewDeadlineSchema = z.discriminatedUnion('kind', [
 export const ReviewPhaseSchema = z.object({
   ...itemBase,
   ruleId: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,159}$/),
-  version: z.number().int().positive(),
+  version: z.number().int().positive().max(2147483647),
   title: text, userTitle: text, summary: text, subjectRole: maybeText,
   category: z.enum(['kkt', 'tax', 'marking', 'personal_data', 'distance_sales', 'payments']).nullable(),
   scope: z.enum(['company', 'trade_object']).nullable(),

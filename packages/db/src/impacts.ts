@@ -11,12 +11,18 @@ async function getCurrentRules(): Promise<LegalRule[]> {
     `SELECT DISTINCT ON (rule_id) data
      FROM legal_rules
      WHERE review_status='reviewed' AND legal_status IN ('active','upcoming')
+       AND NOT EXISTS (SELECT 1 FROM review_publication_rules p WHERE p.rule_id=legal_rules.rule_id)
      ORDER BY rule_id, version DESC`,
   );
   return result.rows.map((row) => LegalRuleSchema.parse(row.data));
 }
 
 async function getRule(ruleId: string, version: number): Promise<LegalRule | null> {
+  // Producer-only S9.6: legacy assessment ignores bundle scope/temporal policy.
+  // Fail closed for all versions of a published bundle identity, including old
+  // versions, until a bundle-aware consumer/activation workflow is implemented.
+  const publication = await getPool().query('SELECT 1 FROM review_publication_rules WHERE rule_id=$1 LIMIT 1', [ruleId]);
+  if (publication.rowCount) throw new Error('REVIEW_BUNDLE_RECALCULATION_NOT_IMPLEMENTED');
   const result = await getPool().query('SELECT data FROM legal_rules WHERE rule_id=$1 AND version=$2', [ruleId, version]);
   return result.rowCount ? LegalRuleSchema.parse(result.rows[0].data) : null;
 }
@@ -40,6 +46,9 @@ async function persistOneAssessment(input: {
   reason: RecalcReason;
 }) {
   const pool = getPool();
+  // Also guard rules loaded by another caller before publication became visible.
+  const publication = await pool.query('SELECT 1 FROM review_publication_rules WHERE rule_id=$1 LIMIT 1', [input.rule.ruleId]);
+  if (publication.rowCount) throw new Error('REVIEW_BUNDLE_RECALCULATION_NOT_IMPLEMENTED');
   const existing = await pool.query(
     `SELECT id FROM impact_assessments
      WHERE company_id=$1 AND profile_version=$2 AND rule_id=$3 AND rule_version=$4`,

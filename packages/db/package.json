@@ -7,7 +7,7 @@
   "scripts": {
     "migrate": "tsx src/migrate.ts",
     "seed": "tsx src/seed.ts",
-    "test:integration": "tsx src/grounding.integration.ts && tsx src/review.integration.ts"
+    "test:integration": "tsx src/grounding.integration.ts && tsx src/review.integration.ts && tsx src/publication.integration.ts"
   },
   "dependencies": {
     "@reg/config": "0.1.0",

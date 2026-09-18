@@ -7,3 +7,4 @@ export * from './impacts.js';
 export * from './notifications.js';
 export * from './ingestion.js';
 export * from './review.js';
+export * from './publication.js';

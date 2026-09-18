@@ -23,6 +23,8 @@ import {
   listRuleCandidates,
   listSourceDocuments,
   publishReviewedRuleCandidate,
+  publishReadyReviewRevision,
+  PublishReviewSchema,
   recalculateCompany,
   rejectRuleCandidate,
   saveProfileDraft,
@@ -303,6 +305,7 @@ if (config.NODE_ENV !== 'production') {
     if (!profileId || !ruleId) return reply.code(503).send({ error: 'Demo seed is empty.' });
     const [profile, rule] = await Promise.all([getDemoProfile(profileId), getLegalRule(ruleId)]);
     if (!profile || !rule) return reply.code(404).send({ error: 'Fixture not found', catalog });
+    if (rule.tags.includes('review-published')) return reply.code(409).send({ error: 'REVIEW_BUNDLE_RECALCULATION_NOT_IMPLEMENTED' });
     const assessment = assessRule({ profile, rule, now: new Date().toISOString() });
     return { catalog, profile, rule, assessment };
   });
@@ -538,6 +541,16 @@ app.post('/admin/candidates/:id/review/preview', async (request, reply) => {
     const body = z.object({ revision: z.number().int().positive(), contentHash: z.string().regex(/^[a-f0-9]{64}$/),
       asOf: calendarDate, profile: CompanyProfileSchema.strict(), tradeObjectId: z.string().trim().min(1).max(200).optional() }).strict().parse(request.body);
     return await previewCandidateReview((request.params as { id: string }).id, body);
+  } catch (error) { return reviewFailure(error, reply); }
+});
+
+app.post('/admin/candidates/:id/review/:revision/publish', async (request, reply) => {
+  if (!requireAdmin(request, reply)) return;
+  try {
+    const params = z.object({ id: z.string().min(1).max(200), revision: z.coerce.number().int().positive().max(2147483647) }).parse(request.params);
+    const body = PublishReviewSchema.parse(request.body);
+    const result = await publishReadyReviewRevision({ candidateId: params.id, revision: params.revision, actorId: 'admin-token', ...body });
+    return reply.code(201).send(result);
   } catch (error) { return reviewFailure(error, reply); }
 });
 
