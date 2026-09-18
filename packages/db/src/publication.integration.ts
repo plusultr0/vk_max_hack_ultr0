@@ -14,7 +14,6 @@ import { saveRuleCandidate, stageSourceDocuments, publishReviewedRuleCandidate, 
 import { createCandidateReview, saveCandidateReview } from './review.js';
 import { publishReadyReviewRevision } from './publication.js';
 import { seedHash } from './canonical.js';
-import { recalculateCompany, recalculateRuleForAllCompanies } from './impacts.js';
 
 if (process.env.ALLOW_INTEGRATION_TESTS !== 'true') throw new Error('Set ALLOW_INTEGRATION_TESTS=true for isolated schema tests');
 if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL_REQUIRED');
@@ -196,10 +195,7 @@ try {
   await pool.query("INSERT INTO companies(id,name) VALUES($1,'Synthetic company')", [companyId]);
   await pool.query('INSERT INTO company_profiles(id,company_id,profile_version,data) VALUES($1,$2,1,$3)',
     [randomUUID(), companyId, JSON.stringify({ profileVersion: 1, revenuePreviousYear: 121, hasEpaymentAcceptanceAgreementAsOf2026_01_01: true, isExcludedProduct: false })]);
-  assert.deepEqual(await recalculateCompany(companyId), []);
-  for (const version of [1, 2]) {
-    await assert.rejects(recalculateRuleForAllCompanies(ready.document.phases[0]!.ruleId, version), /REVIEW_BUNDLE_RECALCULATION_NOT_IMPLEMENTED/);
-  }
+  // Delivery is tested in lifecycle.integration.ts; publication alone has no assessment side effects.
 
   // Real HTTP tests, confined to this disposable schema and generated credentials.
   const probe = createServer();

@@ -40,10 +40,12 @@ export async function ensureDevIdentity(devUserId = 'dev-user') {
   await pool.query(
     `INSERT INTO companies (id, owner_max_user_id, name, pilot_segment, updated_at)
      VALUES ($1,$2,'Demo company','small_ecommerce',now())
-     ON CONFLICT (id) DO UPDATE SET updated_at=now()`,
+     ON CONFLICT DO NOTHING`,
     [companyId, devUserId],
   );
-  return { maxUserId: devUserId, companyId };
+  const existing=await pool.query('SELECT id FROM companies WHERE owner_max_user_id=$1',[devUserId]);
+  if(!existing.rowCount) throw new Error('DEV_COMPANY_NOT_FOUND');
+  return { maxUserId: devUserId, companyId:existing.rows[0].id as string };
 }
 
 export async function updateBotChat(input: { maxUserId: string; chatId: string | null; active?: boolean }) {

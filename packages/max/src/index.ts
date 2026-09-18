@@ -164,6 +164,7 @@ export class MaxApiClient {
   private async request(path: string, init: RequestInit): Promise<unknown> {
     const response = await fetch(`${this.config.apiBaseUrl}${path}`, {
       ...init,
+      signal: AbortSignal.timeout(15_000),
       headers: {
         Authorization: this.config.botToken,
         'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ export class MaxApiClient {
     });
     const text = await response.text();
     const body = text ? JSON.parse(text) : null;
-    if (!response.ok) throw new Error(`MAX API ${response.status}: ${text}`);
+    if (!response.ok) throw new Error(`MAX_API_HTTP_${response.status}`);
     return body;
   }
 

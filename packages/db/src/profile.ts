@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { BASIC_ONBOARDING_FIELDS, CompanyProfileDraftSchema, CompanyProfileSchema, type CompanyProfile } from '@reg/domain';
+import { BASIC_ONBOARDING_FIELDS, CompanyProfileDraftSchema, CompanyProfileSchema, mergeProfileContext, type CompanyProfile } from '@reg/domain';
 import { getPool } from './client.js';
 
 function progress(answeredFields: string[]) {
@@ -52,7 +52,7 @@ export async function getProfileState(companyId: string) {
 
 export async function saveProfileDraft(input: { companyId: string; patch: Record<string, unknown>; answeredFields?: string[] }) {
   const current = await getProfileState(input.companyId);
-  const data = { ...current.draft.data, ...input.patch };
+  const data = mergeProfileContext(current.draft.data, input.patch);
   const answered = new Set(current.draft.answeredFields);
   for (const key of Object.keys(input.patch)) answered.add(key);
   for (const key of input.answeredFields ?? []) answered.add(key);
@@ -109,7 +109,7 @@ export async function createConfirmedProfileVersion(input: { companyId: string; 
   const current = await getLatestConfirmedProfile(input.companyId);
   if (!current) throw new Error('PROFILE_NOT_CONFIRMED');
   const nextVersion = current.profileVersion + 1;
-  const profile = CompanyProfileSchema.parse({ ...current, ...input.patch, profileVersion: nextVersion, confirmedAt: new Date().toISOString() });
+  const profile = CompanyProfileSchema.parse({ ...mergeProfileContext(current, input.patch), profileVersion: nextVersion, confirmedAt: new Date().toISOString() });
   const id = randomUUID();
   const client = await getPool().connect();
   try {

@@ -9,6 +9,9 @@ export function getPool(): PgPool {
   if (!pool) {
     const config = getConfig();
     pool = new Pool({ connectionString: config.DATABASE_URL });
+    // An idle connection lost during a DB restart must not crash the process or
+    // print the pg client (which includes connection credentials).
+    pool.on('error', () => console.error('[db] idle connection lost; reconnecting on next query'));
   }
   return pool;
 }

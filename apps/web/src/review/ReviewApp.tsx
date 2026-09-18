@@ -25,6 +25,7 @@ export default function ReviewApp() {
   const [activeSegment,setActiveSegment]=useState<number|null>(null), [reason,setReason]=useState(''), [pendingNavigation,setPendingNavigation]=useState<(()=>Promise<void>)|null>(null);
   const [preview,setPreview]=useState<Preview|null>(null), [asOf,setAsOf]=useState(new Date().toISOString().slice(0,10)), [testProfile,setTestProfile]=useState<Record<string,unknown>>({profileVersion:1}), [outlet,setOutlet]=useState('');
   const [serverConflict,setServerConflict]=useState<Review|null>(null);
+  const [delivery,setDelivery]=useState<any>(null);
   const lock=useRef(false);
   const dirty=!!document && !!review && JSON.stringify(document)!==JSON.stringify(review.document);
   const historical=!!review && !!head && review.revision!==head.revision;
@@ -58,6 +59,7 @@ export default function ReviewApp() {
   useEffect(()=>{if(!dirty)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[dirty]);
   function installReview(next:Review|null) {setReview(next);setDocument(next?structuredClone(next.document):null);setPhaseId(previous=>next?.document.phases.some(p=>p.id===previous)?previous:next?.document.phases[0]?.id ?? '');setPreview(null);setReason('');setServerConflict(null);}
   async function loadCandidate(id:string) {
+    setDelivery(null);
     const next=await request<Candidate>(`/admin/candidates/${id}`);
     let stored:Review|null=null, revisions:HistoryItem[]=[];
     try {stored=await request<Review>(`/admin/candidates/${id}/review`);revisions=(await request<{items:HistoryItem[]}>(`/admin/candidates/${id}/review/history`)).items;}
@@ -70,6 +72,14 @@ export default function ReviewApp() {
     const next=await request<Review>(`/admin/candidates/${candidate!.id}/review`,{method:'PUT',body:JSON.stringify({baseRevision:head!.revision,state,reason,document})});
     setHead(next);installReview(next);setHistory((await request<{items:HistoryItem[]}>(`/admin/candidates/${candidate!.id}/review/history`)).items);
     setNotice(state==='ready'?`Ревизия ${next.revision} готова к следующему этапу. Публикации не было.`:`Ревизия ${next.revision} сохранена. Замечаний: ${next.compilation.issues.length}.`);
+  }
+  async function publish() {
+    if(!candidate || !review || dirty || historical || review.state!=='ready')return;
+    if(!window.confirm('Опубликовать проверенный пакет? Он запустит пересчёт компаний и уведомления.'))return;
+    await request(`/admin/candidates/${candidate.id}/review/${review.revision}/publish`,{method:'POST',body:JSON.stringify({contentHash:review.contentHash})});
+    await loadCandidate(candidate.id);
+    setDelivery(await request(`/admin/candidates/${candidate.id}/publication`));
+    setNotice('Пакет опубликован. Пересчёт выполняется фоновым worker.');
   }
   const cite=(index:number)=>{setActiveSegment(index);window.document.getElementById(`source-${index}`)?.scrollIntoView({behavior:'smooth',block:'center'});};
   const changeDocument=(next:ReviewDocument)=>{setDocument(next);setPreview(null);};
@@ -133,6 +143,12 @@ export default function ReviewApp() {
           {!!item.evaluation?.missingFields.length&&<p>Не хватает: {item.evaluation.missingFields.map(f=>fields.find(x=>x.name===f)?.label??f).join(', ')}</p>}
           {item.evaluation?.actions.map(action=><p key={action.actionKey}>{action.title} · {action.deadline??'Без установленного срока'}</p>)}<details><summary>Объяснение расчёта</summary>{item.evaluation?.reasons.map((reason,i)=><p key={i}>{reason}</p>)}</details></article>)}</div>}
       </section>
+      {review.state==='ready'&&!historical&&<section className="rv-section"><h2>Публикация и доставка</h2>
+        {candidate.review_state==='pending'&&<button className="rv-primary" disabled={busy||dirty} onClick={()=>void run(publish)}>Опубликовать проверенную ревизию</button>}
+        {candidate.review_state==='approved'&&<button disabled={busy} onClick={()=>void run(async()=>setDelivery(await request(`/admin/candidates/${candidate.id}/publication`)))}>Проверить пересчёт</button>}
+        {delivery&&<p role="status">{delivery.status}. Компании: {delivery.completed}/{delivery.companies}, ошибок: {delivery.failed}</p>}
+        {delivery?.failed>0&&<button disabled={busy} onClick={()=>void run(async()=>{await request(`/admin/candidates/${candidate.id}/publication/retry`,{method:'POST',body:'{}'});setDelivery(await request(`/admin/candidates/${candidate.id}/publication`));})}>Повторить неудачные расчёты</button>}
+      </section>}
       {!readOnly&&<section className="rv-save"><TextField label="Причина сохранения новой ревизии" value={reason} onChange={setReason}/><div><button className="rv-primary" disabled={busy||!reason.trim()} onClick={()=>void run(()=>save('draft'))}>Сохранить и проверить</button>
         <button disabled={busy||dirty||!review.compilation.ready||!reason.trim()||review.state==='ready'} onClick={()=>void run(()=>save('ready'))}>Отметить готовой</button></div><small>Сохранение и статус «готова» не публикуют нормы.</small></section>}
     </>}</main></>}

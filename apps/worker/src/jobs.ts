@@ -5,6 +5,7 @@ import {
   markNotificationFailed,
   markNotificationSent,
   recoverStaleNotifications,
+  notificationStillRelevant,
   stageSourceDocuments,
   startIngestionRun,
 } from '@reg/db';
@@ -178,15 +179,17 @@ export async function runPravoIngestion() {
 
 function notificationMessage(notification: any) {
   const payload = notification.payload ?? {};
+  if(notification.type==='bot_welcome') return {text:'Откройте мини-приложение, заполните профиль компании и проверьте изменения.',
+    payload:payload.startParam??'home'};
   if (notification.type === 'deadline_reminder') {
     return {
       text: `Напоминание: ${payload.title ?? 'регуляторное действие'}${payload.deadline ? ` — срок ${payload.deadline}` : ''}.`,
-      payload: payload.ruleId ? `impact_${payload.ruleId}` : 'home',
+      payload: payload.impactId ? `assessment_${payload.impactId}` : 'home',
     };
   }
   return {
     text: `Для вашей компании найдено новое релевантное изменение: ${payload.title ?? payload.ruleId ?? 'откройте карточку'}.`,
-    payload: payload.ruleId ? `impact_${payload.ruleId}` : 'home',
+    payload: payload.impactId ? `assessment_${payload.impactId}` : 'home',
   };
 }
 
@@ -201,16 +204,17 @@ export async function dispatchNotifications(maxBatch = 50) {
     const notification = await claimDueNotification();
     if (!notification) break;
     try {
+      if (!await notificationStillRelevant(notification)) continue;
       const message = notificationMessage(notification);
       await client.sendMessageToUser({
         userId: notification.max_user_id,
         text: message.text,
         button: { text: 'Открыть карточку', url: buildMiniAppDeepLink(config.MAX_BOT_USERNAME, message.payload) },
       });
-      await markNotificationSent(notification.id);
+      await markNotificationSent(notification.id, notification.claim_token);
       sent += 1;
     } catch (error) {
-      await markNotificationFailed(notification.id, error instanceof Error ? error.message : 'notification send failed');
+      await markNotificationFailed(notification.id, 'MAX_DELIVERY_FAILED', notification.claim_token);
       failed += 1;
     }
   }

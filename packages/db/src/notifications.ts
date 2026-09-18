@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { getPool } from './client.js';
+import { impactIsCurrent, isoDate } from './runtime.js';
 
 function toIsoDate(value: unknown): string | null {
   if (!value) return null;
-  return String(value).slice(0, 10);
+  return isoDate(value);
 }
 
 function reminderAt(deadline: string): Date | null {
@@ -76,7 +77,9 @@ export async function scheduleRegulatoryUpdateNotification(input: {
 
 export async function recoverStaleNotifications() {
   const result = await getPool().query(
-    `UPDATE notifications SET state='retry', claimed_at=NULL, updated_at=now(),
+    `UPDATE notifications SET state=CASE WHEN attempts>=5 THEN 'failed' ELSE 'retry' END,
+       terminal_at=CASE WHEN attempts>=5 THEN now() ELSE NULL END,
+       claimed_at=NULL, claim_token=NULL, updated_at=now(),
        last_error=COALESCE(last_error,'stale sending claim recovered')
      WHERE state='sending' AND claimed_at < now() - interval '10 minutes'
      RETURNING id`,
@@ -85,6 +88,7 @@ export async function recoverStaleNotifications() {
 }
 
 export async function claimDueNotification() {
+  const token = randomUUID();
   const result = await getPool().query(
     `WITH picked AS (
        SELECT id FROM notifications
@@ -93,35 +97,61 @@ export async function claimDueNotification() {
        FOR UPDATE SKIP LOCKED
        LIMIT 1
      )
-     UPDATE notifications n SET state='sending', claimed_at=now(), attempts=n.attempts+1, updated_at=now()
+     UPDATE notifications n SET state='sending', claimed_at=now(), claim_token=$1, attempts=n.attempts+1, updated_at=now()
      FROM picked WHERE n.id=picked.id
-     RETURNING n.*`,
+     RETURNING n.*`, [token],
   );
   return result.rows[0] ?? null;
 }
 
-export async function markNotificationSent(id: string) {
+export async function markNotificationSent(id: string, token: string) {
   await getPool().query(
-    `UPDATE notifications SET state='sent', sent_at=now(), claimed_at=NULL, updated_at=now(), last_error=NULL WHERE id=$1`,
-    [id],
+    `UPDATE notifications SET state='sent', sent_at=now(), claimed_at=NULL, claim_token=NULL, updated_at=now(), last_error=NULL WHERE id=$1 AND claim_token=$2 AND state='sending'`,
+    [id,token],
   );
 }
 
-export async function markNotificationFailed(id: string, error: string) {
-  const current = await getPool().query('SELECT attempts FROM notifications WHERE id=$1', [id]);
+export async function markNotificationFailed(id: string, error: string, token: string) {
+  const current = await getPool().query("SELECT attempts FROM notifications WHERE id=$1 AND claim_token=$2 AND state='sending'", [id,token]);
   if (!current.rowCount) return;
   const attempts = Number(current.rows[0].attempts ?? 0);
   if (attempts >= 5) {
     await getPool().query(
-      `UPDATE notifications SET state='failed', terminal_at=now(), claimed_at=NULL, last_error=$2, updated_at=now() WHERE id=$1`,
-      [id, error.slice(0, 2000)],
+      `UPDATE notifications SET state='failed', terminal_at=now(), claimed_at=NULL,claim_token=NULL, last_error=$2, updated_at=now() WHERE id=$1 AND claim_token=$3`,
+      [id, error.slice(0, 2000),token],
     );
   } else {
     await getPool().query(
-      `UPDATE notifications SET state='retry', scheduled_at=now()+interval '5 minutes', claimed_at=NULL, last_error=$2, updated_at=now() WHERE id=$1`,
-      [id, error.slice(0, 2000)],
+      `UPDATE notifications SET state='retry', scheduled_at=now()+interval '5 minutes', claimed_at=NULL,claim_token=NULL, last_error=$2, updated_at=now() WHERE id=$1 AND claim_token=$3`,
+      [id, error.slice(0, 2000),token],
     );
   }
+}
+
+// Run immediately before the external call. External exactly-once delivery is
+// impossible without MAX idempotency support; stale DB acknowledgements are fenced.
+export async function notificationStillRelevant(notification: any) {
+  const current=(await getPool().query("SELECT * FROM notifications WHERE id=$1 AND claim_token=$2 AND state='sending'",
+    [notification.id,notification.claim_token])).rows[0];
+  if(!current) return false;
+  notification.payload=current.payload;
+  const company=(await getPool().query('SELECT owner_max_user_id FROM companies WHERE id=$1',[notification.company_id])).rows[0];
+  const user=(await getPool().query('SELECT bot_active FROM max_users WHERE max_user_id=$1',[notification.max_user_id])).rows[0];
+  let relevant=company?.owner_max_user_id===notification.max_user_id && user?.bot_active===true;
+  const payload=current.payload;
+  if(notification.type==='bot_welcome' && relevant) return true;
+  const impact=(await getPool().query('SELECT * FROM impact_assessments WHERE id=$1 AND company_id=$2',
+    [payload.impactId,notification.company_id])).rows[0];
+  relevant = relevant && !!impact && impact.time_state==='active' && impact.verdict==='applies'
+    && await impactIsCurrent(impact);
+  if(relevant && notification.type==='deadline_reminder') {
+    const action=(await getPool().query('SELECT * FROM action_items WHERE id=$1 AND impact_id=$2',[payload.actionId,impact.id])).rows[0];
+    relevant=!!action && ['open','in_progress'].includes(action.execution_status) && !action.review_required
+      && isoDate(action.deadline)===payload.deadline && payload.deadline>=new Date().toISOString().slice(0,10);
+  }
+  if(!relevant) await getPool().query(`UPDATE notifications SET state='cancelled',terminal_at=now(),claim_token=NULL,claimed_at=NULL
+    WHERE id=$1 AND claim_token=$2`,[notification.id,notification.claim_token]);
+  return relevant;
 }
 
 export async function listNotifications(companyId: string, limit = 100) {

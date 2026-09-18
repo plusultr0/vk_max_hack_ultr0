@@ -1,6 +1,8 @@
 import { PgBoss } from 'pg-boss';
 import { getConfig } from '@reg/config';
 import { dispatchNotifications, runRegulatoryIngestion } from './jobs.js';
+import { enqueueScheduledRecalculations, processPublicationDelivery } from '@reg/db';
+import { processExtractionJob } from './extraction.js';
 
 const config = getConfig();
 const boss = new PgBoss(config.DATABASE_URL);
@@ -9,6 +11,13 @@ await boss.start();
 
 await boss.createQueue('notification-dispatch', { retryLimit: 2, retryDelay: 30, retryBackoff: true });
 await boss.createQueue('pravo-ingest', { retryLimit: 2, retryDelay: 120, retryBackoff: true, expireInSeconds: 600 });
+await boss.createQueue('publication-delivery', { retryLimit: 3, retryDelay: 30, retryBackoff: true });
+await boss.createQueue('extraction', { retryLimit: 2, retryDelay: 60, expireInSeconds: 900 });
+await boss.work('publication-delivery', async () => {
+  await enqueueScheduledRecalculations();
+  await processPublicationDelivery();
+});
+await boss.work('extraction', async () => { await processExtractionJob(); });
 
 await boss.work('notification-dispatch', async () => {
   await dispatchNotifications();
@@ -20,6 +29,8 @@ await boss.work('pravo-ingest', async () => {
 await boss.schedule('pravo-ingest', '15 5 * * *', null, { tz: 'Europe/Moscow' });
 
 const kickNotifications = async () => {
+  await boss.send('publication-delivery', {}, { singletonSeconds: 30 });
+  await boss.send('extraction', {}, { singletonSeconds: 30 });
   await boss.send('notification-dispatch', {}, { singletonSeconds: Math.max(30, config.NOTIFICATION_POLL_SECONDS) });
 };
 await kickNotifications();
@@ -32,4 +43,4 @@ const shutdown = async () => {
 };
 process.on('SIGTERM', () => void shutdown());
 process.on('SIGINT', () => void shutdown());
-console.log('Worker started: notification-dispatch + daily resilient pravo-ingest (multi-source)');
+console.log('Worker started: publication-delivery + extraction + notification-dispatch + daily official-source ingestion');

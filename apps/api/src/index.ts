@@ -25,10 +25,13 @@ import {
   publishReviewedRuleCandidate,
   publishReadyReviewRevision,
   PublishReviewSchema,
+  publicationDeliveryStatus,
+  retryPublicationDelivery,
+  enqueueExtraction,
+  getExtractionJob,
   recalculateCompany,
   rejectRuleCandidate,
   saveProfileDraft,
-  saveRuleCandidate,
   stageSourceDocuments,
   startIngestionRun,
   updateActionStatus,
@@ -47,11 +50,10 @@ import { calendarDate, reviewFieldCatalog } from '@reg/review';
 import {
   fetchOfficialHtmlSource,
   fetchPravoOpenData,
-  fetchReadableOfficialText,
   makeManualOfficialDocument,
   scorePilotRelevance,
 } from '@reg/ingestion';
-import { createProvider, extractRegulatoryDraft, regulatoryReviewWarnings } from '@reg/llm';
+import { createProvider, extractRegulatoryDraft } from '@reg/llm';
 import { makeSession, validateWebAppData, verifySession, type SessionClaims } from '@reg/max';
 
 const config = getConfig();
@@ -156,7 +158,7 @@ function apiIngestionSources() {
 app.get('/health', async (_request, reply) => {
   try {
     await getPool().query('SELECT 1');
-    return { status: 'ok', database: 'ok', service: 'api', stage: 's9.5ab-review-revisions' };
+    return { status: 'ok', database: 'ok', service: 'api', stage: 's9-delivery-lifecycle' };
   } catch (error) {
     reply.code(503);
     return { status: 'degraded', database: 'error', service: 'api', error: error instanceof Error ? error.message : 'unknown error' };
@@ -249,6 +251,11 @@ app.get('/impacts', async (request, reply) => {
   return listImpacts(auth.claims.companyId);
 });
 
+app.get('/impacts/history', async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  return listImpacts(auth.claims.companyId,true);
+});
+
 app.get('/impacts/:id', async (request, reply) => {
   const auth = requireAuth(request, reply); if (!auth) return;
   const id = (request.params as { id: string }).id;
@@ -282,8 +289,13 @@ app.patch('/actions/:id', async (request, reply) => {
   const id = (request.params as { id: string }).id;
   const body = request.body as { status?: 'open'|'in_progress'|'completed'|'dismissed' } | null;
   if (!body?.status || !['open','in_progress','completed','dismissed'].includes(body.status)) return reply.code(400).send({ error: 'INVALID_STATUS' });
-  const result = await updateActionStatus({ companyId: auth.claims.companyId, actionId: id, status: body.status, actorId: auth.claims.sub });
-  return result ?? reply.code(404).send({ error: 'ACTION_NOT_FOUND' });
+  try {
+    const result = await updateActionStatus({ companyId: auth.claims.companyId, actionId: id, status: body.status, actorId: auth.claims.sub });
+    return result ?? reply.code(404).send({ error: 'ACTION_NOT_FOUND' });
+  } catch(error) {
+    if(error instanceof Error && error.message==='STALE_ACTION')return reply.code(409).send({error:'STALE_ACTION'});
+    throw error;
+  }
 });
 
 app.get('/notifications', async (request, reply) => {
@@ -426,49 +438,22 @@ app.get('/admin/source-documents', async (request, reply) => {
   return { items: await listSourceDocuments({ state: query.state, limit: query.limit ? Number(query.limit) : undefined }) };
 });
 
-app.post('/admin/source-documents/:id/extract', async (request, reply) => {
-  if (!requireAdmin(request, reply)) return;
-  const id = (request.params as { id: string }).id;
-  const source = await getSourceDocument(id);
-  if (!source) return reply.code(404).send({ error: 'SOURCE_DOCUMENT_NOT_FOUND' });
-  const body = request.body as { sourceText?: string } | null;
-  try {
-    let sourceText = body?.sourceText ?? '';
-    let sourceTextOrigin: 'request' | 'staged-official-page' | 'official-url-fetch' = 'request';
-    if (!sourceText.trim() && typeof source.raw?.text === 'string' && source.raw.text.trim()) {
-      sourceText = source.raw.text;
-      sourceTextOrigin = source.raw.sourceKind === 'manual-official' ? 'request' : 'staged-official-page';
-    }
-    if (!sourceText.trim()) {
-      sourceText = await fetchReadableOfficialText({
-        url: source.official_url,
-        timeoutMs: config.INGESTION_TIMEOUT_MS,
-        userAgent: config.INGESTION_USER_AGENT,
-        retries: config.INGESTION_RETRIES,
-      });
-      sourceTextOrigin = 'official-url-fetch';
-    }
-    const provider = createProvider({
-      provider: config.LLM_PROVIDER,
-      gigachatAuthKey: config.GIGACHAT_AUTH_KEY,
-      gigachatScope: config.GIGACHAT_SCOPE,
-      gigachatOauthUrl: config.GIGACHAT_OAUTH_URL,
-      gigachatBaseUrl: config.GIGACHAT_BASE_URL,
-      deepseekApiKey: config.DEEPSEEK_API_KEY,
-      deepseekBaseUrl: config.DEEPSEEK_BASE_URL,
-      model: config.LLM_MODEL,
-      timeoutMs: config.LLM_TIMEOUT_MS,
-    });
-    const draft = await extractRegulatoryDraft(provider, {
-      sourceTitle: source.title, officialUrl: source.official_url, sourceText, sourceTextOrigin,
-      sourceRetrievedAt: sourceTextOrigin === 'official-url-fetch' ? new Date().toISOString()
-        : sourceTextOrigin === 'staged-official-page' ? new Date(source.last_seen_at).toISOString() : null,
-    });
-    const candidateId = await saveRuleCandidate({ sourceDocumentId: id, provider: provider.name, model: provider.model, draft });
-    return { candidateId, provider: provider.name, model: provider.model, sourceTextOrigin, reviewWarnings: regulatoryReviewWarnings(draft), draft };
-  } catch (error) {
-    return reply.code(502).send({ error: 'EXTRACTION_FAILED', message: error instanceof Error ? error.message : 'unknown error' });
-  }
+app.post('/admin/source-documents/:id/extract', async (request,reply)=>{
+  if(!requireAdmin(request,reply))return;
+  try {return reply.code(202).send(await enqueueExtraction((request.params as {id:string}).id,request.body??{}));}
+  catch(error){return reviewFailure(error,reply);}
+});
+app.get('/admin/extraction-jobs/:id',async(request,reply)=>{
+  if(!requireAdmin(request,reply))return;
+  return await getExtractionJob((request.params as {id:string}).id) ?? reply.code(404).send({error:'EXTRACTION_JOB_NOT_FOUND'});
+});
+app.get('/admin/candidates/:id/publication',async(request,reply)=>{
+  if(!requireAdmin(request,reply))return;
+  return await publicationDeliveryStatus((request.params as {id:string}).id) ?? reply.code(404).send({error:'PUBLICATION_NOT_FOUND'});
+});
+app.post('/admin/candidates/:id/publication/retry',async(request,reply)=>{
+  if(!requireAdmin(request,reply))return;
+  return retryPublicationDelivery((request.params as {id:string}).id,'admin-token');
 });
 
 app.get('/admin/candidates', async (request, reply) => {

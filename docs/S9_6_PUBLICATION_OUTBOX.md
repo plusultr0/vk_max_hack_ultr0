@@ -1,5 +1,9 @@
 # S9.6 — atomic review publication and transactional outbox
 
+> Historical producer-only report. The implemented consumer and lifecycle are
+> described in [S9_DELIVERY_VALIDATION.md](S9_DELIVERY_VALIDATION.md).
+> Producer-only limitations below describe the earlier commit, not current code.
+
 Implemented and validated on 2026-09-18. This stage publishes a reviewed bundle,
 not arbitrary client-supplied legal rules. No real candidate was published during validation.
 

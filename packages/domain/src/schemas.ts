@@ -27,6 +27,7 @@ export type ExecutionStatus = z.infer<typeof ExecutionStatusSchema>;
 
 export const CompanyProfileSchema = z.object({
   profileVersion: z.number().int().positive(),
+  tradeObjectId: z.string().trim().min(1).max(200).nullable().optional(),
   legalForm: z.enum(['IP', 'LLC', 'other']).nullable().optional(),
   registrationDate: DateStringSchema.nullable().optional(),
   region: z.string().nullable().optional(),

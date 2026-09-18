@@ -1,160 +1,38 @@
 import { randomUUID } from 'node:crypto';
-import { assessRule, CompanyProfileSchema, LegalRuleSchema, type CompanyProfile, type LegalRule } from '@reg/domain';
+import { LegalRuleSchema } from '@reg/domain';
 import { getPool } from './client.js';
 import { getLatestConfirmedProfile, createConfirmedProfileVersion } from './profile.js';
-import { scheduleDeadlineRemindersForCompany, scheduleRegulatoryUpdateNotification } from './notifications.js';
+import { recalculateCompanyAtomic, selectedRules, impactIsCurrent, isoDate } from './runtime.js';
 
 export type RecalcReason = 'profile_confirmed' | 'context_answer' | 'regulatory_update' | 'manual';
 
-async function getCurrentRules(): Promise<LegalRule[]> {
-  const result = await getPool().query(
-    `SELECT DISTINCT ON (rule_id) data
-     FROM legal_rules
-     WHERE review_status='reviewed' AND legal_status IN ('active','upcoming')
-       AND NOT EXISTS (SELECT 1 FROM review_publication_rules p WHERE p.rule_id=legal_rules.rule_id)
-     ORDER BY rule_id, version DESC`,
-  );
-  return result.rows.map((row) => LegalRuleSchema.parse(row.data));
-}
-
-async function getRule(ruleId: string, version: number): Promise<LegalRule | null> {
-  // Producer-only S9.6: legacy assessment ignores bundle scope/temporal policy.
-  // Fail closed for all versions of a published bundle identity, including old
-  // versions, until a bundle-aware consumer/activation workflow is implemented.
-  const publication = await getPool().query('SELECT 1 FROM review_publication_rules WHERE rule_id=$1 LIMIT 1', [ruleId]);
-  if (publication.rowCount) throw new Error('REVIEW_BUNDLE_RECALCULATION_NOT_IMPLEMENTED');
-  const result = await getPool().query('SELECT data FROM legal_rules WHERE rule_id=$1 AND version=$2', [ruleId, version]);
-  return result.rowCount ? LegalRuleSchema.parse(result.rows[0].data) : null;
-}
-
-async function getPreviousAssessment(companyId: string, ruleId: string) {
-  const result = await getPool().query(
-    `SELECT * FROM impact_assessments WHERE company_id=$1 AND rule_id=$2 ORDER BY created_at DESC LIMIT 1`,
-    [companyId, ruleId],
-  );
-  return result.rows[0] ?? null;
-}
-
-function actionId(impactId: string, actionKey: string) {
-  return `${impactId}:${actionKey}`;
-}
-
-async function persistOneAssessment(input: {
-  companyId: string;
-  profile: CompanyProfile;
-  rule: LegalRule;
-  reason: RecalcReason;
-}) {
-  const pool = getPool();
-  // Also guard rules loaded by another caller before publication became visible.
-  const publication = await pool.query('SELECT 1 FROM review_publication_rules WHERE rule_id=$1 LIMIT 1', [input.rule.ruleId]);
-  if (publication.rowCount) throw new Error('REVIEW_BUNDLE_RECALCULATION_NOT_IMPLEMENTED');
-  const existing = await pool.query(
-    `SELECT id FROM impact_assessments
-     WHERE company_id=$1 AND profile_version=$2 AND rule_id=$3 AND rule_version=$4`,
-    [input.companyId, input.profile.profileVersion, input.rule.ruleId, input.rule.version],
-  );
-  if (existing.rowCount) return getImpactById(input.companyId, existing.rows[0].id);
-
-  const previous = await getPreviousAssessment(input.companyId, input.rule.ruleId);
-  const evaluation = assessRule({ profile: input.profile, rule: input.rule, now: new Date().toISOString() });
-  const impactId = randomUUID();
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    if (previous?.id) {
-      await client.query(
-        `UPDATE action_items SET review_required=true
-         WHERE impact_id=$1 AND execution_status <> 'completed'`,
-        [previous.id],
-      );
-    }
-    await client.query(
-      `INSERT INTO impact_assessments(
-        id,company_id,profile_version,rule_id,rule_version,verdict,review_state,compliance_state,
-        reasons,missing_fields,evidence_refs,review_reasons,effective_from,previous_assessment_id
-      ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
-      [impactId, input.companyId, input.profile.profileVersion, input.rule.ruleId, input.rule.version,
-        evaluation.verdict, evaluation.reviewState, evaluation.complianceState,
-        JSON.stringify(evaluation.reasons), JSON.stringify(evaluation.missingFields), JSON.stringify(evaluation.evidenceRefs),
-        JSON.stringify(evaluation.reviewReasons), evaluation.effectiveFrom, previous?.id ?? null],
-    );
-    for (const action of evaluation.actions) {
-      await client.query(
-        `INSERT INTO action_items(id,impact_id,action_key,title,description,deadline,deadline_kind,execution_status,review_required)
-         VALUES($1,$2,$3,$4,$5,$6,$7,'open',false)
-         ON CONFLICT (impact_id,action_key) DO NOTHING`,
-        [actionId(impactId, action.actionKey), impactId, action.actionKey, action.title, action.description, action.deadline, action.deadlineKind],
-      );
-    }
-    await client.query(
-      `INSERT INTO audit_log(company_id,actor_type,event_type,entity_type,entity_id,data)
-       VALUES($1,'system',$2,'impact_assessment',$3,$4)`,
-      [input.companyId, `impact.${input.reason}`, impactId, JSON.stringify({ ruleId: input.rule.ruleId, ruleVersion: input.rule.version, verdict: evaluation.verdict })],
-    );
-    await client.query('COMMIT');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally { client.release(); }
-
-  const hydrated = await getImpactById(input.companyId, impactId);
-  await scheduleDeadlineRemindersForCompany(input.companyId);
-  if (input.reason === 'regulatory_update' && hydrated?.verdict === 'applies' && (!previous || previous.rule_version !== input.rule.version || previous.verdict !== 'applies')) {
-    await scheduleRegulatoryUpdateNotification({
-      companyId: input.companyId,
-      ruleId: input.rule.ruleId,
-      ruleVersion: input.rule.version,
-      impactId,
-      userTitle: input.rule.userTitle,
-    });
-  }
-  return hydrated;
-}
-
 export async function recalculateCompany(companyId: string, reason: RecalcReason = 'manual') {
-  const profile = await getLatestConfirmedProfile(companyId);
-  if (!profile) return [];
-  const rules = await getCurrentRules();
-  const results = [];
-  for (const rule of rules) results.push(await persistOneAssessment({ companyId, profile, rule, reason }));
-  return results;
+  const ids = await recalculateCompanyAtomic(companyId, reason);
+  return Promise.all(ids.map(id => getImpactById(companyId,id)));
 }
 
 export async function recalculateRuleForAllCompanies(ruleId: string, version: number) {
-  const rule = await getRule(ruleId, version);
-  if (!rule) throw new Error('RULE_NOT_FOUND');
-  const result = await getPool().query(
-    `SELECT DISTINCT ON (company_id) company_id, data
-     FROM company_profiles ORDER BY company_id, profile_version DESC`,
-  );
-  const outputs = [];
-  for (const row of result.rows) {
-    outputs.push(await persistOneAssessment({
-      companyId: row.company_id,
-      profile: CompanyProfileSchema.parse(row.data),
-      rule,
-      reason: 'regulatory_update',
-    }));
-  }
-  return outputs;
+  const rule = await getPool().query('SELECT 1 FROM legal_rules WHERE rule_id=$1 AND version=$2',[ruleId,version]);
+  if (!rule.rowCount) throw new Error('RULE_NOT_FOUND');
+  const companies = await getPool().query('SELECT DISTINCT company_id FROM company_profiles');
+  const results=[];
+  for(const row of companies.rows) results.push(...await recalculateCompany(row.company_id,'regulatory_update'));
+  return results;
 }
 
-export async function listImpacts(companyId: string) {
+export async function listImpacts(companyId: string, history = false) {
   const profile = await getLatestConfirmedProfile(companyId);
   if (!profile) return { profileVersion: null, impacts: [] };
-  const rows = await getPool().query(
-    `SELECT ia.*, lr.data AS rule_data
-     FROM impact_assessments ia
-     JOIN legal_rules lr ON lr.rule_id=ia.rule_id AND lr.version=ia.rule_version
-     WHERE ia.company_id=$1 AND ia.profile_version=$2
-     ORDER BY CASE ia.verdict WHEN 'applies' THEN 0 WHEN 'needs_info' THEN 1 ELSE 2 END,
-              ia.created_at DESC`,
-    [companyId, profile.profileVersion],
-  );
-  const impacts = [];
-  for (const row of rows.rows) impacts.push(await hydrateImpact(row));
-  return { profileVersion: profile.profileVersion, impacts };
+  const rows = await getPool().query(`SELECT ia.*,lr.data AS rule_data FROM impact_assessments ia
+    JOIN legal_rules lr ON lr.rule_id=ia.rule_id AND lr.version=ia.rule_version
+    WHERE ia.company_id=$1 ORDER BY ia.created_at DESC,ia.id DESC`,[companyId]);
+  const selections=await selectedRules();
+  const impacts=[];
+  for(const row of rows.rows) {
+    const current=row.profile_version===profile.profileVersion && selections.some(s=>s.rule.ruleId===row.rule_id && s.rule.version===row.rule_version && s.timeState===row.time_state);
+    if(history || current) impacts.push(await hydrateImpact({...row,is_current:current}));
+  }
+  return {profileVersion:profile.profileVersion,impacts};
 }
 
 type QuestionInputType = 'boolean' | 'select' | 'multi_select' | 'number' | 'date' | 'text' | 'string_list';
@@ -241,6 +119,7 @@ const QUESTION_META: Record<string, { inputType: QuestionInputType; options?: Qu
 };
 
 const QUESTION_TEXT: Record<string, string> = {
+  tradeObjectId: 'Укажите обозначение конкретной торговой точки. Данные выручки и доступности интернета должны относиться к ней.',
   hasCombinedTaxRegimes: 'Совмещает ли компания УСН с другим налоговым режимом?',
   consentSeparate: 'Оформлено ли согласие на обработку персональных данных отдельно от других подтверждаемых документов?',
   sellerIdentityInfoChecked: 'Вы уже проверяли наличие обязательных сведений о продавце на сайте или в приложении?',
@@ -261,7 +140,8 @@ function describeQuestion(field: string, text: string) {
 }
 
 async function hydrateImpact(row: Record<string, any>) {
-  const rule = LegalRuleSchema.parse(row.rule_data ?? (await getRule(row.rule_id, row.rule_version)));
+  const rule = LegalRuleSchema.parse(row.rule_data);
+  const current = row.is_current ?? await impactIsCurrent(row);
   const actions = await getPool().query('SELECT * FROM action_items WHERE impact_id=$1 ORDER BY created_at', [row.id]);
   const missingFields = row.missing_fields ?? [];
   const questions = (missingFields as string[]).map((field) => describeQuestion(
@@ -271,6 +151,8 @@ async function hydrateImpact(row: Record<string, any>) {
   return {
     id: row.id,
     companyId: row.company_id,
+    isCurrent: current,
+    timeState: row.time_state,
     profileVersion: row.profile_version,
     ruleId: row.rule_id,
     ruleVersion: row.rule_version,
@@ -280,7 +162,7 @@ async function hydrateImpact(row: Record<string, any>) {
     reasons: row.reasons ?? [],
     missingFields,
     reviewReasons: row.review_reasons ?? [],
-    effectiveFrom: row.effective_from ? String(row.effective_from).slice(0, 10) : null,
+    effectiveFrom: row.effective_from ? isoDate(row.effective_from) : null,
     previousAssessmentId: row.previous_assessment_id,
     createdAt: row.created_at,
     rule: {
@@ -298,10 +180,12 @@ async function hydrateImpact(row: Record<string, any>) {
       actionKey: action.action_key,
       title: action.title,
       description: action.description,
-      deadline: action.deadline ? String(action.deadline).slice(0, 10) : null,
+      deadline: action.deadline ? isoDate(action.deadline) : null,
       deadlineKind: action.deadline_kind,
       executionStatus: action.execution_status,
-      reviewRequired: action.review_required,
+      reviewRequired: action.review_required || !current,
+      reviewReason: action.review_reason,
+      carriedFromActionId: action.carried_from_action_id,
       completedAt: action.completed_at,
     })),
   };
@@ -327,7 +211,7 @@ export async function answerImpactQuestion(input: {
   const impact = await getImpactById(input.companyId, input.impactId);
   if (!impact) throw new Error('IMPACT_NOT_FOUND');
   const current = await getLatestConfirmedProfile(input.companyId);
-  if (!current || current.profileVersion !== impact.profileVersion) throw new Error('STALE_IMPACT');
+  if (!impact.isCurrent || !current || current.profileVersion !== impact.profileVersion) throw new Error('STALE_IMPACT');
   if (!impact.missingFields.includes(input.field)) throw new Error('FIELD_NOT_REQUESTED');
   const next = await createConfirmedProfileVersion({ companyId: input.companyId, patch: { [input.field]: input.value }, actorId: input.actorId });
   await recalculateCompany(input.companyId, 'context_answer');
@@ -335,21 +219,25 @@ export async function answerImpactQuestion(input: {
 }
 
 export async function updateActionStatus(input: { companyId: string; actionId: string; status: 'open'|'in_progress'|'completed'|'dismissed'; actorId?: string }) {
-  const result = await getPool().query(
-    `UPDATE action_items ai SET execution_status=$3,
-       completed_at=CASE WHEN $3='completed' THEN COALESCE(completed_at,now()) ELSE completed_at END
-     FROM impact_assessments ia
-     WHERE ai.id=$1 AND ai.impact_id=ia.id AND ia.company_id=$2
-     RETURNING ai.*`,
-    [input.actionId, input.companyId, input.status],
-  );
-  if (!result.rowCount) return null;
-  await getPool().query(
-    `INSERT INTO audit_log(company_id,actor_type,actor_id,event_type,entity_type,entity_id,data)
-     VALUES($1,'user',$2,'action.status','action_item',$3,$4)`,
-    [input.companyId, input.actorId ?? null, input.actionId, JSON.stringify({ status: input.status })],
-  );
-  return result.rows[0];
+  const db=await getPool().connect();
+  try {
+    await db.query('BEGIN');
+    await db.query('SELECT id FROM companies WHERE id=$1 FOR UPDATE',[input.companyId]);
+    const row=(await db.query(`SELECT i.*,a.execution_status FROM action_items a JOIN impact_assessments i ON i.id=a.impact_id
+      WHERE a.id=$1 AND i.company_id=$2`,[input.actionId,input.companyId])).rows[0];
+    if(!row){await db.query('COMMIT');return null;}
+    if(!await impactIsCurrent(row,db) || row.time_state!=='active') throw new Error('STALE_ACTION');
+    const result=await db.query(`UPDATE action_items SET execution_status=$2,
+      completed_at=CASE WHEN $2='completed' THEN COALESCE(completed_at,now()) ELSE NULL END WHERE id=$1 RETURNING *`,[input.actionId,input.status]);
+    await db.query(`INSERT INTO audit_log(company_id,actor_type,actor_id,event_type,entity_type,entity_id,data)
+      VALUES($1,'user',$2,'action.status','action_item',$3,$4)`,[input.companyId,input.actorId??null,input.actionId,JSON.stringify({status:input.status})]);
+    if(['completed','dismissed'].includes(input.status)) await db.query(`UPDATE notifications SET state='cancelled',terminal_at=now()
+      WHERE company_id=$1 AND payload->>'actionId'=$2 AND state IN ('pending','retry')`,[input.companyId,input.actionId]);
+    else await db.query(`UPDATE notifications SET state='pending',terminal_at=NULL
+      WHERE company_id=$1 AND payload->>'actionId'=$2 AND state='cancelled' AND sent_at IS NULL`,
+    [input.companyId,input.actionId]);
+    await db.query('COMMIT');return result.rows[0];
+  }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();}
 }
 
 export async function addImpactFeedback(input: { companyId: string; impactId: string; value: string; comment?: string; actorId?: string }) {

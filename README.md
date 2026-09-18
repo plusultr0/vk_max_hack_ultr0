@@ -1,16 +1,16 @@
-# MAX Regulatory Control — S9.5A/B
+# MAX Regulatory Control — S9 delivery and lifecycle
 
 План дальнейшей разработки: [docs/DEVELOPMENT_PLAN_2026-09-17.md](docs/DEVELOPMENT_PLAN_2026-09-17.md). Исторические отчёты предыдущих этапов: [docs/history](docs/history). Текущий статус реализации и ограничения описаны ниже; исторические отчёты отражают состояние на момент соответствующей проверки.
 
-Текущая версия: **0.9.5**. Добавлена серверная основа human review: отдельные неизменяемые ревизии, решения по каждому исходному элементу, типизированный компилятор в DSL и предпросмотр без публикации. API, запуск и ограничения: [S9_5_IMPLEMENTATION.md](S9_5_IMPLEMENTATION.md). Проверки: [S9_5_VALIDATION.md](S9_5_VALIDATION.md).
+Текущая версия пакета: **0.9.5**. Реализованы редактор human review, атомарная публикация, фоновый пересчёт, жизненный цикл версий/действий и техническая цепочка MAX. **S9.6/S9.7 проверены локально; S9.8 ожидает live-проверки после появления HTTPS-стенда.** Статус, тесты и новые API: [docs/S9_DELIVERY_VALIDATION.md](docs/S9_DELIVERY_VALIDATION.md).
 
-S9.4 сохранён: extraction фиксирует снимок источника и формирует точные цитаты на сервере. Подробности: [S9_4_IMPLEMENTATION.md](S9_4_IMPLEMENTATION.md). Новый review пока не имеет UI и не публикует пакет правил; это следующие блоки.
+S9.4 сохранён: extraction фиксирует снимок источника и формирует точные цитаты на сервере. Review UI `/review` публикует готовую проверенную ревизию и показывает прогресс доставки. Извлечение теперь фоновое: POST возвращает 202 и ID задания; результат читается через `/admin/extraction-jobs/:id`.
 
 `npm run check` включает backend typecheck, unit tests и web build. Зависимости зафиксированы в `package-lock.json`, Docker использует `npm ci`. Для существующей установки сохраняйте её `.env` и PostgreSQL volume. Миграции 007/008 добавляют снимки и ревизии без удаления прежних candidates.
 
 Регуляторный контроль для малого e-commerce внутри MAX: профиль компании → применимость нормативного изменения → объяснение/источник → конкретные действия → выполнение → уведомления → история версий.
 
-Репозиторий продолжает технический путь **S0–S9.5A/B** из development plan. Это hackathon MVP, а не юридическая консультационная система: автоматический результат строится только по утверждённым формализованным правилам, а неоднозначные случаи уходят в `needs_info` / `needs_review`.
+Репозиторий продолжает технический путь **S0–S9.8** из development plan. Это hackathon MVP, а не юридическая консультационная система: автоматический результат строится только по утверждённым формализованным правилам, а неоднозначные случаи уходят в `needs_info` / `needs_review`.
 
 ## Главное отличие продукта
 
@@ -48,6 +48,10 @@ LLM не участвует в исполнении 7 pilot rules и не мож
 | S9 | official-source ingestion staging, candidates, manual publication, reassessment | implemented |
 | S9.1 | live GigaChat OAuth/TLS/structured extraction | smoke passed on team Windows/Docker machine |
 | S9.2 | resilient multi-source official ingestion + retry + manual official fallback | live multi-source smoke pending |
+| S9.5 | grounded review revisions, compiler and editor | local DB/API/browser validation |
+| S9.6 | atomic publication, outbox consumer, retries, async extraction | disposable DB and real worker restart passed |
+| S9.7 | current/history, version selection, action carry-over, reminder guards | local lifecycle integration passed |
+| S9.8 | signed auth, exact assessment deep links, webhook, mobile UX | local tests passed; real MAX/HTTPS pending |
 
 Подробности: `S0_VALIDATION.md` … `S9_VALIDATION.md`.
 
@@ -303,9 +307,9 @@ Pipeline intentionally staged:
 5. admin selects candidate;
 6. admin passes a verified official source fragment to extraction;
 7. LLM creates pending candidate;
-8. reviewer supplies an approved `legal_rule`;
-9. immutable rule is published;
-10. affected companies are recalculated;
+8. reviewer verifies an immutable review revision and marks it ready;
+9. the checked bundle and outbox event are published atomically;
+10. worker recalculates companies through durable per-company jobs;
 11. open actions from previous assessment can become `review_required`;
 12. applicable regulatory update schedules one deduplicated MAX notification.
 
@@ -318,12 +322,19 @@ GET  /admin/ingestion-runs
 GET  /admin/source-documents
 POST /admin/source-documents/manual
 POST /admin/source-documents/:id/extract
+GET  /admin/extraction-jobs/:id
 GET  /admin/candidates
 POST /admin/candidates/:id/reject
-POST /admin/candidates/:id/publish
+POST /admin/candidates/:id/review/:revision/publish
+GET  /admin/candidates/:id/publication
+POST /admin/candidates/:id/publication/retry
 ```
 
 Source outage does not remove current verified rules; the user still sees the last approved rule and its `checkedAt` date.
+
+Extraction returns HTTP 202 and a job ID. Publication requires the saved ready
+revision's `contentHash`; arbitrary client-supplied rule publication is blocked
+for grounded candidates. See the current delivery report above.
 
 ---
 

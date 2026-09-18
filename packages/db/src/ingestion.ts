@@ -1,3 +1,4 @@
+import type { PoolClient } from 'pg';
 import { randomUUID } from 'node:crypto';
 import { LegalRuleSchema, type LegalRule } from '@reg/domain';
 import type { SourceDocument } from '@reg/ingestion';
@@ -110,14 +111,14 @@ export async function saveRuleCandidate(input: {
   provider: string;
   model?: string | null;
   draft: RegulatoryExtraction;
-}) {
+}, transaction?: PoolClient) {
   const extraction = validateRegulatoryExtraction(input.draft);
   const { sourceSnapshot, ...draft } = extraction;
   const id = randomUUID();
   const snapshotId = randomUUID();
-  const client = await getPool().connect();
+  const client = transaction ?? await getPool().connect();
   try {
-    await client.query('BEGIN');
+    if (!transaction) await client.query('BEGIN');
     const source = await client.query('SELECT official_url FROM source_documents WHERE id=$1 FOR SHARE', [input.sourceDocumentId]);
     if (!source.rowCount) throw new Error('SOURCE_DOCUMENT_NOT_FOUND');
     if (source.rows[0].official_url !== sourceSnapshot.officialUrl) throw new Error('SOURCE_SNAPSHOT_URL_MISMATCH');
@@ -131,11 +132,11 @@ export async function saveRuleCandidate(input: {
       [id, input.sourceDocumentId, snapshotId, input.provider, input.model ?? null, EXTRACTION_VERSION,
         JSON.stringify(draft), JSON.stringify(extraction.evidence)],
     );
-    await client.query('COMMIT');
+    if (!transaction) await client.query('COMMIT');
   } catch (error) {
-    await client.query('ROLLBACK');
+    if (!transaction) await client.query('ROLLBACK');
     throw error;
-  } finally { client.release(); }
+  } finally { if (!transaction) client.release(); }
   return id;
 }
 

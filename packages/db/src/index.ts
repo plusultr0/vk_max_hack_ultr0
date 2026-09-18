@@ -8,3 +8,8 @@ export * from './notifications.js';
 export * from './ingestion.js';
 export * from './review.js';
 export * from './publication.js';
+
+export * from './outbox.js';
+export * from './extraction-jobs.js';
+export * from './webhook.js';
+export * from './runtime.js';

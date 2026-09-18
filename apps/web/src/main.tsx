@@ -33,6 +33,8 @@ type ImpactQuestion = {
 
 type Impact = {
   id: string;
+  isCurrent: boolean;
+  timeState: 'active'|'upcoming'|'ended'|'cancelled';
   profileVersion: number;
   ruleId: string;
   ruleVersion: number;
@@ -41,6 +43,7 @@ type Impact = {
   complianceState: 'unknown'|'compliant'|'action_required'|'not_assessed';
   effectiveFrom: string | null;
   reviewReasons: string[];
+  reasons: string[];
   questions: ImpactQuestion[];
   rule: { userTitle: string; summary: string; category: string; legalStatus: string; checkedAt: string; evidenceRefs: Array<{ id:string; url:string; label:string }> };
   actions: Array<{ id:string; title:string; description:string; deadline:string|null; executionStatus:string; reviewRequired:boolean }>;
@@ -63,15 +66,21 @@ const onboardingFields = [
 ] as const;
 
 function statusLabel(impact: Impact) {
+  if (!impact.isCurrent) return ['Историческая карточка','muted'];
+  if (impact.timeState === 'upcoming') return ['Предстоящее изменение','info'];
+  if (impact.timeState === 'ended' || impact.timeState === 'cancelled') return ['Действие завершено','muted'];
   if (impact.reviewState === 'needs_review') return ['Требует проверки','warning'];
   if (impact.verdict === 'needs_info' || impact.questions.length > 0) return ['Нужно уточнить','info'];
   if (impact.verdict === 'not_applicable') return ['Не относится','muted'];
+  if (impact.actions.length && impact.actions.every(a=>a.executionStatus==='completed')) return ['Действия отмечены выполненными','success'];
   if (impact.complianceState === 'action_required') return ['Нужно действие','danger'];
   if (impact.complianceState === 'compliant') return ['Соответствует','success'];
   return ['Относится','accent'];
 }
 
 function App() {
+  const [linkedImpact,setLinkedImpact]=useState<Impact|null>(null);
+  const [impactHistory,setImpactHistory]=useState<Impact[]>([]);
   const [token, setToken] = useState<string | null>(sessionStorage.getItem('reg.session'));
   const [authMeta, setAuthMeta] = useState<{ startParam?: string|null; dev?: boolean; platform?: string } | null>(null);
   const [profile, setProfile] = useState<ProfileState | null>(null);
@@ -102,7 +111,7 @@ function App() {
     sessionStorage.setItem('reg.session', result.token);
     setToken(result.token);
     setAuthMeta({ startParam: result.startParam, dev: result.dev, platform: window.WebApp?.platform ?? 'browser' });
-    return result.token;
+    return result;
   }
 
   async function loadAll(activeToken = token) {
@@ -111,8 +120,8 @@ function App() {
     try {
       const headers = { Authorization: `Bearer ${activeToken}` };
       const [p, i] = await Promise.all([
-        fetch(`${API_URL}/company/profile`, { headers }).then(r => r.json()) as Promise<ProfileState>,
-        fetch(`${API_URL}/impacts`, { headers }).then(r => r.json()) as Promise<ImpactList>,
+        fetch(`${API_URL}/company/profile`, { headers }).then(async r => {if(!r.ok)throw new Error('Ошибка загрузки профиля');return r.json();}) as Promise<ProfileState>,
+        fetch(`${API_URL}/impacts`, { headers }).then(async r => {if(!r.ok)throw new Error('Ошибка загрузки карточек');return r.json();}) as Promise<ImpactList>,
       ]);
       setProfile(p); setImpacts(i);
       if (p.confirmed) setView('dashboard'); else setView('profile');
@@ -124,9 +133,12 @@ function App() {
     void (async () => {
       try {
         let active = token;
-        if (!active) active = (await authenticate());
+        // A new MAX launch can contain a different signed deep link or user,
+        // even when this webview still holds a valid session from a prior launch.
+        if (!active || window.WebApp?.initData?.trim()) active = (await authenticate()).token;
         else {
           const me = await fetch(`${API_URL}/auth/me`, { headers: { Authorization: `Bearer ${active}` } }).then(async (r) => {
+            if(r.status===401){sessionStorage.removeItem('reg.session');const renewed=await authenticate();active=renewed.token;return renewed;}
             const b = await r.json(); if (!r.ok) throw new Error(b.message ?? b.error); return b as any;
           });
           setAuthMeta({ startParam: me.startParam ?? null, dev: me.dev, platform: window.WebApp?.platform ?? 'browser' });
@@ -138,11 +150,12 @@ function App() {
 
   useEffect(() => {
     const start = authMeta?.startParam;
+    if(start?.startsWith('assessment_')){setView('dashboard');void api<Impact>(`/impacts/${encodeURIComponent(start.slice(11))}`).then(setLinkedImpact).catch(()=>setError('Карточка недоступна для вашей компании.'));return;}
     if (!start?.startsWith('impact_') || !impacts) return;
     const ruleId = start.slice('impact_'.length);
     setView('dashboard');
     setTimeout(() => document.getElementById(`impact-${ruleId}`)?.scrollIntoView({ behavior:'smooth', block:'start' }), 150);
-  }, [authMeta?.startParam, impacts?.profileVersion]);
+  }, [authMeta?.startParam, impacts]);
 
   async function saveField(key: string, value: unknown) {
     if (!profile) return;
@@ -183,8 +196,10 @@ function App() {
 
   async function openHistory() {
     setView('history');
-    const [a,h] = await Promise.all([api<{items:any[]}>('/audit'), api<{items:any[]}>('/company/profile/history')]);
-    setAudit(a.items); setHistory(h.items);
+    try {
+      const [a,h,i] = await Promise.all([api<{items:any[]}>('/audit'), api<{items:any[]}>('/company/profile/history'),api<ImpactList>('/impacts/history')]);
+      setAudit(a.items); setHistory(h.items);setImpactHistory(i.impacts);
+    } catch(e) {setError(e instanceof Error ? e.message : 'Не удалось загрузить историю');}
   }
 
   const visibleImpacts = useMemo(() => {
@@ -225,6 +240,7 @@ function App() {
 
         {view === 'dashboard' && <>
           <div className="section-head"><div><span className="eyebrow">АКТУАЛЬНО ДЛЯ ВАС</span><h1>Изменения и действия</h1></div><button className="ghost" onClick={() => setView('profile')}>Изменить профиль</button></div>
+          {linkedImpact&&<section><h2>Карточка из уведомления</h2><ImpactCard impact={linkedImpact} onAnswer={answerQuestion} onAction={setAction}/><button onClick={()=>setLinkedImpact(null)}>Закрыть карточку</button></section>}
           {!profile?.confirmed && <div className="empty-card"><h2>Сначала заполните профиль</h2><p>Без него система не может определить применимость требований.</p><button onClick={() => setView('profile')}>Перейти к профилю</button></div>}
           {profile?.confirmed && <>
             <div className="filters">{(['attention','all','applies','needs_info','not_applicable'] as const).map(f => <button className={filter===f?'active':''} key={f} onClick={() => setFilter(f)}>{{attention:'Требуют внимания',all:'Все',applies:'Относятся',needs_info:'Нужно уточнить',not_applicable:'Не относятся'}[f]}</button>)}</div>
@@ -237,6 +253,7 @@ function App() {
 
         {view === 'history' && <>
           <div className="section-head"><div><span className="eyebrow">АУДИТ</span><h1>История изменений</h1></div></div>
+          {impactHistory.map(impact=><ImpactCard key={impact.id} impact={impact} onAnswer={answerQuestion} onAction={setAction}/>)}
           <div className="history-grid">
             <div className="panel"><h2>Версии профиля</h2>{history.map((item:any) => <div className="timeline" key={item.id}><b>Версия {item.profile_version}</b><span>{new Date(item.created_at).toLocaleString('ru-RU')}</span></div>)}</div>
             <div className="panel"><h2>События</h2>{audit.map((item:any) => <div className="timeline" key={item.id}><b>{item.event_type}</b><span>{new Date(item.created_at).toLocaleString('ru-RU')}</span></div>)}</div>
@@ -268,10 +285,11 @@ function ImpactCard({impact,onAnswer,onAction}:{impact:Impact;onAnswer:(i:Impact
   return <article id={`impact-${impact.ruleId}`} className={`impact-card tone-${tone}`}>
     <button className="impact-head" onClick={() => setExpanded(!expanded)}><div><span className={`status ${tone}`}>{label}</span><h2>{impact.rule.userTitle}</h2><p>{impact.rule.summary}</p></div><span className="chevron">{expanded?'−':'+'}</span></button>
     {expanded && <div className="impact-body">
-      <div className="meta-grid"><div><span>Действует с</span><b>{impact.effectiveFrom ?? impact.rule.legalStatus}</b></div><div><span>Проверено</span><b>{impact.rule.checkedAt}</b></div><div><span>Версия правила</span><b>v{impact.ruleVersion}</b></div></div>
+      <div className="meta-grid"><div><span>Действует с</span><b>{impact.effectiveFrom ?? 'Уточняется по условиям'}</b></div><div><span>Проверено</span><b>{impact.rule.checkedAt}</b></div><div><span>Версия правила</span><b>v{impact.ruleVersion} · профиль {impact.profileVersion}</b></div></div>
+      {impact.reasons?.length>0&&<div className="callout"><b>Почему получен результат</b>{impact.reasons.map((reason,index)=><p key={index}>{reason}</p>)}</div>}
       {impact.reviewReasons.length>0 && <div className="callout warning"><b>Нужна ручная проверка</b>{impact.reviewReasons.map(x => <p key={x}>{x}</p>)}</div>}
-      {impact.questions.length>0 && <div className="callout info"><b>Нужно уточнить</b>{impact.questions.map(q => <QuestionInput key={q.field} q={q} onSubmit={(value)=>onAnswer(impact,q.field,value)} />)}</div>}
-      {impact.actions.length>0 && <div className="actions"><h3>Что сделать</h3>{impact.actions.map(a => <div className={`action ${a.reviewRequired?'review-required':''}`} key={a.id}><div><b>{a.title}</b><p>{a.description}</p>{a.deadline&&<span>Срок: {a.deadline}</span>}{a.reviewRequired&&<span>Требует пересмотра после изменения основания</span>}</div><div className="action-buttons">{a.executionStatus==='open'&&<button onClick={()=>void onAction(a.id,'in_progress')}>В работу</button>}{a.executionStatus!=='completed'&&<button className="primary" onClick={()=>void onAction(a.id,'completed')}>Выполнено</button>}{a.executionStatus==='completed'&&<span className="done">✓ Выполнено</span>}</div></div>)}</div>}
+      {impact.isCurrent&&impact.questions.length>0 && <div className="callout info"><b>Нужно уточнить</b>{impact.questions.map(q => <QuestionInput key={q.field} q={q} onSubmit={(value)=>onAnswer(impact,q.field,value)} />)}</div>}
+      {impact.actions.length>0 && <div className="actions"><h3>Что сделать</h3>{impact.actions.map(a => <div className={`action ${a.reviewRequired?'review-required':''}`} key={a.id}><div><b>{a.title}</b><p>{a.description}</p>{a.deadline&&<span>Срок: {a.deadline}</span>}{a.reviewRequired&&<span>Требует пересмотра после изменения основания</span>}</div><div className="action-buttons">{impact.isCurrent&&impact.timeState==='active'&&!a.reviewRequired&&a.executionStatus==='open'&&<button onClick={()=>void onAction(a.id,'in_progress')}>В работу</button>}{impact.isCurrent&&impact.timeState==='active'&&!a.reviewRequired&&a.executionStatus!=='completed'&&<button className="primary" onClick={()=>void onAction(a.id,'completed')}>Выполнено</button>}{a.executionStatus==='completed'&&<span className="done">✓ Выполнено</span>}</div></div>)}</div>}
       <div className="evidence"><h3>Основание</h3>{impact.rule.evidenceRefs.map(e => <button key={e.id} onClick={() => window.WebApp?.openLink ? window.WebApp.openLink(e.url) : window.open(e.url,'_blank')}>{e.label} ↗</button>)}</div>
     </div>}
   </article>;
