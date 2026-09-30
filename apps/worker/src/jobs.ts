@@ -16,7 +16,7 @@ import {
   type OfficialHtmlSource,
   type SourceDocument,
 } from '@reg/ingestion';
-import { buildMiniAppDeepLink, MaxApiClient } from '@reg/max';
+import { callbackButton, openMiniAppButton, MaxApiClient, type MaxButtonRows } from '@reg/max';
 
 type FetchedSource = { datasetUrl: string; documents: SourceDocument[]; rawCount: number };
 type SourceDefinition = {
@@ -177,19 +177,34 @@ export async function runPravoIngestion() {
   return result;
 }
 
-function notificationMessage(notification: any) {
+function notificationMessage(notification: any, botUsername: string): {text:string;buttons:MaxButtonRows} {
   const payload = notification.payload ?? {};
-  if(notification.type==='bot_welcome') return {text:'Откройте мини-приложение, заполните профиль компании и проверьте изменения.',
-    payload:payload.startParam??'home'};
+  if(notification.type==='bot_welcome') return {
+    text:'Я помогу быстро понять, какие требования из проверенной базы относятся к вашему бизнесу, что нужно сделать и что изменилось.\n\nНачните с Mini App или используйте быстрые команды в чате.',
+    buttons:[
+      [openMiniAppButton(botUsername,'Начать проверку',payload.startParam??'home')],
+      [callbackButton('Статус','nav:status'),callbackButton('Изменения','nav:changes')],
+      [callbackButton('Действия','nav:actions'),callbackButton('Помощь','nav:help')],
+    ],
+  };
   if (notification.type === 'deadline_reminder') {
+    const openPayload=payload.impactId ? `assessment_${payload.impactId}` : 'check';
+    const rows:MaxButtonRows=[[openMiniAppButton(botUsername,'Открыть действие',openPayload)]];
+    if(payload.actionId)rows.push([callbackButton('Отметить выполненным',`action:ask:${payload.actionId}`)]);
     return {
-      text: `Напоминание: ${payload.title ?? 'регуляторное действие'}${payload.deadline ? ` — срок ${payload.deadline}` : ''}.`,
-      payload: payload.impactId ? `assessment_${payload.impactId}` : 'home',
+      text: `Напоминание: ${payload.title ?? 'регуляторное действие'}${payload.deadline ? `\nСрок: ${payload.deadline}` : ''}.`,
+      buttons:rows,
     };
   }
+  const needsInfo=payload.needsInfo===true||payload.verdict==='needs_info';
   return {
-    text: `Для вашей компании найдено новое релевантное изменение: ${payload.title ?? payload.ruleId ?? 'откройте карточку'}.`,
-    payload: payload.impactId ? `assessment_${payload.impactId}` : 'home',
+    text: needsInfo
+      ? `Появилось новое требование, которое может относиться к вашему бизнесу: ${payload.title ?? payload.ruleId ?? 'откройте карточку'}.\n\nЧтобы определить применимость, нужно уточнить данные о бизнесе.`
+      : `Для вашего бизнеса найдено новое релевантное изменение: ${payload.title ?? payload.ruleId ?? 'откройте карточку'}.`,
+    buttons:[
+      [openMiniAppButton(botUsername,needsInfo?'Ответить и проверить':'Открыть карточку',payload.impactId ? `assessment_${payload.impactId}` : 'feed')],
+      [callbackButton('Мой статус','nav:status'),callbackButton('Изменения','nav:changes')],
+    ],
   };
 }
 
@@ -205,11 +220,11 @@ export async function dispatchNotifications(maxBatch = 50) {
     if (!notification) break;
     try {
       if (!await notificationStillRelevant(notification)) continue;
-      const message = notificationMessage(notification);
+      const message = notificationMessage(notification,config.MAX_BOT_USERNAME);
       await client.sendMessageToUser({
         userId: notification.max_user_id,
         text: message.text,
-        button: { text: 'Открыть карточку', url: buildMiniAppDeepLink(config.MAX_BOT_USERNAME, message.payload) },
+        buttons: message.buttons,
       });
       await markNotificationSent(notification.id, notification.claim_token);
       sent += 1;

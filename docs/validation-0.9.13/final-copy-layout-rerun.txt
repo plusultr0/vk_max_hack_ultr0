@@ -1,0 +1,6 @@
+Final verification after the last UX copy refinements:
+- complete static user UI layout suite: 80/80 passed (16 states x 5 widths)
+- additional targeted wording/long CTA pass: 30/30 passed
+- admin review UI: 5/5 passed
+- widths: 320, 375, 768, 1024, 1440 px
+- production CSS was used; these are static fixtures, not React/backend E2E

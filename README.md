@@ -1,505 +1,114 @@
-# MAX Regulatory Control — S9 delivery and lifecycle
+# MAX Regulatory Control · 0.9.19
 
-План дальнейшей разработки: [docs/DEVELOPMENT_PLAN_2026-09-17.md](docs/DEVELOPMENT_PLAN_2026-09-17.md). Исторические отчёты предыдущих этапов: [docs/history](docs/history). Текущий статус реализации и ограничения описаны ниже; исторические отчёты отражают состояние на момент соответствующей проверки.
+Мини-приложение и бот MAX для проверки требований к бизнесу по сохранённым ответам. Версия продолжает фактический проект 0.9.18. Архитектура, 37 требований стартового каталога, ingestion/GigaChat, прежние ответы и рабочий `.env` сохранены.
 
-Текущая версия пакета: **0.9.5**. Реализованы редактор human review, атомарная публикация, фоновый пересчёт, жизненный цикл версий/действий и техническая цепочка MAX. **S9.6/S9.7 проверены локально; S9.8 ожидает live-проверки после появления HTTPS-стенда.** Статус, тесты и новые API: [docs/S9_DELIVERY_VALIDATION.md](docs/S9_DELIVERY_VALIDATION.md).
+В 0.9.19 внесены исправления по всем 15 пунктам аудита клиентского пути. Подробности: `CLIENT_JOURNEY_FIXES_0.9.19.md`, `CHANGELOG_0.9.19.md`.
 
-S9.4 сохранён: extraction фиксирует снимок источника и формирует точные цитаты на сервере. Review UI `/review` публикует готовую проверенную ревизию и показывает прогресс доставки. Извлечение теперь фоновое: POST возвращает 202 и ID задания; результат читается через `/admin/extraction-jobs/:id`.
+## Текущий статус проверки
 
-`npm run check` включает backend typecheck, unit tests и web build. Зависимости зафиксированы в `package-lock.json`, Docker использует `npm ci`. Для существующей установки сохраняйте её `.env` и PostgreSQL volume. Миграции 007/008 добавляют снимки и ревизии без удаления прежних candidates.
+Выполнено в среде подготовки: **229/229 offline core**, **10/10 bot routing/copy**, синтаксис **108 TS/TSX** без ошибок, **100/100 Chromium CSS/layout** на 320/375/768/1024/1440 px.
 
-Регуляторный контроль для малого e-commerce внутри MAX: профиль компании → применимость нормативного изменения → объяснение/источник → конкретные действия → выполнение → уведомления → история версий.
+Полный typecheck, Vitest, Vite build, PostgreSQL integration и настоящий React browser regression здесь **не подтверждены**: зависимости npm недоступны, Docker и PostgreSQL отсутствуют. Добавленные сценарии подключены к изолированному acceptance, но не выдаются за выполненные. Живой сервер пользователя, MAX и GigaChat в этой сессии не проверялись.
 
-Репозиторий продолжает технический путь **S0–S9.8** из development plan. Это hackathon MVP, а не юридическая консультационная система: автоматический результат строится только по утверждённым формализованным правилам, а неоднозначные случаи уходят в `needs_info` / `needs_review`.
+Подробности и границы результатов: `TEST_REPORT.md`. Это обновлённые исходники для проверки и развёртывания, а не утверждение о полностью пройденном live acceptance.
 
-## Главное отличие продукта
+## Клиентский путь
 
-Это не лента правовых новостей и не «спросить LLM о законе».
+«Мой бизнес» содержит 5 обязательных вопросов, которые использует стартовый каталог: форма бизнеса, налоговый режим, продажи потребителям, дистанционные заказы, обработка персональных данных. Доступен ответ «Не знаю». Регион, каналы заказов и возможность онлайн-оплаты находятся в необязательных сведениях; старые значения сохранены. Для конкретного нового требования могут появиться дополнительные вопросы.
 
-```text
-official source
-  -> ingestion/staging
-  -> LLM extraction draft (optional)
-  -> human verification
-  -> immutable approved legal rule
-  -> deterministic rule engine
-  -> company-specific impact
-  -> action / deadline / status
-  -> MAX notification + deep link
-```
+В «Требованиях» сначала показываются карточки, которым нужно внимание. После изменения профиля этот фильтр восстанавливается. У каждой карточки остаются объяснение, уточнение/исправление ответов, действия и источники. Удалённая в 0.9.18 таблица введённых ответов обратно не добавлялась.
 
-LLM не участвует в исполнении 7 pilot rules и не может автоматически опубликовать правовой вывод.
+«Документы и важные настройки» различают настоящие документы/настройки и action-пункты. Для действия используется ровно тот же `action_items.execution_status`, что в карточке и боте. Повторный запрос возвращает квитанцию и не отменяет более новую отметку. Документальные наблюдения по-прежнему имеют собственные основание и историю.
 
----
+«Изменения» обновляет основной список вместе с лентой. Отсутствие свежей карточки в старом локальном списке больше не делает её исторической. `/changes` бота выбирает новые релевантные карточки, исключая `not_applicable`.
 
-## Статус спринтов
+При возвращении в приложение, восстановлении сети и видимом ожидании данные актуализируются. Неотправленный ввод не теряется при неизменном вопросе. Изменение профиля в другом окне показывается как конфликт, без подмены локального ввода.
 
-| Stage | Реализовано | Live acceptance |
-|---|---|---|
-| S0 | monorepo, PostgreSQL, migrations, domain DSL/evaluator, seed, Docker skeleton | dependency/Docker run pending |
-| S1 | MAX webhook, Bridge shell, WebAppData validation, signed session, mini-app deep links | real bot token + HTTPS pending |
-| S2 | onboarding, draft, `answeredFields`, immutable profile versions | DB/browser smoke pending |
-| S3 | 7 pilot rules + fixtures + regression seed | final legal recheck before demo |
-| S4 | mock/GigaChat/DeepSeek extraction adapter + structured schema | provider credentials smoke pending |
-| S5 | company-specific applicability, context questions, reassessment | DB/API smoke pending |
-| S6 | action materialization/status/audit/history preservation | DB/API smoke pending |
-| S7 | durable MAX notifications, retries, reminders, deep links | live MAX delivery pending |
-| S8 | responsive mini-app, filters, typed context inputs, loading/error/empty/history | mobile/web MAX QA pending |
-| S9 | official-source ingestion staging, candidates, manual publication, reassessment | implemented |
-| S9.1 | live GigaChat OAuth/TLS/structured extraction | smoke passed on team Windows/Docker machine |
-| S9.2 | resilient multi-source official ingestion + retry + manual official fallback | live multi-source smoke pending |
-| S9.5 | grounded review revisions, compiler and editor | local DB/API/browser validation |
-| S9.6 | atomic publication, outbox consumer, retries, async extraction | disposable DB and real worker restart passed |
-| S9.7 | current/history, version selection, action carry-over, reminder guards | local lifecycle integration passed |
-| S9.8 | signed auth, exact assessment deep links, webhook, mobile UX | local tests passed; real MAX/HTTPS pending |
+История доступна из «Моего бизнеса»: версии ответов «было → стало», старые результаты и события с загрузкой следующих страниц.
 
-Подробности: `S0_VALIDATION.md` … `S9_VALIDATION.md`.
+Сервис различает применимость требования, автоматический расчёт по ответам и самостоятельную отметку выполнения. `unknown` не превращается в `false`, а подходящий закон не считается доказанным нарушением. Каталог не является полным охватом законодательства; документы и фактическое исполнение сервис автоматически не проверяет.
 
----
+## Обновление существующего сервера
 
-## Архитектура
+Инструкция с резервной копией: **`DEPLOY_0.9.19.md`**.
 
-```text
-apps/
-  web/        React/Vite mini-app
-  api/        Fastify REST API + MAX auth + admin ingestion API
-  bot/        MAX webhook + welcome/open-app flow
-  worker/     pg-boss: notifications + scheduled official-source ingestion
+Серверный патч применяется **поверх 0.9.18**, из корня существующего проекта. `.env` в патче отсутствует. Перед миграцией нужна резервная копия БД. Миграция 013 добавляет квитанции action-ответов, журнал переноса прежних отметок и индекс истории. Старые ответы не удаляются.
 
-packages/
-  domain/     Zod schemas + tri-state rule engine
-  db/         PostgreSQL repositories, migrations, seed, versioning/audit
-  max/        WebAppData validation, signed session, MAX API client, deep links
-  llm/        mock / GigaChat / DeepSeek provider adapter
-  ingestion/  resilient official-source adapters + normalization + relevance staging
-  config/     typed env configuration
-
-seed/v1/
-  legal-acts.json
-  legal-rules.json
-  profile-fixtures.json
-  expected-assessments.json
-  regulatory-relations.json
-  manifest.json
-```
-
-### State model
-
-- `verdict`: `applies | not_applicable | needs_info` — относится ли правило;
-- `reviewState`: `auto | reviewed | needs_review` — можно ли показывать вывод как окончательный;
-- `complianceState`: `unknown | compliant | action_required | not_assessed` — соответствует ли компания проверяемой части требования;
-- `executionStatus`: `open | in_progress | completed | dismissed` — состояние action item.
-
-**`applies` не означает нарушение.**
-
-`unknown` не равен `false`; evaluator использует tri-state `true / false / unknown` и short-circuit.
-
----
-
-## Pilot rules
-
-Core seed содержит 7 карточек:
-
-1. `kkt_online_receipts_v1` — реквизиты чека при интернет-расчёте;
-2. `usn_vat_start_2026_v1` — НДС на УСН с 01.01.2026 по доходу 2025;
-3. `usn_vat_threshold_during_2026_v1` — превышение порога в течение 2026;
-4. `child_goods_marking_v1` — детские товары / маркировка / новая версия срока;
-5. `pd_consent_separate_v1` — отдельное согласие на обработку ПДн;
-6. `distance_seller_identity_v1` — сведения дистанционного продавца;
-7. `digital_ruble_acceptance_v1` — первый этап обязанности принимать цифровые рубли.
-
-Перед финальной демонстрацией источники/редакции этих карточек нужно ещё раз проверить на дату сдачи.
-
----
-
-# Запуск
-
-## Требования
-
-- Node.js 22+
-- npm
-- PostgreSQL 16
-- Docker + Docker Compose для reproducible run (если используете Docker path)
-
-### 1. Установить зависимости
+Для обычного обновления после загрузки и распаковки патча:
 
 ```bash
-npm install
+docker compose up -d --build
+docker compose ps -a
+docker compose logs --tail=100 migrate api worker bot
 ```
 
-После первого успешного install **закоммитьте `package-lock.json`**. В текущем архиве его нет, потому что среда сборки не имеет рабочего доступа к npm registry.
+Не меняйте каталог/имя Compose-проекта без понимания привязки volume. Не используйте `docker compose down -v` для рабочей базы. Не заменяйте production `.env` шаблоном.
 
-### 2. Настроить env
+Полный архив содержит сохранённый `.env` с рабочими настройками. Это приватный архив; его нельзя публиковать в открытом репозитории.
+
+## Изолированная приёмка
+
+Нужны Docker Compose, доступ к реестрам образов/npm при сборке и ресурсы для Chromium. Тесты не используют рабочий `.env`.
 
 ```bash
-cp .env.example .env
+docker compose --env-file .env.test.example -p max-regcontrol-tests -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from tests
+docker compose --env-file .env.test.example -p max-regcontrol-tests -f compose.test.yaml down
 ```
 
-Для локальной работы без MAX достаточно:
+Либо Windows PowerShell:
 
-```env
-DATABASE_URL=postgresql://regcontrol:regcontrol@localhost:5432/regcontrol
-SESSION_SECRET=replace-with-long-random-value
-ALLOW_DEV_AUTH=true
-ADMIN_TOKEN=replace-with-admin-token
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\scripts\acceptance.ps1"
 ```
 
-### 3. Миграции и seed
+Отдельный `Dockerfile.acceptance` устанавливает тестовые зависимости и браузер. БД существует только в tmpfs тестового стека. Во время исполнения сеть изолирована от внешних сервисов; MAX/GigaChat ключи пустые.
+
+Запускаются:
+1. `npm run check`: backend typecheck, Vitest, web build, offline core.
+2. Offline bot gate.
+3. PostgreSQL integration suites, включая `journey.integration.ts`.
+4. Настоящий Vite/React и `tests/browser/regression.py` с перехваченным синтетическим API.
+5. CSS/layout fixtures.
+
+Результат UI contract test не является доказательством работы PostgreSQL или живого MAX. Каждый уровень имеет отдельный отчёт.
+
+## Локальные проверки без Docker
+
+Для чистой логики достаточно Node.js 22 и TypeScript:
 
 ```bash
-npm run db:migrate
-npm run seed
+node scripts/test-core-offline.mjs
+node scripts/test-chatbot-offline.mjs
+node scripts/check-syntax.mjs
 ```
 
-Повторный `npm run seed` должен быть idempotent. Уже существующий `(ruleId, version)` нельзя незаметно заменить другим содержимым.
-
-### 4. Запуск dev
-
-В разных терминалах:
+После установки закреплённых npm-зависимостей:
 
 ```bash
-npm run dev:api
-npm run dev:web
-npm run dev:bot
-npm run dev:worker
+npm ci
+npm run check
 ```
 
-По умолчанию:
-
-- web: `http://localhost:5173`
-- API: `http://localhost:3000`
-- bot webhook service: `http://localhost:3001`
-
-В browser без MAX mini-app использует `/auth/dev`, если `ALLOW_DEV_AUTH=true` и `NODE_ENV != production`.
-
----
-
-# Docker Compose
+Browser regression отдельно:
 
 ```bash
-cp .env.example .env
-docker compose up --build
+npm run dev:web -- --host 127.0.0.1
 ```
 
-Compose поднимает:
-
-```text
-postgres -> migrate -> seed -> api / web / bot / worker
-```
-
-Для финальной сдачи после установки dependencies нужно проверить build time и reproducibility на чистой машине.
-
----
-
-# MAX integration — S1/S7
-
-Необходимые env:
-
-```env
-MAX_BOT_TOKEN=
-MAX_BOT_USERNAME=
-MAX_WEBHOOK_SECRET=
-MAX_WEBHOOK_URL=https://example.ru/max/webhook
-MAX_MINI_APP_URL=https://example.ru/app
-```
-
-Production flow:
-
-```text
-/start / bot_started
-  -> bot sends open-app link
-  -> MAX mini-app loads WebAppData
-  -> POST /auth/max
-  -> server validates signature + auth age
-  -> signed app session
-  -> GET /company/profile + /impacts
-```
-
-Регистрация webhook/subscription:
+В другом терминале:
 
 ```bash
-npm run bot:subscribe
+python -m pip install -r tests/browser/requirements.txt
+python -m playwright install chromium
+python tests/browser/regression.py --base-url http://127.0.0.1:5173
 ```
 
-Публичный HTTPS и реальный bot token нужны только для live acceptance; core logic работает без них через dev auth.
+Для PostgreSQL-тестов задайте **отдельную тестовую БД** и `ALLOW_INTEGRATION_TESTS=true`, затем `npm run test:integration`. Никогда не используйте здесь production DATABASE_URL.
 
----
+## Архитектура и границы изменений
 
-# Profile / impacts API
+Сохранены приложения `api`, `web`, `bot`, `worker` и существующие пакеты. `.env` совпадает побайтно с исходным архивом; `seed/` не изменён. Юридические условия правил не подгонялись под интерфейс.
 
-Основные user endpoints:
+Путь нового документа остаётся прежним: официальный источник → staging/snapshot → grounded extraction GigaChat → проверка/публикация → версия правила → персональный пересчёт → дополнительные факты → уведомление. Эта версия не подтверждает доступность внешнего провайдера или текущего production worker.
 
-```text
-POST /auth/max
-POST /auth/dev                # only non-production if enabled
-GET  /auth/me
-
-GET  /company/profile
-PUT  /company/profile
-POST /company/profile/confirm
-GET  /company/profile/history
-
-GET  /impacts
-GET  /impacts/:id
-POST /impacts/:id/answer
-POST /impacts/:id/feedback
-
-PATCH /actions/:id
-GET   /notifications
-GET   /audit
-GET   /health
-```
-
-### Context questions
-
-Backend отдаёт не только техническое поле, но и тип ввода:
-
-```text
-boolean
-select
-multi_select
-number
-date
-string_list
-text
-```
-
-Это предотвращает ввод внутренних enum-значений вручную и уменьшает invalid profile updates.
-
----
-
-# LLM extraction — S4
-
-Доступные providers:
-
-```env
-LLM_PROVIDER=mock       # default/offline
-LLM_PROVIDER=gigachat
-LLM_PROVIDER=deepseek
-```
-
-Smoke:
-
-```bash
-npm run llm:smoke
-```
-
-LLM получает только переданный официальный текст и создаёт **draft**. Draft проходит Zod validation и остаётся candidate до ручного approval.
-
----
-
-# Official source ingestion — S9
-
-Разовый запуск:
-
-```bash
-npm run ingest:once
-```
-
-Worker также планирует `pravo-ingest` ежедневно.
-
-Pipeline intentionally staged:
-
-1. fetch official open-data metadata;
-2. normalize + hash;
-3. score pilot relevance;
-4. store `source_documents`;
-5. admin selects candidate;
-6. admin passes a verified official source fragment to extraction;
-7. LLM creates pending candidate;
-8. reviewer verifies an immutable review revision and marks it ready;
-9. the checked bundle and outbox event are published atomically;
-10. worker recalculates companies through durable per-company jobs;
-11. open actions from previous assessment can become `review_required`;
-12. applicable regulatory update schedules one deduplicated MAX notification.
-
-Admin API (requires `X-Admin-Token`):
-
-```text
-GET  /admin/ingestion-sources
-POST /admin/ingest
-GET  /admin/ingestion-runs
-GET  /admin/source-documents
-POST /admin/source-documents/manual
-POST /admin/source-documents/:id/extract
-GET  /admin/extraction-jobs/:id
-GET  /admin/candidates
-POST /admin/candidates/:id/reject
-POST /admin/candidates/:id/review/:revision/publish
-GET  /admin/candidates/:id/publication
-POST /admin/candidates/:id/publication/retry
-```
-
-Source outage does not remove current verified rules; the user still sees the last approved rule and its `checkedAt` date.
-
-Extraction returns HTTP 202 and a job ID. Publication requires the saved ready
-revision's `contentHash`; arbitrary client-supplied rule publication is blocked
-for grounded candidates. See the current delivery report above.
-
----
-
-## Resilient official-source ingestion — S9.2
-
-The ingestion worker no longer treats `publication.pravo.gov.ru` as a single point of failure. Each source gets its own `ingestion_run`; enabled sources are fetched in parallel, failures are isolated, and the overall run returns `partial` when at least one official source succeeds.
-
-Configured sources by default:
-
-- `publication.pravo.gov.ru` — primary official publication/open-data feed;
-- `government.ru/docs/all/` — official Government acts index;
-- `nalog.gov.ru/new2026/` — official FNS tax-changes page for the 2026 pilot;
-- `cbr.ru/na/` — official Bank of Russia legal-acts index;
-- `cbr.ru/PSystem/dr/...` — official Bank of Russia digital-ruble business guidance used by the pilot;
-- `zpp.rospotrebnadzor.ru/news/federal/` — official federal consumer-protection publications.
-
-These sources are **not treated as equivalent mirrors**. Their provenance is preserved in `source_documents.source`, and every LLM draft still requires human review before an immutable `legal_rule` can be published.
-
-Transient fetch failures use bounded retries (`INGESTION_RETRIES`, default `2`). A blocked primary portal therefore does not stop FNS/CBR/Government/Rospotrebnadzor ingestion.
-
-For a last-resort operator workflow there is also `POST /admin/source-documents/manual`: an admin may stage verified text copied/downloaded from an official URL. Manual records are marked `manual.<hostname>` and still go through the same candidate/review/publication path.
-
-`POST /admin/source-documents/:id/extract` can now use, in order: explicitly supplied `sourceText`, text already staged from an official page, or an HTML fetch of the document's `official_url`. It never auto-publishes the result.
-
-# Notifications — S7
-
-Notification DB state is durable and deduplicated.
-
-Implemented types:
-
-- `regulatory_update`;
-- `deadline_reminder`.
-
-Properties:
-
-- `FOR UPDATE SKIP LOCKED` claim;
-- retry after failures;
-- terminal state after 5 attempts;
-- stale `sending` recovery;
-- no external notification rows for `dev-*` users;
-- deep link `startapp=impact_<ruleId>`;
-- onboarding/profile changes do not spam one message per existing rule.
-
----
-
-# Проверки
-
-После `npm install`:
-
-```bash
-npm test
-npm run build:web
-npm run db:migrate
-npm run seed
-npm run seed
-```
-
-Дополнительно:
-
-```bash
-npm run llm:smoke
-npm run ingest:once
-```
-
-## Что уже проверено в среде сборки
-
-- TypeScript/TSX syntax parse через `tsc --noCheck`;
-- parse всех JSON;
-- parse `compose.yaml`;
-- отдельные deterministic sanity checks seed/evaluator;
-- структура migrations и cumulative source tree.
-
-## Что НЕ проверено здесь
-
-Из-за отсутствия нормального доступа к npm registry / Docker / внешних credentials в этой среде не заявляем как пройденные:
-
-- `npm install`;
-- Vitest runtime suite;
-- Vite production build;
-- реальный PostgreSQL migration/seed run;
-- `docker compose up --build`;
-- live MAX webhook/WebAppData/message delivery;
-- live GigaChat/DeepSeek calls;
-- live official-source ingestion.
-
-Это нужно прогнать на машине команды/VPS. Если там обнаружится несовместимость версии dependency или внешнего API, исправляем после smoke-test.
-
----
-
-# Security boundaries
-
-- MAX, LLM и admin secrets — server-side env only;
-- `/auth/dev` отсутствует в production;
-- WebAppData проверяется server-side;
-- API ownership scoped by company session;
-- rule candidates не публикуются автоматически;
-- internal business documents не отправляются в LLM в текущем MVP;
-- logs/seed не должны содержать credentials;
-- confirmed profile/rule versions immutable;
-- source failure не превращается в «новое юридическое состояние».
-
----
-
-# Следующий этап — S10
-
-S10 — submission hardening:
-
-- clean install/build на реальной машине;
-- lockfile;
-- public HTTPS deploy;
-- MAX token + webhook + mini-app attach;
-- live end-to-end acceptance mobile/web;
-- final README/test script;
-- `.env.example`/secrets audit;
-- Docker build-time check;
-- commit hash/archive checksum;
-- презентация PDF и demo script.
-
-## Live GigaChat stage (post-S9)
-
-The LLM layer is intentionally used only for **draft extraction from verified source text**. Applicability to a company remains deterministic and is never delegated to the model.
-
-Current GigaChat integration uses OAuth `POST /api/v2/oauth`, the `https://api.giga.chat/v1` REST base URL and structured output with `response_format.type=json_schema`.
-
-Set in `.env`:
-
-```env
-LLM_PROVIDER=gigachat
-LLM_MODEL=GigaChat-2-Pro
-LLM_TIMEOUT_MS=45000
-GIGACHAT_AUTH_KEY=<authorization-key-from-GigaChat-Studio>
-GIGACHAT_SCOPE=GIGACHAT_API_PERS
-```
-
-Do not commit the authorization key. After changing `.env`, recreate the API/worker containers:
-
-```bash
-docker compose up -d --force-recreate api worker
-```
-
-Run a live smoke test entirely inside Docker:
-
-```bash
-docker compose run --rm worker npm run llm:smoke
-```
-
-Or check through the protected admin API:
-
-```bash
-curl -H "X-Admin-Token: $ADMIN_TOKEN" http://localhost:3000/admin/llm/status
-curl -X POST -H "X-Admin-Token: $ADMIN_TOKEN" http://localhost:3000/admin/llm/smoke
-```
-
-GigaChat API requires the Russian Ministry of Digital Development trust chain. If Node reports a certificate validation error, install the official CA certificates and expose the PEM bundle to the Node process via `NODE_EXTRA_CA_CERTS`. Do not disable TLS verification in production.
-
-## S9.3 — grounded LLM extraction quality gate
-
-The live GigaChat extraction path now rejects ungrounded rule drafts before they become review candidates:
-
-- every condition, exception and action must reference at least one `evidenceIndexes` entry;
-- every referenced evidence index must exist;
-- every evidence quote must occur verbatim in the staged official source text after whitespace normalization;
-- `operatorHint` is constrained to machine-like operators (`eq`, `gt`, `gte`, `lt`, `lte`, `in`, `exists`, date operators, `other`);
-- if the first structured response fails the quality gate, the adapter performs one grounded repair pass and validates again;
-- if the repaired result still fails, extraction stops with `EXTRACTION_QUALITY_GATE_FAILED` and no candidate is stored;
-- sources with multiple dated phases are instructed to keep the earliest phase in the single-rule draft and explicitly preserve later phases in `uncertaintyNotes` for separate review/rules.
-
-New prompt version stored with candidates: `reg-extract-v3-grounded-repair`.
+Техническая документация предыдущей версии сохранена в `docs/releases/0.9.18/`; более ранние реализации и проверки также остаются в проекте. Новая точка продолжения и оставшаяся приёмка: `ROADMAP.md`.

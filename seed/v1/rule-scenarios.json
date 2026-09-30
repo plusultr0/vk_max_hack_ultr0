@@ -1,0 +1,839 @@
+[
+  {
+    "ruleId": "pd_operator_notification_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "only_non_automated_processing": false,
+          "operator_notification_sent": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "only_non_automated_processing": true
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true
+    }
+  },
+  {
+    "ruleId": "pd_policy_publication_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "collects_via_network": true,
+          "network_policy_published": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "collects_via_network": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true
+    }
+  },
+  {
+    "ruleId": "pd_responsible_person_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "legalForm": "LLC",
+      "facts": {
+        "pd": {
+          "responsible_person_appointed": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "legalForm": "IP"
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true
+    }
+  },
+  {
+    "ruleId": "pd_local_acts_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "legalForm": "LLC",
+      "facts": {
+        "pd": {
+          "local_acts_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "legalForm": "IP"
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "legalForm": "LLC"
+    }
+  },
+  {
+    "ruleId": "pd_security_measures_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "security_measures_implemented": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "pd_internal_control_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "internal_control_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "pd_harm_assessment_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "harm_assessment_done": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "pd_localization_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "collects_russian_citizen_data": true,
+          "primary_database_in_russia": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "collects_russian_citizen_data": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true
+    }
+  },
+  {
+    "ruleId": "pd_cross_border_notice_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "cross_border_transfer": true,
+          "cross_border_notice_sent": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "cross_border_transfer": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true
+    }
+  },
+  {
+    "ruleId": "pd_incident_reporting_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "reportable_incident_occurred": true,
+          "incident_reporting_completed": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "reportable_incident_occurred": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true
+    }
+  },
+  {
+    "ruleId": "pd_staff_familiarization_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "staff_handles_personal_data": true,
+          "staff_familiarized": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "staff_handles_personal_data": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true
+    }
+  },
+  {
+    "ruleId": "pd_subject_request_10d_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "subject_request_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "pd_correction_deletion_7d_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": true,
+      "facts": {
+        "pd": {
+          "correction_deletion_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "collectsPersonalData": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "distance_aggregator_order_confirmation_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "is_aggregator": true,
+          "aggregator_order_confirmation_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "is_aggregator": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true
+    }
+  },
+  {
+    "ruleId": "distance_aggregator_seller_info_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "is_aggregator": true,
+          "aggregator_seller_info_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "is_aggregator": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true
+    }
+  },
+  {
+    "ruleId": "distance_aggregator_claim_routing_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "is_aggregator": true,
+          "aggregator_claim_routing_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "is_aggregator": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true
+    }
+  },
+  {
+    "ruleId": "retail_rules_on_request_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "retail_rules_request_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "consumer_claim_written_reply_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "claim_reply_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "distance_conformity_registry_link_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "goods_require_conformity": true,
+          "conformity_registry_links_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "goods_require_conformity": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true
+    }
+  },
+  {
+    "ruleId": "distance_return_7_days_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "sells_goods": true,
+          "return_7_days_policy_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "sells_goods": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true
+    }
+  },
+  {
+    "ruleId": "distance_return_info_written_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "sells_goods": true,
+          "return_info_written_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "sells_goods": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true
+    }
+  },
+  {
+    "ruleId": "distance_refund_10_days_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "sells_goods": true,
+          "refund_10_days_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true,
+      "facts": {
+        "distance": {
+          "sells_goods": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "distanceSales": true
+    }
+  },
+  {
+    "ruleId": "consumer_defect_repair_14_days_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "sells_goods": true,
+          "defect_repair_14_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "sells_goods": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true
+    }
+  },
+  {
+    "ruleId": "consumer_defect_replacement_7_14_days_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "sells_goods": true,
+          "defect_replacement_7_14_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "sells_goods": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true
+    }
+  },
+  {
+    "ruleId": "consumer_defect_refund_7_14_days_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "sells_goods": true,
+          "defect_refund_7_14_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true,
+      "facts": {
+        "distance": {
+          "sells_goods": false
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "sellsToConsumers": true
+    }
+  },
+  {
+    "ruleId": "kkt_electronic_receipt_delivery_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "internetSettlement": true,
+      "receiptIssuer": "company",
+      "usesKkt": true,
+      "facts": {
+        "kkt": {
+          "electronic_receipt_delivery_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "internetSettlement": false,
+      "receiptIssuer": "company",
+      "usesKkt": true
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "receiptIssuer": "company",
+      "usesKkt": true
+    }
+  },
+  {
+    "ruleId": "kkt_correction_receipt_process_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "usesKkt": true,
+      "facts": {
+        "kkt": {
+          "correction_process_ready": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "usesKkt": false
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z"
+    }
+  },
+  {
+    "ruleId": "usn_vat_rate_choice_2026_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false,
+      "income2025Usn": 30000000,
+      "incomeYtd2026": 10000000,
+      "facts": {
+        "tax": {
+          "usn_vat_rate": "special_5"
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "OSNO",
+      "hasCombinedTaxRegimes": false,
+      "income2025Usn": 30000000,
+      "incomeYtd2026": 10000000
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false
+    }
+  },
+  {
+    "ruleId": "usn_vat_5_to_7_threshold_2026_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false,
+      "incomeYtd2026": 300000000,
+      "incomeAsOf": "2026-09-15",
+      "facts": {
+        "tax": {
+          "usn_vat_rate": "special_5",
+          "switched_from_5_after_threshold": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false,
+      "incomeYtd2026": 200000000,
+      "incomeAsOf": "2026-09-15",
+      "facts": {
+        "tax": {
+          "usn_vat_rate": "special_5"
+        }
+      }
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false,
+      "incomeYtd2026": 300000000,
+      "incomeAsOf": "2026-09-15"
+    }
+  },
+  {
+    "ruleId": "usn_limit_490_5m_2026_v1",
+    "applies": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false,
+      "incomeYtd2026": 500000000,
+      "incomeAsOf": "2026-09-15",
+      "facts": {
+        "tax": {
+          "usn_exit_accounting_updated": false
+        }
+      }
+    },
+    "notApplicable": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false,
+      "incomeYtd2026": 400000000,
+      "incomeAsOf": "2026-09-15"
+    },
+    "needsInfo": {
+      "profileVersion": 1,
+      "confirmedAt": "2026-09-27T12:00:00.000Z",
+      "taxRegime": "USN",
+      "hasCombinedTaxRegimes": false
+    }
+  }
+]

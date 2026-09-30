@@ -7,6 +7,7 @@ import type { RegulatoryExtraction, SourceSnapshot } from '../../../../packages/
 export type Field = { name: string; label: string; type: string; scope: 'company' | 'trade_object'; allowedValues: string[] | null; operators: string[] };
 export type Candidate = { id: string; source_title: string; review_state: string; created_at: string; provider: string; model: string | null;
   source_snapshot?: SourceSnapshot | null; draft: Omit<RegulatoryExtraction, 'sourceSnapshot'>; review_warnings?: Array<{ code: string; message: string }>;
+  automation_state?:string; automation_issues?:string[];
   review_requirements?: Array<{ key: string; message: string }> };
 export type Review = { candidateId: string; revision: number; state: 'draft' | 'ready'; document: ReviewDocument; contentHash: string;
   compilation: ReviewCompilation; actorId: string; reason: string; createdAt: string };

@@ -5,3 +5,7 @@ dist
 coverage
 *.log
 *.tsbuildinfo
+
+test-results
+__pycache__
+*.pyc

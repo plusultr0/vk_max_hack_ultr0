@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FactDefinitionSchema, FactRequirementSchema } from '@reg/domain';
 import { isCalendarDate } from '@reg/llm';
 
 export const REVIEW_VERSION = 'review-v1' as const;
@@ -43,7 +44,7 @@ export const ReviewPhaseSchema = z.object({
   ruleId: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,159}$/),
   version: z.number().int().positive().max(2147483647),
   title: text, userTitle: text, summary: text, subjectRole: maybeText,
-  category: z.enum(['kkt', 'tax', 'marking', 'personal_data', 'distance_sales', 'payments']).nullable(),
+  category: z.enum(['kkt', 'tax', 'marking', 'personal_data', 'distance_sales', 'payments', 'other']).nullable(),
   scope: z.enum(['company', 'trade_object']).nullable(),
   validFrom: groundedDate,
   // Contract for new reviewed rules: [validFrom, validTo), in calendar dates.
@@ -54,11 +55,15 @@ export const ReviewPhaseSchema = z.object({
   exceptions: z.array(condition).max(100),
   actions: z.array(z.object({ ...itemBase, title: text, description: text, deadline: ReviewDeadlineSchema }).strict()).max(100),
   questionMap: z.record(text),
+  factRequirements: z.array(FactRequirementSchema).max(150).optional(),
+  compliance: z.object({ compliantWhen: ReviewExpressionSchema.nullable(), actionRequiredWhen: ReviewExpressionSchema.nullable() }).strict().optional(),
 }).strict();
 export const ReviewDocumentSchema = z.object({
   schemaVersion: z.literal(REVIEW_VERSION),
   actId: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,159}$/),
   title: text,
+  approvalMode: z.enum(['human','machine_validated']).optional(),
+  factDefinitions: z.array(FactDefinitionSchema).max(150).optional(),
   phases: z.array(ReviewPhaseSchema).max(50),
   sourceReview: z.object({ confirmed: z.boolean(), note: maybeText }).strict(),
   resolutions: z.array(z.object({ key: text, resolved: z.boolean(), note: maybeText }).strict()).max(500),

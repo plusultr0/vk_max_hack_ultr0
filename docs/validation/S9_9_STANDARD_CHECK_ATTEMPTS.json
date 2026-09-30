@@ -1,0 +1,30 @@
+{
+  "typecheck": {
+    "command": "npm run typecheck",
+    "exitCode": 2,
+    "status": "blocked_missing_dependencies",
+    "firstDiagnostic": "TS2688: missing @types"
+  },
+  "unitRunner": {
+    "command": "npm test",
+    "exitCode": 127,
+    "status": "blocked_missing_dependencies",
+    "firstDiagnostic": "vitest: not found"
+  },
+  "webBuild": {
+    "command": "npm run build:web",
+    "exitCode": 1,
+    "status": "blocked_missing_dependencies",
+    "firstDiagnostic": "TS2688: missing vite/client"
+  },
+  "postgresqlIntegration": "not_run_no_postgresql",
+  "docker": "not_run_docker_unavailable",
+  "externalProviders": "not_called",
+  "sandbox": {
+    "runner": "node:assert adapter, not Vitest",
+    "passed": 140,
+    "failed": 0,
+    "legacy": 86,
+    "new": 54
+  }
+}

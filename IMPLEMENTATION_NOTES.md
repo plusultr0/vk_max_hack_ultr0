@@ -1,3 +1,9 @@
+# Текущие изменения S9.9
+
+См. `S9_9_IMPLEMENTATION.md` и `S9_9_VALIDATION.md`. Старые записи ниже сохранены как история решений. Обязательный human review теперь заменён машинными gates для поддерживаемых случаев; review остаётся fallback. Профили, snapshots и история не удалялись. Рабочий `.env` не изменён.
+
+---
+
 # Implementation notes — cumulative through S9
 
 Дата: 16.09.2026

@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { CompanyProfileSchema } from '@reg/domain';
+import { CompanyProfileSchema, FactDefinitionSchema, validateFactValue, type FactDefinition } from '@reg/domain';
+import { AutomationPlanSchema, AUTOMATION_JSON_SCHEMA, AUTOMATION_INSTRUCTIONS } from './automation-schema.js';
 import { createSourceSnapshot, datesInText, isCalendarDate, sourceDateMentions, validateSourceSnapshot, type LlmSourceInput, type SourceSnapshot } from './source.js';
 
 export const EXTRACTION_VERSION = 'reg-extract-v4-source-segments' as const;
@@ -40,9 +41,23 @@ const condition = z.object({
   text,
   sourceSegmentIndexes: refs,
 }).strict();
+export function assertExtractionLimits(value:unknown):void {
+  const stack:Array<{value:unknown;depth:number}>=[{value,depth:0}];let nodes=0;
+  while(stack.length) {
+    const item=stack.pop()!;
+    if(++nodes>60000||item.depth>30)throw new Error('EXTRACTION_RESOURCE_LIMIT');
+    if(typeof item.value==='string'&&item.value.length>500000)throw new Error('EXTRACTION_RESOURCE_LIMIT');
+    if(item.value&&typeof item.value==='object') {
+      const children=Object.values(item.value);
+      if(children.length>20000)throw new Error('EXTRACTION_RESOURCE_LIMIT');
+      for(const child of children)stack.push({value:child,depth:item.depth+1});
+    }
+  }
+}
 export const RegulatoryDraftSchema = z.object({
   title: text,
   summary: text,
+  automation: AutomationPlanSchema.optional(),
   phases: z.array(z.object({
     title: text,
     subjectRole: text.nullable(),
@@ -62,6 +77,7 @@ export type RegulatoryDraft = z.infer<typeof RegulatoryDraftSchema>;
 export type RegulatoryExtraction = RegulatoryDraft & {
   schemaVersion: typeof EXTRACTION_VERSION;
   sourceSnapshot: SourceSnapshot;
+  factCatalog?: FactDefinition[];
   evidence: Array<{ index: number; sourceSegmentIndex: number; quote: string }>;
 };
 
@@ -169,10 +185,18 @@ function allReferences(draft: RegulatoryDraft): Array<{ label: string; refs: num
     });
   });
   draft.dateNotes.forEach((item, i) => result.push({ label: `dateNotes[${i}]`, refs: item.sourceSegmentIndexes }));
+  const walk=(v:unknown,path:string,depth=0)=>{
+    if(depth>25)throw new Error('AUTOMATION_EXPRESSION_TOO_DEEP');
+    if(!v||typeof v!=='object')return;
+    const obj=v as Record<string,unknown>;
+    if(Array.isArray(obj.sourceSegmentIndexes))result.push({label:path,refs:obj.sourceSegmentIndexes as number[]});
+    for(const [key,child] of Object.entries(obj))if(key!=='sourceSegmentIndexes')walk(child,path+'.'+key,depth+1);
+  };
+  if(draft.automation)walk(draft.automation,'automation');
   return result;
 }
 
-export function regulatoryExtractionQualityIssues(draft: RegulatoryDraft, snapshot: SourceSnapshot): string[] {
+export function regulatoryExtractionQualityIssues(draft: RegulatoryDraft, snapshot: SourceSnapshot, factCatalog: FactDefinition[] = []): string[] {
   const issues: string[] = [];
   const sourceFor = (indexes: number[]) => [...new Set(indexes)].sort((a, b) => a - b)
     .map((index, position, sorted) => `${position > 0 && sorted[position - 1] !== index - 1 ? '\n[uncited]\n' : ''}${snapshot.segments[index]?.text ?? ''}`).join('');
@@ -204,6 +228,16 @@ export function regulatoryExtractionQualityIssues(draft: RegulatoryDraft, snapsh
       const op = item.operatorHint;
       if (op === 'other') {
         if (item.fieldHint !== null || item.valueHint !== null || !phase.uncertaintyNotes.length) issues.push(`${label}: unresolved condition requires null hints and a phase uncertainty note`);
+        return;
+      }
+      if (item.fieldHint?.startsWith('facts.')) {
+        const req=draft.automation?.phases.find(p=>p.phaseIndex===i)?.requiredFacts.find(r=>r.field===item.fieldHint);
+        const def=req&&[...factCatalog,...(draft.automation?.factDefinitions??[])].find(d=>d.key===req.key&&d.version===req.definitionVersion);
+        const value=item.valueHint;
+        if(!def)issues.push(`${label}: dynamic field has no declared fact binding`);
+        else if(op==='in') {if(!Array.isArray(value)||!value.length||!value.every(v=>validateFactValue(def,v)))issues.push(`${label}: invalid dynamic in values`);}
+        else if(op==='contains_any'||op==='contains_all') {if(!['multi_enum','string_list'].includes(def.type)||!validateFactValue(def,value))issues.push(`${label}: invalid dynamic array values`);}
+        else if(!validateFactValue(def,value)||value===null||(['gt','gte','lt','lte'].includes(op)&&def.type!=='number'))issues.push(`${label}: invalid dynamic value/operator`);
         return;
       }
       if (!item.fieldHint || !fields.includes(item.fieldHint)) { issues.push(`${label}: unknown profile field; use null/other with an uncertainty note`); return; }
@@ -245,12 +279,13 @@ export function regulatoryExtractionQualityIssues(draft: RegulatoryDraft, snapsh
   return issues;
 }
 
-export function materializeExtraction(draft: RegulatoryDraft, snapshot: SourceSnapshot): RegulatoryExtraction {
+export function materializeExtraction(draft: RegulatoryDraft, snapshot: SourceSnapshot, factCatalog?: FactDefinition[]): RegulatoryExtraction {
   const indexes = [...new Set(allReferences(draft).flatMap((entry) => entry.refs))].sort((a, b) => a - b);
   return {
     ...draft,
     schemaVersion: EXTRACTION_VERSION,
     sourceSnapshot: snapshot,
+    ...(factCatalog ? {factCatalog} : {}),
     evidence: indexes.map((index) => ({ index, sourceSegmentIndex: index, quote: snapshot.segments[index]!.text })),
   };
 }
@@ -275,21 +310,30 @@ export function regulatoryReviewWarnings(draft: RegulatoryDraft) {
 
 // Revalidate at the persistence boundary; never accept caller-owned quote text.
 export function validateRegulatoryExtraction(value: unknown): RegulatoryExtraction {
-  const { schemaVersion, sourceSnapshot, evidence, ...raw } = z.record(z.unknown()).parse(value);
+  const { schemaVersion, sourceSnapshot, evidence, factCatalog, ...raw } = z.record(z.unknown()).parse(value);
   if (schemaVersion !== EXTRACTION_VERSION) throw new Error('EXTRACTION_VERSION_UNSUPPORTED');
   const snapshot = validateSourceSnapshot(sourceSnapshot);
-  const draft = RegulatoryDraftSchema.parse(raw);
-  const issues = regulatoryExtractionQualityIssues(draft, snapshot);
+  const draft = (assertExtractionLimits(raw), RegulatoryDraftSchema.parse(raw));
+  const catalog=factCatalog===undefined?undefined:z.array(FactDefinitionSchema).max(2000).parse(factCatalog);
+  const issues = regulatoryExtractionQualityIssues(draft, snapshot, catalog);
   if (issues.length) throw new Error(`EXTRACTION_QUALITY_GATE_FAILED: ${issues.join('; ')}`);
-  const expected = materializeExtraction(draft, snapshot);
+  const expected = materializeExtraction(draft, snapshot, catalog);
   const parsedEvidence = z.array(z.object({ index: z.number().int(), sourceSegmentIndex: z.number().int(), quote: z.string() }).strict()).parse(evidence);
   if (JSON.stringify(parsedEvidence) !== JSON.stringify(expected.evidence)) throw new Error('SERVER_EVIDENCE_MISMATCH');
   return expected;
 }
 
-export async function extractRegulatoryDraft(provider: LlmProvider, input: LlmSourceInput): Promise<RegulatoryExtraction> {
+export async function extractRegulatoryDraft(provider: LlmProvider, input: LlmSourceInput, options: {autonomous?:boolean; factCatalog?:FactDefinition[]} = {}): Promise<RegulatoryExtraction> {
   const snapshot = createSourceSnapshot(input);
   const jsonSchema = extractionJsonSchema(snapshot);
+  if(options.autonomous) {
+    (jsonSchema as any).properties.automation=AUTOMATION_JSON_SCHEMA;
+    (jsonSchema as any).required.push('automation');
+    // Keep legacy enum validation on the server; allow typed dynamic paths on the wire.
+    const phase=(jsonSchema as any).properties.phases.items;
+    phase.properties.conditions.items={...((REGULATORY_EXTRACTION_JSON_SCHEMA.properties.phases as any).items.properties.conditions.items)};
+    phase.properties.conditions.items.properties={...phase.properties.conditions.items.properties,fieldHint:{anyOf:[{type:'string'},{type:'null'}]}};
+  }
   const payload = {
     task: 'Extract every regulatory phase; cite segment indexes, never generate quotes.',
     sourceTitle: snapshot.sourceTitle,
@@ -297,6 +341,7 @@ export async function extractRegulatoryDraft(provider: LlmProvider, input: LlmSo
     sourceSegments: snapshot.segments,
     detectedDates: sourceDateMentions(snapshot),
     fieldCatalog,
+    businessFactCatalog: options.factCatalog ?? [],
     dateCitationHints: sourceDateMentions(snapshot).map((value) => {
       const direct = snapshot.segments.filter((segment) => datesInText(segment.text).includes(value)).map((segment) => [segment.sourceSegmentIndex]);
       const crossing = direct.length ? [] : snapshot.segments.slice(0, -1).flatMap((segment, i) => datesInText(segment.text + snapshot.segments[i + 1]!.text).includes(value) ? [[i, i + 1]] : []);
@@ -309,7 +354,7 @@ export async function extractRegulatoryDraft(provider: LlmProvider, input: LlmSo
   for (let attempt = 0; attempt < 2; attempt += 1) {
     let raw: unknown;
     try {
-      raw = await provider.generateJson({ system: SYSTEM_PROMPT, jsonSchema, user: JSON.stringify(attempt === 0 ? payload : { ...payload, task: 'Repair the complete draft. Resolve every quality issue using only the supplied source. Remove unsupported values; mentioning their invalidity in notes does not fix them.', previousDraft, qualityIssues }) });
+      raw = await provider.generateJson({ system: SYSTEM_PROMPT + (options.autonomous ? AUTOMATION_INSTRUCTIONS : ''), jsonSchema, user: JSON.stringify(attempt === 0 ? payload : { ...payload, task: 'Repair the complete draft. Resolve every quality issue using only the supplied source. Remove unsupported values; mentioning their invalidity in notes does not fix them.', previousDraft, qualityIssues }) });
     } catch (error) {
       // Invalid model JSON can be repaired. HTTP/TLS/OAuth errors are not schema errors.
       if (!(error instanceof SyntaxError)) throw error;
@@ -317,12 +362,15 @@ export async function extractRegulatoryDraft(provider: LlmProvider, input: LlmSo
       previousDraft = null;
       continue;
     }
+    try {assertExtractionLimits(raw);} catch {
+      previousDraft=null;qualityIssues=['EXTRACTION_RESOURCE_LIMIT: return a bounded declarative draft.'];continue;
+    }
     previousDraft = raw;
     const parsed = RegulatoryDraftSchema.safeParse(raw);
     qualityIssues = parsed.success
-      ? regulatoryExtractionQualityIssues(parsed.data, snapshot)
+      ? regulatoryExtractionQualityIssues(parsed.data, snapshot, options.factCatalog)
       : parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`);
-    if (parsed.success && !qualityIssues.length) return materializeExtraction(parsed.data, snapshot);
+    if (parsed.success && !qualityIssues.length) return materializeExtraction(parsed.data, snapshot, options.autonomous ? options.factCatalog ?? [] : undefined);
   }
   throw new Error(`EXTRACTION_QUALITY_GATE_FAILED: ${qualityIssues.join('; ')}`);
 }

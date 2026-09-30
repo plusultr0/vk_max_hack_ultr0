@@ -1,0 +1,40 @@
+# Isolated acceptance environment. Does not load the working .env.
+# No public ports. Database exists only in tmpfs.
+services:
+  postgres_test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: regtest
+      POSTGRES_PASSWORD: regtest-local-only
+      POSTGRES_DB: regtest
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U regtest -d regtest"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.acceptance
+    environment:
+      NODE_ENV: test
+      VITE_API_URL: ""
+      DATABASE_URL: postgresql://regtest:regtest-local-only@postgres_test:5432/regtest
+      ALLOW_INTEGRATION_TESTS: "true"
+      ALLOW_DEV_AUTH: "true"
+      SESSION_SECRET: acceptance-test-session-secret-not-for-production
+      LLM_PROVIDER: mock
+      AUTONOMOUS_RULES_ENABLED: "false"
+      AUTO_EXTRACTION_ENABLED: "false"
+      MAX_BOT_TOKEN: ""
+      GIGACHAT_AUTH_KEY: ""
+      DEEPSEEK_API_KEY: ""
+    command: ["sh", "scripts/acceptance-container.sh"]
+    depends_on:
+      postgres_test: {condition: service_healthy}
+# Tests can reach PostgreSQL, but not real external services.
+networks:
+  default:
+    internal: true

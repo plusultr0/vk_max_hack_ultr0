@@ -1,0 +1,6 @@
+max-regulatory-control 0.9.12 offline core
+88 tests
+88 passed
+0 failed
+0 cancelled
+0 skipped

@@ -90,7 +90,7 @@ try {
     (SELECT count(*) FROM action_items) AS actions,(SELECT count(*) FROM notifications) AS notifications`)).rows[0];
   const once=await counts();await processPublicationDelivery();await recalculateCompanyAtomic(companyId);assert.deepEqual(await counts(),once);
   await db.query("DELETE FROM notifications WHERE company_id=$1 AND type='regulatory_update'",[companyId]);
-  await recalculateCompanyAtomic(companyId);assert.deepEqual(await counts(),once,'retry repairs missing notification intent for an existing assessment');
+  await recalculateCompanyAtomic(companyId,'regulatory_update');assert.deepEqual(await counts(),once,'publication retry repairs missing notification intent for an existing assessment');
   await updateActionStatus({companyId,actionId:firstImpact.actions[0]!.id,status:'completed',actorId:userId});
   await db.query('UPDATE action_items SET semantic_hash=NULL WHERE id=$1',[firstImpact.actions[0]!.id]);
   await putProfile(companyId,2);await processPublicationDelivery();
@@ -161,7 +161,8 @@ try {
   assert.equal((await dispatchNotifications(10)).failed,1);
   failTransport=false;await db.query("UPDATE notifications SET scheduled_at=now() WHERE state='retry'");
   assert.equal((await dispatchNotifications(10)).sent,1);
-  assert.match(lastMessage.attachments[0].payload.buttons[0][0].url,/startapp=assessment_/);
+  assert.equal(lastMessage.attachments[0].payload.buttons[0][0].type,'open_app');
+  assert.match(lastMessage.attachments[0].payload.buttons[0][0].payload,/^assessment_/);
   const afterSend=calls;await dispatchNotifications();assert.equal(calls,afterSend);
   // Notification acknowledgement from an expired claim cannot mark the new claim sent.
   await db.query("UPDATE notifications SET state='pending',scheduled_at=now() WHERE company_id=$1 AND type='bot_welcome'",[companyId]);

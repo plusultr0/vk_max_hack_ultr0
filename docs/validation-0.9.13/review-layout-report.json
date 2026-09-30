@@ -1,0 +1,30 @@
+{
+  "scope": "Static review UI layout only; no React or backend execution",
+  "cases": [
+    {
+      "screen": "review",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "review",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "review",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "review",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "review",
+      "width": 1440,
+      "status": "passed"
+    }
+  ]
+}

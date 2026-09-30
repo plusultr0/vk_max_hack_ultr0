@@ -1,0 +1,6 @@
+{
+  "checker": "TypeScript AST local imports and named exports (not semantic typecheck)",
+  "files": 85,
+  "localImports": 245,
+  "issues": []
+}

@@ -28,3 +28,56 @@ export async function acceptBotEvent(value:unknown) {
     await db.query('COMMIT');return {ok:true,duplicate:false};
   }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();}
 }
+
+export type BotInteractionIdentity = {
+  updateType: 'message_created' | 'message_callback';
+  userId: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  username?: string | null;
+  chatId?: string | null;
+  rawUser?: unknown;
+};
+
+/**
+ * Claims an interactive MAX webhook before an external reply is sent.
+ * If the handler fails, releaseBotInteractionEvent removes the claim so a MAX retry can process it again.
+ */
+export async function claimBotInteractionEvent(event: unknown, identity: BotInteractionIdentity) {
+  const eventKey = seedHash(event);
+  const companyId = 'company-max-' + identity.userId;
+  const db = await getPool().connect();
+  try {
+    await db.query('BEGIN');
+    const inserted = await db.query(
+      'INSERT INTO bot_webhook_events(event_key,update_type) VALUES($1,$2) ON CONFLICT DO NOTHING RETURNING event_key',
+      [eventKey, identity.updateType],
+    );
+    if (!inserted.rowCount) {
+      await db.query('COMMIT');
+      return { eventKey, companyId, duplicate: true };
+    }
+    await db.query(`INSERT INTO max_users(max_user_id,first_name,last_name,username,raw,last_chat_id,bot_active)
+      VALUES($1,$2,$3,$4,$5,$6,true)
+      ON CONFLICT(max_user_id) DO UPDATE SET first_name=COALESCE(EXCLUDED.first_name,max_users.first_name),
+      last_name=COALESCE(EXCLUDED.last_name,max_users.last_name),username=COALESCE(EXCLUDED.username,max_users.username),
+      raw=CASE WHEN EXCLUDED.raw='{}'::jsonb THEN max_users.raw ELSE EXCLUDED.raw END,
+      last_chat_id=COALESCE(EXCLUDED.last_chat_id,max_users.last_chat_id),bot_active=true,updated_at=now()`,
+    [identity.userId, identity.firstName ?? null, identity.lastName ?? null, identity.username ?? null,
+      JSON.stringify(identity.rawUser ?? {}), identity.chatId ?? null]);
+    await db.query(`INSERT INTO companies(id,owner_max_user_id,pilot_segment) VALUES($1,$2,'small_ecommerce')
+      ON CONFLICT(id) DO UPDATE SET owner_max_user_id=COALESCE(companies.owner_max_user_id,EXCLUDED.owner_max_user_id),updated_at=now()`,
+    [companyId, identity.userId]);
+    await db.query('COMMIT');
+    return { eventKey, companyId, duplicate: false };
+  } catch (error) {
+    await db.query('ROLLBACK');
+    throw error;
+  } finally {
+    db.release();
+  }
+}
+
+export async function releaseBotInteractionEvent(eventKey: string) {
+  await getPool().query('DELETE FROM bot_webhook_events WHERE event_key=$1', [eventKey]);
+}

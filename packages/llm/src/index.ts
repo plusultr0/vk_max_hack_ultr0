@@ -156,3 +156,5 @@ export function createProvider(config: {
     timeoutMs: config.timeoutMs,
   });
 }
+
+export * from './automation-schema.js';

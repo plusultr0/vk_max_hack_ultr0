@@ -1,0 +1,1127 @@
+Pure production logic only. TypeScript 5.8.3. No database, live APIs, Zod or React runtime asserted.
+TAP version 13
+# Subtest: seed fixture: kkt.applies
+ok 1 - seed fixture: kkt.applies
+  ---
+  duration_ms: 2.717816
+  type: 'test'
+  ...
+# Subtest: seed fixture: usn_start.applies
+ok 2 - seed fixture: usn_start.applies
+  ---
+  duration_ms: 0.926173
+  type: 'test'
+  ...
+# Subtest: seed fixture: usn_during.applies
+ok 3 - seed fixture: usn_during.applies
+  ---
+  duration_ms: 0.661922
+  type: 'test'
+  ...
+# Subtest: seed fixture: marking.applies
+ok 4 - seed fixture: marking.applies
+  ---
+  duration_ms: 0.304191
+  type: 'test'
+  ...
+# Subtest: seed fixture: pd.action_required
+ok 5 - seed fixture: pd.action_required
+  ---
+  duration_ms: 0.159051
+  type: 'test'
+  ...
+# Subtest: seed fixture: seller_info.action_required
+ok 6 - seed fixture: seller_info.action_required
+  ---
+  duration_ms: 0.2177
+  type: 'test'
+  ...
+# Subtest: seed fixture: digital_ruble.needs_info
+ok 7 - seed fixture: digital_ruble.needs_info
+  ---
+  duration_ms: 0.514529
+  type: 'test'
+  ...
+# Subtest: expanded seed contains 37 verified requirements
+ok 8 - expanded seed contains 37 verified requirements
+  ---
+  duration_ms: 0.225982
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_operator_notification_v1
+ok 9 - expanded seed applies fixture: pd_operator_notification_v1
+  ---
+  duration_ms: 0.420808
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_operator_notification_v1
+ok 10 - expanded seed not-applicable fixture: pd_operator_notification_v1
+  ---
+  duration_ms: 0.319474
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_operator_notification_v1
+ok 11 - expanded seed needs-info fixture: pd_operator_notification_v1
+  ---
+  duration_ms: 0.147443
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_policy_publication_v1
+ok 12 - expanded seed applies fixture: pd_policy_publication_v1
+  ---
+  duration_ms: 0.081834
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_policy_publication_v1
+ok 13 - expanded seed not-applicable fixture: pd_policy_publication_v1
+  ---
+  duration_ms: 0.047041
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_policy_publication_v1
+ok 14 - expanded seed needs-info fixture: pd_policy_publication_v1
+  ---
+  duration_ms: 0.042104
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_responsible_person_v1
+ok 15 - expanded seed applies fixture: pd_responsible_person_v1
+  ---
+  duration_ms: 0.055664
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_responsible_person_v1
+ok 16 - expanded seed not-applicable fixture: pd_responsible_person_v1
+  ---
+  duration_ms: 0.043196
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_responsible_person_v1
+ok 17 - expanded seed needs-info fixture: pd_responsible_person_v1
+  ---
+  duration_ms: 0.075124
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_local_acts_v1
+ok 18 - expanded seed applies fixture: pd_local_acts_v1
+  ---
+  duration_ms: 0.056045
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_local_acts_v1
+ok 19 - expanded seed not-applicable fixture: pd_local_acts_v1
+  ---
+  duration_ms: 0.039269
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_local_acts_v1
+ok 20 - expanded seed needs-info fixture: pd_local_acts_v1
+  ---
+  duration_ms: 0.03951
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_security_measures_v1
+ok 21 - expanded seed applies fixture: pd_security_measures_v1
+  ---
+  duration_ms: 0.051659
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_security_measures_v1
+ok 22 - expanded seed not-applicable fixture: pd_security_measures_v1
+  ---
+  duration_ms: 0.038879
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_security_measures_v1
+ok 23 - expanded seed needs-info fixture: pd_security_measures_v1
+  ---
+  duration_ms: 0.035714
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_internal_control_v1
+ok 24 - expanded seed applies fixture: pd_internal_control_v1
+  ---
+  duration_ms: 0.044497
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_internal_control_v1
+ok 25 - expanded seed not-applicable fixture: pd_internal_control_v1
+  ---
+  duration_ms: 0.035103
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_internal_control_v1
+ok 26 - expanded seed needs-info fixture: pd_internal_control_v1
+  ---
+  duration_ms: 0.034071
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_harm_assessment_v1
+ok 27 - expanded seed applies fixture: pd_harm_assessment_v1
+  ---
+  duration_ms: 0.067622
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_harm_assessment_v1
+ok 28 - expanded seed not-applicable fixture: pd_harm_assessment_v1
+  ---
+  duration_ms: 0.037337
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_harm_assessment_v1
+ok 29 - expanded seed needs-info fixture: pd_harm_assessment_v1
+  ---
+  duration_ms: 0.038739
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_localization_v1
+ok 30 - expanded seed applies fixture: pd_localization_v1
+  ---
+  duration_ms: 0.134714
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_localization_v1
+ok 31 - expanded seed not-applicable fixture: pd_localization_v1
+  ---
+  duration_ms: 0.109776
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_localization_v1
+ok 32 - expanded seed needs-info fixture: pd_localization_v1
+  ---
+  duration_ms: 0.056676
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_cross_border_notice_v1
+ok 33 - expanded seed applies fixture: pd_cross_border_notice_v1
+  ---
+  duration_ms: 0.05276
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_cross_border_notice_v1
+ok 34 - expanded seed not-applicable fixture: pd_cross_border_notice_v1
+  ---
+  duration_ms: 0.040702
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_cross_border_notice_v1
+ok 35 - expanded seed needs-info fixture: pd_cross_border_notice_v1
+  ---
+  duration_ms: 0.039711
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_incident_reporting_v1
+ok 36 - expanded seed applies fixture: pd_incident_reporting_v1
+  ---
+  duration_ms: 0.048193
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_incident_reporting_v1
+ok 37 - expanded seed not-applicable fixture: pd_incident_reporting_v1
+  ---
+  duration_ms: 0.042294
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_incident_reporting_v1
+ok 38 - expanded seed needs-info fixture: pd_incident_reporting_v1
+  ---
+  duration_ms: 0.042554
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_staff_familiarization_v1
+ok 39 - expanded seed applies fixture: pd_staff_familiarization_v1
+  ---
+  duration_ms: 0.046109
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_staff_familiarization_v1
+ok 40 - expanded seed not-applicable fixture: pd_staff_familiarization_v1
+  ---
+  duration_ms: 0.037086
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_staff_familiarization_v1
+ok 41 - expanded seed needs-info fixture: pd_staff_familiarization_v1
+  ---
+  duration_ms: 0.041453
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_subject_request_10d_v1
+ok 42 - expanded seed applies fixture: pd_subject_request_10d_v1
+  ---
+  duration_ms: 0.042825
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_subject_request_10d_v1
+ok 43 - expanded seed not-applicable fixture: pd_subject_request_10d_v1
+  ---
+  duration_ms: 0.0332
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_subject_request_10d_v1
+ok 44 - expanded seed needs-info fixture: pd_subject_request_10d_v1
+  ---
+  duration_ms: 0.033671
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: pd_correction_deletion_7d_v1
+ok 45 - expanded seed applies fixture: pd_correction_deletion_7d_v1
+  ---
+  duration_ms: 0.044227
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: pd_correction_deletion_7d_v1
+ok 46 - expanded seed not-applicable fixture: pd_correction_deletion_7d_v1
+  ---
+  duration_ms: 0.031738
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: pd_correction_deletion_7d_v1
+ok 47 - expanded seed needs-info fixture: pd_correction_deletion_7d_v1
+  ---
+  duration_ms: 0.03289
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: distance_aggregator_order_confirmation_v1
+ok 48 - expanded seed applies fixture: distance_aggregator_order_confirmation_v1
+  ---
+  duration_ms: 0.0725
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: distance_aggregator_order_confirmation_v1
+ok 49 - expanded seed not-applicable fixture: distance_aggregator_order_confirmation_v1
+  ---
+  duration_ms: 0.044958
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: distance_aggregator_order_confirmation_v1
+ok 50 - expanded seed needs-info fixture: distance_aggregator_order_confirmation_v1
+  ---
+  duration_ms: 0.041803
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: distance_aggregator_seller_info_v1
+ok 51 - expanded seed applies fixture: distance_aggregator_seller_info_v1
+  ---
+  duration_ms: 0.04666
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: distance_aggregator_seller_info_v1
+ok 52 - expanded seed not-applicable fixture: distance_aggregator_seller_info_v1
+  ---
+  duration_ms: 0.037718
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: distance_aggregator_seller_info_v1
+ok 53 - expanded seed needs-info fixture: distance_aggregator_seller_info_v1
+  ---
+  duration_ms: 0.037897
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: distance_aggregator_claim_routing_v1
+ok 54 - expanded seed applies fixture: distance_aggregator_claim_routing_v1
+  ---
+  duration_ms: 0.143457
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: distance_aggregator_claim_routing_v1
+ok 55 - expanded seed not-applicable fixture: distance_aggregator_claim_routing_v1
+  ---
+  duration_ms: 0.044397
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: distance_aggregator_claim_routing_v1
+ok 56 - expanded seed needs-info fixture: distance_aggregator_claim_routing_v1
+  ---
+  duration_ms: 0.03917
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: retail_rules_on_request_v1
+ok 57 - expanded seed applies fixture: retail_rules_on_request_v1
+  ---
+  duration_ms: 0.775725
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: retail_rules_on_request_v1
+ok 58 - expanded seed not-applicable fixture: retail_rules_on_request_v1
+  ---
+  duration_ms: 0.050306
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: retail_rules_on_request_v1
+ok 59 - expanded seed needs-info fixture: retail_rules_on_request_v1
+  ---
+  duration_ms: 0.035414
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: consumer_claim_written_reply_v1
+ok 60 - expanded seed applies fixture: consumer_claim_written_reply_v1
+  ---
+  duration_ms: 0.170498
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: consumer_claim_written_reply_v1
+ok 61 - expanded seed not-applicable fixture: consumer_claim_written_reply_v1
+  ---
+  duration_ms: 0.043556
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: consumer_claim_written_reply_v1
+ok 62 - expanded seed needs-info fixture: consumer_claim_written_reply_v1
+  ---
+  duration_ms: 0.031027
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: distance_conformity_registry_link_v1
+ok 63 - expanded seed applies fixture: distance_conformity_registry_link_v1
+  ---
+  duration_ms: 0.042604
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: distance_conformity_registry_link_v1
+ok 64 - expanded seed not-applicable fixture: distance_conformity_registry_link_v1
+  ---
+  duration_ms: 0.031147
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: distance_conformity_registry_link_v1
+ok 65 - expanded seed needs-info fixture: distance_conformity_registry_link_v1
+  ---
+  duration_ms: 0.035263
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: distance_return_7_days_v1
+ok 66 - expanded seed applies fixture: distance_return_7_days_v1
+  ---
+  duration_ms: 0.039721
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: distance_return_7_days_v1
+ok 67 - expanded seed not-applicable fixture: distance_return_7_days_v1
+  ---
+  duration_ms: 0.076205
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: distance_return_7_days_v1
+ok 68 - expanded seed needs-info fixture: distance_return_7_days_v1
+  ---
+  duration_ms: 0.083646
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: distance_return_info_written_v1
+ok 69 - expanded seed applies fixture: distance_return_info_written_v1
+  ---
+  duration_ms: 0.088855
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: distance_return_info_written_v1
+ok 70 - expanded seed not-applicable fixture: distance_return_info_written_v1
+  ---
+  duration_ms: 0.07893
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: distance_return_info_written_v1
+ok 71 - expanded seed needs-info fixture: distance_return_info_written_v1
+  ---
+  duration_ms: 0.073171
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: distance_refund_10_days_v1
+ok 72 - expanded seed applies fixture: distance_refund_10_days_v1
+  ---
+  duration_ms: 0.076265
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: distance_refund_10_days_v1
+ok 73 - expanded seed not-applicable fixture: distance_refund_10_days_v1
+  ---
+  duration_ms: 0.058939
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: distance_refund_10_days_v1
+ok 74 - expanded seed needs-info fixture: distance_refund_10_days_v1
+  ---
+  duration_ms: 0.096436
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: consumer_defect_repair_14_days_v1
+ok 75 - expanded seed applies fixture: consumer_defect_repair_14_days_v1
+  ---
+  duration_ms: 0.149437
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: consumer_defect_repair_14_days_v1
+ok 76 - expanded seed not-applicable fixture: consumer_defect_repair_14_days_v1
+  ---
+  duration_ms: 0.096776
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: consumer_defect_repair_14_days_v1
+ok 77 - expanded seed needs-info fixture: consumer_defect_repair_14_days_v1
+  ---
+  duration_ms: 0.060843
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: consumer_defect_replacement_7_14_days_v1
+ok 78 - expanded seed applies fixture: consumer_defect_replacement_7_14_days_v1
+  ---
+  duration_ms: 0.067202
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: consumer_defect_replacement_7_14_days_v1
+ok 79 - expanded seed not-applicable fixture: consumer_defect_replacement_7_14_days_v1
+  ---
+  duration_ms: 0.050907
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: consumer_defect_replacement_7_14_days_v1
+ok 80 - expanded seed needs-info fixture: consumer_defect_replacement_7_14_days_v1
+  ---
+  duration_ms: 0.05247
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: consumer_defect_refund_7_14_days_v1
+ok 81 - expanded seed applies fixture: consumer_defect_refund_7_14_days_v1
+  ---
+  duration_ms: 0.075084
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: consumer_defect_refund_7_14_days_v1
+ok 82 - expanded seed not-applicable fixture: consumer_defect_refund_7_14_days_v1
+  ---
+  duration_ms: 0.055814
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: consumer_defect_refund_7_14_days_v1
+ok 83 - expanded seed needs-info fixture: consumer_defect_refund_7_14_days_v1
+  ---
+  duration_ms: 0.056756
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: kkt_electronic_receipt_delivery_v1
+ok 84 - expanded seed applies fixture: kkt_electronic_receipt_delivery_v1
+  ---
+  duration_ms: 0.068223
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: kkt_electronic_receipt_delivery_v1
+ok 85 - expanded seed not-applicable fixture: kkt_electronic_receipt_delivery_v1
+  ---
+  duration_ms: 0.05253
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: kkt_electronic_receipt_delivery_v1
+ok 86 - expanded seed needs-info fixture: kkt_electronic_receipt_delivery_v1
+  ---
+  duration_ms: 0.057988
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: kkt_correction_receipt_process_v1
+ok 87 - expanded seed applies fixture: kkt_correction_receipt_process_v1
+  ---
+  duration_ms: 0.058158
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: kkt_correction_receipt_process_v1
+ok 88 - expanded seed not-applicable fixture: kkt_correction_receipt_process_v1
+  ---
+  duration_ms: 0.049175
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: kkt_correction_receipt_process_v1
+ok 89 - expanded seed needs-info fixture: kkt_correction_receipt_process_v1
+  ---
+  duration_ms: 0.05954
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: usn_vat_rate_choice_2026_v1
+ok 90 - expanded seed applies fixture: usn_vat_rate_choice_2026_v1
+  ---
+  duration_ms: 0.120162
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: usn_vat_rate_choice_2026_v1
+ok 91 - expanded seed not-applicable fixture: usn_vat_rate_choice_2026_v1
+  ---
+  duration_ms: 0.053361
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: usn_vat_rate_choice_2026_v1
+ok 92 - expanded seed needs-info fixture: usn_vat_rate_choice_2026_v1
+  ---
+  duration_ms: 0.101694
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: usn_vat_5_to_7_threshold_2026_v1
+ok 93 - expanded seed applies fixture: usn_vat_5_to_7_threshold_2026_v1
+  ---
+  duration_ms: 0.170348
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: usn_vat_5_to_7_threshold_2026_v1
+ok 94 - expanded seed not-applicable fixture: usn_vat_5_to_7_threshold_2026_v1
+  ---
+  duration_ms: 0.069555
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: usn_vat_5_to_7_threshold_2026_v1
+ok 95 - expanded seed needs-info fixture: usn_vat_5_to_7_threshold_2026_v1
+  ---
+  duration_ms: 0.056896
+  type: 'test'
+  ...
+# Subtest: expanded seed applies fixture: usn_limit_490_5m_2026_v1
+ok 96 - expanded seed applies fixture: usn_limit_490_5m_2026_v1
+  ---
+  duration_ms: 0.047302
+  type: 'test'
+  ...
+# Subtest: expanded seed not-applicable fixture: usn_limit_490_5m_2026_v1
+ok 97 - expanded seed not-applicable fixture: usn_limit_490_5m_2026_v1
+  ---
+  duration_ms: 0.032098
+  type: 'test'
+  ...
+# Subtest: expanded seed needs-info fixture: usn_limit_490_5m_2026_v1
+ok 98 - expanded seed needs-info fixture: usn_limit_490_5m_2026_v1
+  ---
+  duration_ms: 0.027982
+  type: 'test'
+  ...
+# Subtest: expanded seed uses official evidence and concrete actions
+ok 99 - expanded seed uses official evidence and concrete actions
+  ---
+  duration_ms: 0.909898
+  type: 'test'
+  ...
+# Subtest: section 14 UX patch removes duplicate onboarding numbering and exposes completion self-report
+ok 100 - section 14 UX patch removes duplicate onboarding numbering and exposes completion self-report
+  ---
+  duration_ms: 34.859843
+  type: 'test'
+  ...
+# Subtest: not-applicable customer copy talks about a requirement rather than an internal check
+ok 101 - not-applicable customer copy talks about a requirement rather than an internal check
+  ---
+  duration_ms: 0.702374
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: missing
+ok 102 - tri-state boolean: missing
+  ---
+  duration_ms: 0.134244
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: unknown
+ok 103 - tri-state boolean: unknown
+  ---
+  duration_ms: 0.061343
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: false
+ok 104 - tri-state boolean: false
+  ---
+  duration_ms: 0.056867
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: true
+ok 105 - tri-state boolean: true
+  ---
+  duration_ms: 0.053541
+  type: 'test'
+  ...
+# Subtest: zero and explicit empty lists remain known
+ok 106 - zero and explicit empty lists remain known
+  ---
+  duration_ms: 0.148685
+  type: 'test'
+  ...
+# Subtest: irrelevant branch suppresses unnecessary questions
+ok 107 - irrelevant branch suppresses unnecessary questions
+  ---
+  duration_ms: 0.13223
+  type: 'test'
+  ...
+# Subtest: nested dynamic fact yields a question, then exact decision without LLM
+ok 108 - nested dynamic fact yields a question, then exact decision without LLM
+  ---
+  duration_ms: 0.253685
+  type: 'test'
+  ...
+# Subtest: prototype properties cannot be read as business facts
+ok 109 - prototype properties cannot be read as business facts
+  ---
+  duration_ms: 0.093241
+  type: 'test'
+  ...
+# Subtest: missing, stale, current answers are distinct
+ok 110 - missing, stale, current answers are distinct
+  ---
+  duration_ms: 0.559528
+  type: 'test'
+  ...
+# Subtest: one answer is reusable by another rule with the same binding
+ok 111 - one answer is reusable by another rule with the same binding
+  ---
+  duration_ms: 0.166772
+  type: 'test'
+  ...
+# Subtest: other company or other fact version is never reused
+ok 112 - other company or other fact version is never reused
+  ---
+  duration_ms: 0.085379
+  type: 'test'
+  ...
+# Subtest: calendar periods do not silently reuse last year
+ok 113 - calendar periods do not silently reuse last year
+  ---
+  duration_ms: 0.253944
+  type: 'test'
+  ...
+# Subtest: freshness expires at exact boundary
+ok 114 - freshness expires at exact boundary
+  ---
+  duration_ms: 0.21765
+  type: 'test'
+  ...
+# Subtest: numeric field rejects strings, infinity and forbidden negative numbers
+ok 115 - numeric field rejects strings, infinity and forbidden negative numbers
+  ---
+  duration_ms: 0.137689
+  type: 'test'
+  ...
+# Subtest: all seven dynamic field types are validated
+ok 116 - all seven dynamic field types are validated
+  ---
+  duration_ms: 0.313054
+  type: 'test'
+  ...
+# Subtest: periodic YTD cannot masquerade as prior year total
+ok 117 - periodic YTD cannot masquerade as prior year total
+  ---
+  duration_ms: 0.239163
+  type: 'test'
+  ...
+# Subtest: dynamic fact can drive a relative deadline
+ok 118 - dynamic fact can drive a relative deadline
+  ---
+  duration_ms: 0.200113
+  type: 'test'
+  ...
+# Subtest: date rollover and impossible dates
+ok 119 - date rollover and impossible dates
+  ---
+  duration_ms: 0.308807
+  type: 'test'
+  ...
+# Subtest: future revision never creates current actions
+ok 120 - future revision never creates current actions
+  ---
+  duration_ms: 0.199893
+  type: 'test'
+  ...
+# Subtest: cancelled latest version never revives an older obligation
+ok 121 - cancelled latest version never revives an older obligation
+  ---
+  duration_ms: 0.209076
+  type: 'test'
+  ...
+# Subtest: trade-object switch clears old point facts only
+ok 122 - trade-object switch clears old point facts only
+  ---
+  duration_ms: 0.097168
+  type: 'test'
+  ...
+# Subtest: targeting keeps missing values and uses bind parameters
+ok 123 - targeting keeps missing values and uses bind parameters
+  ---
+  duration_ms: 0.35652
+  type: 'test'
+  ...
+# Subtest: unsupported targeting broadens, never excludes companies
+ok 124 - unsupported targeting broadens, never excludes companies
+  ---
+  duration_ms: 0.076886
+  type: 'test'
+  ...
+# Subtest: canonical hashing ignores key ordering but not values
+ok 125 - canonical hashing ignores key ordering but not values
+  ---
+  duration_ms: 6.671373
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: facts.warehouse.a is unknown
+ok 126 - technical display trace is hidden: facts.warehouse.a is unknown
+  ---
+  duration_ms: 0.373385
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: legalForm eq "LLC" = true
+ok 127 - technical display trace is hidden: legalForm eq "LLC" = true
+  ---
+  duration_ms: 0.12528
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: STALE_IMPACT
+ok 128 - technical display trace is hidden: STALE_IMPACT
+  ---
+  duration_ms: 0.035133
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: NOT (x)
+ok 129 - technical display trace is hidden: NOT (x)
+  ---
+  duration_ms: 0.029244
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: {"a":1}
+ok 130 - technical display trace is hidden: {"a":1}
+  ---
+  duration_ms: 0.023456
+  type: 'test'
+  ...
+# Subtest: user-facing markdown does not print asterisks
+ok 131 - user-facing markdown does not print asterisks
+  ---
+  duration_ms: 0.046371
+  type: 'test'
+  ...
+# Subtest: false, zero and empty list have readable values
+ok 132 - false, zero and empty list have readable values
+  ---
+  duration_ms: 9.616023
+  type: 'test'
+  ...
+# Subtest: half-open year is shown with an inclusive human label
+ok 133 - half-open year is shown with an inclusive human label
+  ---
+  duration_ms: 0.169807
+  type: 'test'
+  ...
+# Subtest: invalid date does not print Invalid Date or a shifted date
+ok 134 - invalid date does not print Invalid Date or a shifted date
+  ---
+  duration_ms: 0.111829
+  type: 'test'
+  ...
+# Subtest: applies is not called a violation
+ok 135 - applies is not called a violation
+  ---
+  duration_ms: 0.089926
+  type: 'test'
+  ...
+# Subtest: arbitrary backend text never enters customer error copy
+ok 136 - arbitrary backend text never enters customer error copy
+  ---
+  duration_ms: 0.250519
+  type: 'test'
+  ...
+# Subtest: manual review reasons never expose technical fact names
+ok 137 - manual review reasons never expose technical fact names
+  ---
+  duration_ms: 0.17859
+  type: 'test'
+  ...
+# Subtest: known manual review gate is explained in ordinary Russian
+ok 138 - known manual review gate is explained in ordinary Russian
+  ---
+  duration_ms: 0.246964
+  type: 'test'
+  ...
+# Subtest: all onboarding labels are human-facing
+ok 139 - all onboarding labels are human-facing
+  ---
+  duration_ms: 0.104989
+  type: 'test'
+  ...
+# Subtest: customer-facing field and checklist copy contains no internal machine vocabulary
+ok 140 - customer-facing field and checklist copy contains no internal machine vocabulary
+  ---
+  duration_ms: 0.459506
+  type: 'test'
+  ...
+# Subtest: every main result state has a readable status, explanation and next action
+ok 141 - every main result state has a readable status, explanation and next action
+  ---
+  duration_ms: 0.2375
+  type: 'test'
+  ...
+# Subtest: readable expression does not expose machine operators
+ok 142 - readable expression does not expose machine operators
+  ---
+  duration_ms: 0.235386
+  type: 'test'
+  ...
+# Subtest: logical card identity survives answer-created assessment UUID
+ok 143 - logical card identity survives answer-created assessment UUID
+  ---
+  duration_ms: 0.073211
+  type: 'test'
+  ...
+# Subtest: answers can remove list attention without changing open card key
+ok 144 - answers can remove list attention without changing open card key
+  ---
+  duration_ms: 0.082925
+  type: 'test'
+  ...
+# Subtest: Russian numeric input accepts spaces and comma
+ok 145 - Russian numeric input accepts spaces and comma
+  ---
+  duration_ms: 0.166733
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: ""
+ok 146 - invalid number is rejected: ""
+  ---
+  duration_ms: 0.103427
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: " "
+ok 147 - invalid number is rejected: " "
+  ---
+  duration_ms: 0.036445
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "1e9"
+ok 148 - invalid number is rejected: "1e9"
+  ---
+  duration_ms: 0.027432
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "NaN"
+ok 149 - invalid number is rejected: "NaN"
+  ---
+  duration_ms: 0.025929
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "Infinity"
+ok 150 - invalid number is rejected: "Infinity"
+  ---
+  duration_ms: 0.023415
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "10 USD"
+ok 151 - invalid number is rejected: "10 USD"
+  ---
+  duration_ms: 0.023255
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "1,2,3"
+ok 152 - invalid number is rejected: "1,2,3"
+  ---
+  duration_ms: 0.024798
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "99999999999999999"
+ok 153 - invalid number is rejected: "99999999999999999"
+  ---
+  duration_ms: 0.075083
+  type: 'test'
+  ...
+# Subtest: numeric range is enforced
+ok 154 - numeric range is enforced
+  ---
+  duration_ms: 0.09244
+  type: 'test'
+  ...
+# Subtest: question fingerprint changes when evidence-period/version changes
+ok 155 - question fingerprint changes when evidence-period/version changes
+  ---
+  duration_ms: 0.077017
+  type: 'test'
+  ...
+# Subtest: dangerous source link is not clickable
+ok 156 - dangerous source link is not clickable
+  ---
+  duration_ms: 0.116457
+  type: 'test'
+  ...
+# Subtest: signed MAX launch is decoded once and duplicate launch data rejected
+ok 157 - signed MAX launch is decoded once and duplicate launch data rejected
+  ---
+  duration_ms: 0.453917
+  type: 'test'
+  ...
+# Subtest: API rejects HTML error pages without leaking their text
+ok 158 - API rejects HTML error pages without leaking their text
+  ---
+  duration_ms: 17.421164
+  type: 'test'
+  ...
+# Subtest: API sends authorization and preserves successful payload
+ok 159 - API sends authorization and preserves successful payload
+  ---
+  duration_ms: 0.510443
+  type: 'test'
+  ...
+# Subtest: baseline contains 12 supported pilot document/setting checks
+ok 160 - baseline contains 12 supported pilot document/setting checks
+  ---
+  duration_ms: 0.128775
+  type: 'test'
+  ...
+# Subtest: irrelevant requirements create no checklist entries
+ok 161 - irrelevant requirements create no checklist entries
+  ---
+  duration_ms: 0.213153
+  type: 'test'
+  ...
+# Subtest: a missing fact blocks readiness answers
+ok 162 - a missing fact blocks readiness answers
+  ---
+  duration_ms: 0.08643
+  type: 'test'
+  ...
+# Subtest: upcoming/history/specialist review cannot be marked ready
+ok 163 - upcoming/history/specialist review cannot be marked ready
+  ---
+  duration_ms: 0.168655
+  type: 'test'
+  ...
+# Subtest: a newly approved rule contributes its own actions
+ok 164 - a newly approved rule contributes its own actions
+  ---
+  duration_ms: 0.296519
+  type: 'test'
+  ...
+# Subtest: amendment uses its own actions instead of old hard-coded checklist
+ok 165 - amendment uses its own actions instead of old hard-coded checklist
+  ---
+  duration_ms: 0.150438
+  type: 'test'
+  ...
+# Subtest: simultaneous current and future revisions keep unique check keys
+ok 166 - simultaneous current and future revisions keep unique check keys
+  ---
+  duration_ms: 0.174294
+  type: 'test'
+  ...
+# Subtest: irrelevant future law is not classified as personalized upcoming
+ok 167 - irrelevant future law is not classified as personalized upcoming
+  ---
+  duration_ms: 0.179733
+  type: 'test'
+  ...
+# Subtest: last 90 days excludes undated and future events
+ok 168 - last 90 days excludes undated and future events
+  ---
+  duration_ms: 0.160423
+  type: 'test'
+  ...
+# Subtest: segmentation is exact, deterministic, contiguous and lossless
+ok 169 - segmentation is exact, deterministic, contiguous and lossless
+  ---
+  duration_ms: 0.54198
+  type: 'test'
+  ...
+# Subtest: oversized text is rejected rather than silently truncated
+ok 170 - oversized text is rejected rather than silently truncated
+  ---
+  duration_ms: 0.174044
+  type: 'test'
+  ...
+# Subtest: all three phase years remain available to extraction
+ok 171 - all three phase years remain available to extraction
+  ---
+  duration_ms: 0.737347
+  type: 'test'
+  ...
+# Subtest: CSV quoting and separator detection
+ok 172 - CSV quoting and separator detection
+  ---
+  duration_ms: 0.52124
+  type: 'test'
+  ...
+# Subtest: HTML scripts and invalid numeric entities do not break parsing
+ok 173 - HTML scripts and invalid numeric entities do not break parsing
+  ---
+  duration_ms: 1.303024
+  type: 'test'
+  ...
+# Subtest: publication dates reject impossible day/month combinations
+ok 174 - publication dates reject impossible day/month combinations
+  ---
+  duration_ms: 0.297721
+  type: 'test'
+  ...
+# Subtest: official redirects cannot leave the allowlist
+ok 175 - official redirects cannot leave the allowlist
+  ---
+  duration_ms: 0.855416
+  type: 'test'
+  ...
+# Subtest: official redirects may remain within trusted HTTPS
+ok 176 - official redirects may remain within trusted HTTPS
+  ---
+  duration_ms: 2.466446
+  type: 'test'
+  ...
+# Subtest: source body size is bounded even without content-length
+ok 177 - source body size is bounded even without content-length
+  ---
+  duration_ms: 0.401808
+  type: 'test'
+  ...
+# Subtest: source timeout covers a stalled body, not only response headers
+ok 178 - source timeout covers a stalled body, not only response headers
+  ---
+  duration_ms: 21.759464
+  type: 'test'
+  ...
+# Subtest: source timeout also covers a stalled request
+ok 179 - source timeout also covers a stalled request
+  ---
+  duration_ms: 19.701217
+  type: 'test'
+  ...
+# Subtest: transient source failure is retried and a permanent one is not
+ok 180 - transient source failure is retried and a permanent one is not
+  ---
+  duration_ms: 252.408571
+  type: 'test'
+  ...
+# Subtest: declared Russian encoding is decoded correctly
+ok 181 - declared Russian encoding is decoded correctly
+  ---
+  duration_ms: 0.923759
+  type: 'test'
+  ...
+# Subtest: only safe extraction error categories are persisted
+ok 182 - only safe extraction error categories are persisted
+  ---
+  duration_ms: 0.137237
+  type: 'test'
+  ...
+# Subtest: native PDF text extraction reads the actual PDF text layer
+ok 183 - native PDF text extraction reads the actual PDF text layer
+  ---
+  duration_ms: 16.43533
+  type: 'test'
+  ...
+# Subtest: PDF without a text layer fails closed instead of inventing content
+ok 184 - PDF without a text layer fails closed instead of inventing content
+  ---
+  duration_ms: 11.451923
+  type: 'test'
+  ...
+# Subtest: invalid PDF magic is rejected
+ok 185 - invalid PDF magic is rejected
+  ---
+  duration_ms: 0.285221
+  type: 'test'
+  ...
+# Subtest: readable core copy exists for every seed rule and never overwrites later versions
+ok 186 - readable core copy exists for every seed rule and never overwrites later versions
+  ---
+  duration_ms: 0.835025
+  type: 'test'
+  ...
+1..186
+# tests 186
+# suites 0
+# pass 186
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 505.83986

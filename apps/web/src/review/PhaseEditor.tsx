@@ -15,7 +15,7 @@ export default function PhaseEditor({ phase, onChange, fields, segments, onCite 
       <TextField label="Краткое содержание" value={phase.summary} onChange={summary=>change({summary})} area />
       <div className="rv-form-grid"><TextField label="Кто обязан выполнить" value={phase.subjectRole} onChange={subjectRole=>change({subjectRole:subjectRole || null})} />
         <label className="rv-field"><span>Категория</span><select value={phase.category ?? ''} onChange={e=>change({category:e.target.value as ReviewPhase['category'] || null})}>
-          <option value="">Выберите категорию</option>{Object.entries({kkt:'Кассы и чеки',tax:'Налоги',marking:'Маркировка',personal_data:'Персональные данные',distance_sales:'Дистанционная торговля',payments:'Платежи'}).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label></div>
+          <option value="">Выберите категорию</option>{Object.entries({kkt:'Кассы и чеки',tax:'Налоги',marking:'Маркировка',personal_data:'Персональные данные',distance_sales:'Дистанционная торговля',payments:'Платежи',other:'Другое'}).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></label></div>
       <label className="rv-field"><span>Область требования</span><select value={phase.scope ?? ''} onChange={e=>change({scope:e.target.value as ReviewPhase['scope'] || null})}>
         <option value="">Нужно определить</option><option value="company">Компания целиком</option><option value="trade_object">Конкретная торговая точка</option></select></label>
       <References value={phase.sourceSegmentIndexes} onChange={sourceSegmentIndexes=>change({sourceSegmentIndexes})} segments={segments} onCite={onCite} />

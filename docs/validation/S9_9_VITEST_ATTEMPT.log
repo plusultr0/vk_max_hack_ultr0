@@ -1,0 +1,16 @@
+
+> max-regulatory-control@0.9.9 test
+> npm run test --workspace @reg/domain && npm run test --workspace @reg/max && npm run test --workspace @reg/llm && npm run test --workspace @reg/ingestion && npm run test --workspace @reg/review && npm run test --workspace @reg/db
+
+
+> @reg/domain@0.1.0 test
+> vitest run
+
+sh: 1: vitest: not found
+npm error Lifecycle script `test` failed with error:
+npm error code 127
+npm error path /mnt/data/max_s9_9_work/vk_max_hack_ultr0-main/packages/domain
+npm error workspace @reg/domain@0.1.0
+npm error location /mnt/data/max_s9_9_work/vk_max_hack_ultr0-main/packages/domain
+npm error command failed
+npm error command sh -c vitest run

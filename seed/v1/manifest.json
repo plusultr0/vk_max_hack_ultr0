@@ -1,7 +1,7 @@
 {
-  "seedVersion": "2026-09-16-v1",
+  "seedVersion": "2026-09-30-v3",
   "project": "max-regulatory-control",
-  "rules": 7,
+  "rules": 90,
   "profiles": 5,
-  "checkedAt": "2026-09-16"
+  "checkedAt": "2026-09-30"
 }

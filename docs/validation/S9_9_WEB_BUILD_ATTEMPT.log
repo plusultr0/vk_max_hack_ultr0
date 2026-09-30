@@ -1,0 +1,18 @@
+
+> max-regulatory-control@0.9.9 build:web
+> npm run build --workspace @reg/web
+
+
+> @reg/web@0.1.0 build
+> tsc -b && vite build
+
+error TS2688: Cannot find type definition file for 'vite/client'.
+  The file is in the program because:
+    Entry point of type library 'vite/client' specified in compilerOptions
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path /mnt/data/max_s9_9_work/vk_max_hack_ultr0-main/apps/web
+npm error workspace @reg/web@0.1.0
+npm error location /mnt/data/max_s9_9_work/vk_max_hack_ultr0-main/apps/web
+npm error command failed
+npm error command sh -c tsc -b && vite build

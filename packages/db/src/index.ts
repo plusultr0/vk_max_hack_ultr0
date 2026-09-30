@@ -13,3 +13,12 @@ export * from './outbox.js';
 export * from './extraction-jobs.js';
 export * from './webhook.js';
 export * from './runtime.js';
+
+export * from './facts.js';
+export * from './fact-answers.js';
+
+export * from './automation.js';
+
+export * from './regulatory-feed.js';
+
+export * from './business-checks.js';

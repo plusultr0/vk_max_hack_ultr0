@@ -34,7 +34,8 @@
     "sellerIdentityMissingFields": [
       "ogrn",
       "address"
-    ]
+    ],
+    "industry": "childrens_goods"
   },
   {
     "fixtureId": "usn_above_previous_threshold",
@@ -43,7 +44,8 @@
     "registrationDate": "2021-03-10",
     "taxRegime": "USN",
     "hasCombinedTaxRegimes": false,
-    "income2025Usn": 27000000
+    "income2025Usn": 27000000,
+    "industry": "retail_non_food"
   },
   {
     "fixtureId": "usn_crosses_in_august",
@@ -54,7 +56,8 @@
     "hasCombinedTaxRegimes": false,
     "income2025Usn": 17000000,
     "incomeYtd2026": 21400000,
-    "incomeAsOf": "2026-08-23"
+    "incomeAsOf": "2026-08-23",
+    "industry": "retail_non_food"
   },
   {
     "fixtureId": "digital_ruble_unknown_bank",
@@ -64,7 +67,8 @@
     "sellsToConsumers": true,
     "revenuePreviousYear": 180000000,
     "hasEpaymentAcceptanceAgreementAsOf2026_01_01": true,
-    "acquiringBankCategoryAsOf2026_01_01": null
+    "acquiringBankCategoryAsOf2026_01_01": null,
+    "industry": "retail_non_food"
   },
   {
     "fixtureId": "new_usn_2026",
@@ -74,6 +78,7 @@
     "taxRegime": "USN",
     "hasCombinedTaxRegimes": false,
     "incomeYtd2026": 8000000,
-    "incomeAsOf": "2026-09-01"
+    "incomeAsOf": "2026-09-01",
+    "industry": "retail_non_food"
   }
 ]

@@ -1,6 +1,6 @@
 import { getConfig } from '@reg/config';
-import { claimExtractionJob,completeExtractionJob,failExtractionJob } from '@reg/db';
-import { fetchReadableOfficialText } from '@reg/ingestion';
+import { claimExtractionJob,completeExtractionJob,failExtractionJob,ensureBuiltinFacts,listFactDefinitions } from '@reg/db';
+import { fetchReadableOfficialText,extractionErrorCode } from '@reg/ingestion';
 import { createProvider,extractRegulatoryDraft } from '@reg/llm';
 
 export async function processExtractionJob() {
@@ -16,7 +16,9 @@ export async function processExtractionJob() {
     const provider=createProvider({provider:config.LLM_PROVIDER,gigachatAuthKey:config.GIGACHAT_AUTH_KEY,
       gigachatScope:config.GIGACHAT_SCOPE,gigachatOauthUrl:config.GIGACHAT_OAUTH_URL,gigachatBaseUrl:config.GIGACHAT_BASE_URL,
       deepseekApiKey:config.DEEPSEEK_API_KEY,deepseekBaseUrl:config.DEEPSEEK_BASE_URL,model:config.LLM_MODEL,timeoutMs:config.LLM_TIMEOUT_MS});
-    await completeExtractionJob(job,await extractRegulatoryDraft(provider,input),provider);
-  }catch {await failExtractionJob(job);}
+    await ensureBuiltinFacts();
+    const factCatalog=await listFactDefinitions();
+    await completeExtractionJob(job,await extractRegulatoryDraft(provider,input,{autonomous:config.AUTONOMOUS_RULES_ENABLED,factCatalog}),provider);
+  }catch(error) {await failExtractionJob(job,extractionErrorCode(error));}
   return true;
 }

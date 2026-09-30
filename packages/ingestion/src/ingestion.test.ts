@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   fetchOfficialHtmlSource,
+  fetchReadableOfficialText,
   fetchPravoOpenData,
   htmlToText,
   makeManualOfficialDocument,
@@ -121,5 +122,21 @@ describe('pilot relevance', () => {
     const unrelated = scorePilotRelevance(SourceDocumentSchema.parse({ ...base, externalId: '2', title: 'Положение о лесоустройстве' }));
     expect(relevant.score).toBeGreaterThan(unrelated.score);
     expect(relevant.matchedTerms.length).toBeGreaterThan(0);
+  });
+});
+
+
+describe('S9.9 official transport provenance', () => {
+  it('blocks an official URL redirecting to an unrelated host', async () => {
+    let calls=0;
+    const fakeFetch=(async()=>{calls++;return new Response(null,{status:302,headers:{location:'https://attacker.test/document'}});}) as typeof fetch;
+    await expect(fetchReadableOfficialText({url:'https://cbr.ru/test',fetchImpl:fakeFetch,retries:0})).rejects.toThrow('UNTRUSTED_SOURCE_REDIRECT');
+    expect(calls).toBe(1);
+  });
+  it('allows a bounded redirect within trusted official HTTPS sources', async () => {
+    let calls=0;
+    const fakeFetch=(async()=>{calls++;return calls===1?new Response(null,{status:301,headers:{location:'/document'}}):new Response('<p>'+('Official test source text. '.repeat(8))+'</p>',{headers:{'content-type':'text/html'}});}) as typeof fetch;
+    expect((await fetchReadableOfficialText({url:'https://cbr.ru/test',fetchImpl:fakeFetch,retries:0})).length>80).toBe(true);
+    expect(calls).toBe(2);
   });
 });

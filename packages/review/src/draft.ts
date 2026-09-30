@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { builtinFactDefinitions } from '@reg/domain';
 import { regulatoryReviewWarnings, validateRegulatoryExtraction, type RegulatoryExtraction } from '@reg/llm';
 import { REVIEW_VERSION, ReviewPredicateSchema, type ReviewDocument, type ReviewExpression } from './schema.js';
 
@@ -28,7 +29,7 @@ export function createReviewDocument(value: RegulatoryExtraction): ReviewDocumen
   const extraction = validateRegulatoryExtraction(value);
   const base = (originIndex: number, sourceSegmentIndexes: number[]) => ({ id: randomUUID(), originIndex,
     decision: 'unresolved' as const, reason: null, sourceSegmentIndexes: [...sourceSegmentIndexes] });
-  return {
+  const document:ReviewDocument = {
     schemaVersion: REVIEW_VERSION, actId: `review-act-${randomUUID()}`, title: extraction.title,
     sourceReview: { confirmed: false, note: null },
     resolutions: reviewRequirements(extraction).map(({ key }) => ({ key, resolved: false, note: null })),
@@ -44,6 +45,22 @@ export function createReviewDocument(value: RegulatoryExtraction): ReviewDocumen
       };
     }),
   };
+  if(extraction.automation) {
+    const plan=extraction.automation,catalog=[...(extraction.factCatalog??builtinFactDefinitions()),...plan.factDefinitions];
+    const used=new Set(plan.phases.flatMap(p=>p.requiredFacts.map(r=>r.key+':'+r.definitionVersion)));
+    document.factDefinitions=structuredClone([...new Map(catalog.filter(d=>used.has(d.key+':'+d.version)).map(d=>[d.key+':'+d.version,d])).values()]);
+    document.approvalMode='human';
+    for(const phase of document.phases) {
+      const suggested=plan.phases.find(p=>p.phaseIndex===phase.originIndex);if(!suggested)continue;
+      phase.factRequirements=structuredClone(suggested.requiredFacts);phase.compliance=suggested.compliance?structuredClone(suggested.compliance):undefined;
+      phase.scope=suggested.scope;phase.category=suggested.category;phase.conditionJoin=suggested.conditionJoin;phase.endReason=suggested.endReason;
+      phase.conditions.forEach((c,i)=>{c.expression=suggested.conditionExpressions[i]??null;});
+      phase.exceptions.forEach((c,i)=>{c.expression=suggested.exceptionExpressions[i]??null;});
+      for(const r of suggested.requiredFacts)phase.questionMap[r.field]=catalog.find(d=>d.key===r.key&&d.version===r.definitionVersion)?.question??r.field;
+      // Suggestions are not approval: include/exclude decisions remain unresolved.
+    }
+  }
+  return document;
 }
 
 // Existing identities cannot disappear, be reassigned, or acquire different origins.

@@ -1,0 +1,4 @@
+Docker CLI is unavailable in the artifact build environment.
+The local node_modules directory is incomplete because prior npm ci attempts were blocked by registry network/DNS access; full workspace typecheck/Vitest/Vite build are therefore not claimed here.
+Authoritative 0.9.15 runtime acceptance must be performed by rebuilding the existing Yandex Cloud Docker deployment, then running BOT_SCENARIOS_0.9.15.md in live MAX.
+The previous deployed 0.9.14 infrastructure already confirmed HTTPS, MAX webhook, bot_started and successful bot_welcome delivery.

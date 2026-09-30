@@ -1,0 +1,567 @@
+
+> max-regulatory-control@0.9.13 test:core
+> node scripts/test-core-offline.mjs
+
+Pure production logic only. TypeScript 5.8.3. No database, live APIs, Zod or React runtime asserted.
+TAP version 13
+# Subtest: seed fixture: kkt.applies
+ok 1 - seed fixture: kkt.applies
+  ---
+  duration_ms: 1.989467
+  type: 'test'
+  ...
+# Subtest: seed fixture: usn_start.applies
+ok 2 - seed fixture: usn_start.applies
+  ---
+  duration_ms: 0.249016
+  type: 'test'
+  ...
+# Subtest: seed fixture: usn_during.applies
+ok 3 - seed fixture: usn_during.applies
+  ---
+  duration_ms: 1.005801
+  type: 'test'
+  ...
+# Subtest: seed fixture: marking.applies
+ok 4 - seed fixture: marking.applies
+  ---
+  duration_ms: 0.210556
+  type: 'test'
+  ...
+# Subtest: seed fixture: pd.action_required
+ok 5 - seed fixture: pd.action_required
+  ---
+  duration_ms: 0.113958
+  type: 'test'
+  ...
+# Subtest: seed fixture: seller_info.action_required
+ok 6 - seed fixture: seller_info.action_required
+  ---
+  duration_ms: 0.156951
+  type: 'test'
+  ...
+# Subtest: seed fixture: digital_ruble.needs_info
+ok 7 - seed fixture: digital_ruble.needs_info
+  ---
+  duration_ms: 0.941895
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: missing
+ok 8 - tri-state boolean: missing
+  ---
+  duration_ms: 0.201447
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: unknown
+ok 9 - tri-state boolean: unknown
+  ---
+  duration_ms: 0.235854
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: false
+ok 10 - tri-state boolean: false
+  ---
+  duration_ms: 0.300698
+  type: 'test'
+  ...
+# Subtest: tri-state boolean: true
+ok 11 - tri-state boolean: true
+  ---
+  duration_ms: 0.10969
+  type: 'test'
+  ...
+# Subtest: zero and explicit empty lists remain known
+ok 12 - zero and explicit empty lists remain known
+  ---
+  duration_ms: 0.165851
+  type: 'test'
+  ...
+# Subtest: irrelevant branch suppresses unnecessary questions
+ok 13 - irrelevant branch suppresses unnecessary questions
+  ---
+  duration_ms: 0.104422
+  type: 'test'
+  ...
+# Subtest: nested dynamic fact yields a question, then exact decision without LLM
+ok 14 - nested dynamic fact yields a question, then exact decision without LLM
+  ---
+  duration_ms: 0.177175
+  type: 'test'
+  ...
+# Subtest: prototype properties cannot be read as business facts
+ok 15 - prototype properties cannot be read as business facts
+  ---
+  duration_ms: 0.059823
+  type: 'test'
+  ...
+# Subtest: missing, stale, current answers are distinct
+ok 16 - missing, stale, current answers are distinct
+  ---
+  duration_ms: 0.983343
+  type: 'test'
+  ...
+# Subtest: one answer is reusable by another rule with the same binding
+ok 17 - one answer is reusable by another rule with the same binding
+  ---
+  duration_ms: 0.245967
+  type: 'test'
+  ...
+# Subtest: other company or other fact version is never reused
+ok 18 - other company or other fact version is never reused
+  ---
+  duration_ms: 0.208232
+  type: 'test'
+  ...
+# Subtest: calendar periods do not silently reuse last year
+ok 19 - calendar periods do not silently reuse last year
+  ---
+  duration_ms: 0.437119
+  type: 'test'
+  ...
+# Subtest: freshness expires at exact boundary
+ok 20 - freshness expires at exact boundary
+  ---
+  duration_ms: 0.17061
+  type: 'test'
+  ...
+# Subtest: numeric field rejects strings, infinity and forbidden negative numbers
+ok 21 - numeric field rejects strings, infinity and forbidden negative numbers
+  ---
+  duration_ms: 0.106774
+  type: 'test'
+  ...
+# Subtest: all seven dynamic field types are validated
+ok 22 - all seven dynamic field types are validated
+  ---
+  duration_ms: 0.346089
+  type: 'test'
+  ...
+# Subtest: periodic YTD cannot masquerade as prior year total
+ok 23 - periodic YTD cannot masquerade as prior year total
+  ---
+  duration_ms: 0.174523
+  type: 'test'
+  ...
+# Subtest: dynamic fact can drive a relative deadline
+ok 24 - dynamic fact can drive a relative deadline
+  ---
+  duration_ms: 0.130035
+  type: 'test'
+  ...
+# Subtest: date rollover and impossible dates
+ok 25 - date rollover and impossible dates
+  ---
+  duration_ms: 0.232103
+  type: 'test'
+  ...
+# Subtest: future revision never creates current actions
+ok 26 - future revision never creates current actions
+  ---
+  duration_ms: 0.224158
+  type: 'test'
+  ...
+# Subtest: cancelled latest version never revives an older obligation
+ok 27 - cancelled latest version never revives an older obligation
+  ---
+  duration_ms: 0.253302
+  type: 'test'
+  ...
+# Subtest: trade-object switch clears old point facts only
+ok 28 - trade-object switch clears old point facts only
+  ---
+  duration_ms: 0.519252
+  type: 'test'
+  ...
+# Subtest: targeting keeps missing values and uses bind parameters
+ok 29 - targeting keeps missing values and uses bind parameters
+  ---
+  duration_ms: 0.513016
+  type: 'test'
+  ...
+# Subtest: unsupported targeting broadens, never excludes companies
+ok 30 - unsupported targeting broadens, never excludes companies
+  ---
+  duration_ms: 0.143621
+  type: 'test'
+  ...
+# Subtest: canonical hashing ignores key ordering but not values
+ok 31 - canonical hashing ignores key ordering but not values
+  ---
+  duration_ms: 7.917901
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: facts.warehouse.a is unknown
+ok 32 - technical display trace is hidden: facts.warehouse.a is unknown
+  ---
+  duration_ms: 0.539992
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: legalForm eq "LLC" = true
+ok 33 - technical display trace is hidden: legalForm eq "LLC" = true
+  ---
+  duration_ms: 0.152735
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: STALE_IMPACT
+ok 34 - technical display trace is hidden: STALE_IMPACT
+  ---
+  duration_ms: 0.103103
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: NOT (x)
+ok 35 - technical display trace is hidden: NOT (x)
+  ---
+  duration_ms: 0.181672
+  type: 'test'
+  ...
+# Subtest: technical display trace is hidden: {"a":1}
+ok 36 - technical display trace is hidden: {"a":1}
+  ---
+  duration_ms: 0.042236
+  type: 'test'
+  ...
+# Subtest: user-facing markdown does not print asterisks
+ok 37 - user-facing markdown does not print asterisks
+  ---
+  duration_ms: 0.072177
+  type: 'test'
+  ...
+# Subtest: false, zero and empty list have readable values
+ok 38 - false, zero and empty list have readable values
+  ---
+  duration_ms: 7.883781
+  type: 'test'
+  ...
+# Subtest: half-open year is shown with an inclusive human label
+ok 39 - half-open year is shown with an inclusive human label
+  ---
+  duration_ms: 0.452562
+  type: 'test'
+  ...
+# Subtest: invalid date does not print Invalid Date or a shifted date
+ok 40 - invalid date does not print Invalid Date or a shifted date
+  ---
+  duration_ms: 0.185057
+  type: 'test'
+  ...
+# Subtest: applies is not called a violation
+ok 41 - applies is not called a violation
+  ---
+  duration_ms: 0.217805
+  type: 'test'
+  ...
+# Subtest: arbitrary backend text never enters customer error copy
+ok 42 - arbitrary backend text never enters customer error copy
+  ---
+  duration_ms: 0.251289
+  type: 'test'
+  ...
+# Subtest: manual review reasons never expose technical fact names
+ok 43 - manual review reasons never expose technical fact names
+  ---
+  duration_ms: 0.306766
+  type: 'test'
+  ...
+# Subtest: known manual review gate is explained in ordinary Russian
+ok 44 - known manual review gate is explained in ordinary Russian
+  ---
+  duration_ms: 1.312794
+  type: 'test'
+  ...
+# Subtest: all onboarding labels are human-facing
+ok 45 - all onboarding labels are human-facing
+  ---
+  duration_ms: 0.175202
+  type: 'test'
+  ...
+# Subtest: customer-facing field and checklist copy contains no internal machine vocabulary
+ok 46 - customer-facing field and checklist copy contains no internal machine vocabulary
+  ---
+  duration_ms: 0.66887
+  type: 'test'
+  ...
+# Subtest: every main result state has a readable status, explanation and next action
+ok 47 - every main result state has a readable status, explanation and next action
+  ---
+  duration_ms: 0.309344
+  type: 'test'
+  ...
+# Subtest: readable expression does not expose machine operators
+ok 48 - readable expression does not expose machine operators
+  ---
+  duration_ms: 0.406025
+  type: 'test'
+  ...
+# Subtest: logical card identity survives answer-created assessment UUID
+ok 49 - logical card identity survives answer-created assessment UUID
+  ---
+  duration_ms: 0.0995
+  type: 'test'
+  ...
+# Subtest: answers can remove list attention without changing open card key
+ok 50 - answers can remove list attention without changing open card key
+  ---
+  duration_ms: 0.101501
+  type: 'test'
+  ...
+# Subtest: Russian numeric input accepts spaces and comma
+ok 51 - Russian numeric input accepts spaces and comma
+  ---
+  duration_ms: 0.188907
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: ""
+ok 52 - invalid number is rejected: ""
+  ---
+  duration_ms: 0.106765
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: " "
+ok 53 - invalid number is rejected: " "
+  ---
+  duration_ms: 0.04662
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "1e9"
+ok 54 - invalid number is rejected: "1e9"
+  ---
+  duration_ms: 0.040247
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "NaN"
+ok 55 - invalid number is rejected: "NaN"
+  ---
+  duration_ms: 0.039942
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "Infinity"
+ok 56 - invalid number is rejected: "Infinity"
+  ---
+  duration_ms: 0.038423
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "10 USD"
+ok 57 - invalid number is rejected: "10 USD"
+  ---
+  duration_ms: 0.09197
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "1,2,3"
+ok 58 - invalid number is rejected: "1,2,3"
+  ---
+  duration_ms: 0.045349
+  type: 'test'
+  ...
+# Subtest: invalid number is rejected: "99999999999999999"
+ok 59 - invalid number is rejected: "99999999999999999"
+  ---
+  duration_ms: 0.10559
+  type: 'test'
+  ...
+# Subtest: numeric range is enforced
+ok 60 - numeric range is enforced
+  ---
+  duration_ms: 0.107911
+  type: 'test'
+  ...
+# Subtest: question fingerprint changes when evidence-period/version changes
+ok 61 - question fingerprint changes when evidence-period/version changes
+  ---
+  duration_ms: 0.088512
+  type: 'test'
+  ...
+# Subtest: dangerous source link is not clickable
+ok 62 - dangerous source link is not clickable
+  ---
+  duration_ms: 0.102906
+  type: 'test'
+  ...
+# Subtest: signed MAX launch is decoded once and duplicate launch data rejected
+ok 63 - signed MAX launch is decoded once and duplicate launch data rejected
+  ---
+  duration_ms: 0.714847
+  type: 'test'
+  ...
+# Subtest: API rejects HTML error pages without leaking their text
+ok 64 - API rejects HTML error pages without leaking their text
+  ---
+  duration_ms: 19.633003
+  type: 'test'
+  ...
+# Subtest: API sends authorization and preserves successful payload
+ok 65 - API sends authorization and preserves successful payload
+  ---
+  duration_ms: 0.667859
+  type: 'test'
+  ...
+# Subtest: baseline contains 12 supported pilot document/setting checks
+ok 66 - baseline contains 12 supported pilot document/setting checks
+  ---
+  duration_ms: 1.121899
+  type: 'test'
+  ...
+# Subtest: irrelevant requirements create no checklist entries
+ok 67 - irrelevant requirements create no checklist entries
+  ---
+  duration_ms: 0.389993
+  type: 'test'
+  ...
+# Subtest: a missing fact blocks readiness answers
+ok 68 - a missing fact blocks readiness answers
+  ---
+  duration_ms: 0.083468
+  type: 'test'
+  ...
+# Subtest: upcoming/history/specialist review cannot be marked ready
+ok 69 - upcoming/history/specialist review cannot be marked ready
+  ---
+  duration_ms: 0.069354
+  type: 'test'
+  ...
+# Subtest: a newly approved rule contributes its own actions
+ok 70 - a newly approved rule contributes its own actions
+  ---
+  duration_ms: 0.215663
+  type: 'test'
+  ...
+# Subtest: amendment uses its own actions instead of old hard-coded checklist
+ok 71 - amendment uses its own actions instead of old hard-coded checklist
+  ---
+  duration_ms: 0.087056
+  type: 'test'
+  ...
+# Subtest: simultaneous current and future revisions keep unique check keys
+ok 72 - simultaneous current and future revisions keep unique check keys
+  ---
+  duration_ms: 0.087757
+  type: 'test'
+  ...
+# Subtest: irrelevant future law is not classified as personalized upcoming
+ok 73 - irrelevant future law is not classified as personalized upcoming
+  ---
+  duration_ms: 0.442277
+  type: 'test'
+  ...
+# Subtest: last 90 days excludes undated and future events
+ok 74 - last 90 days excludes undated and future events
+  ---
+  duration_ms: 0.126504
+  type: 'test'
+  ...
+# Subtest: segmentation is exact, deterministic, contiguous and lossless
+ok 75 - segmentation is exact, deterministic, contiguous and lossless
+  ---
+  duration_ms: 0.710475
+  type: 'test'
+  ...
+# Subtest: oversized text is rejected rather than silently truncated
+ok 76 - oversized text is rejected rather than silently truncated
+  ---
+  duration_ms: 0.11979
+  type: 'test'
+  ...
+# Subtest: all three phase years remain available to extraction
+ok 77 - all three phase years remain available to extraction
+  ---
+  duration_ms: 0.686454
+  type: 'test'
+  ...
+# Subtest: CSV quoting and separator detection
+ok 78 - CSV quoting and separator detection
+  ---
+  duration_ms: 0.432108
+  type: 'test'
+  ...
+# Subtest: HTML scripts and invalid numeric entities do not break parsing
+ok 79 - HTML scripts and invalid numeric entities do not break parsing
+  ---
+  duration_ms: 1.186784
+  type: 'test'
+  ...
+# Subtest: publication dates reject impossible day/month combinations
+ok 80 - publication dates reject impossible day/month combinations
+  ---
+  duration_ms: 0.314929
+  type: 'test'
+  ...
+# Subtest: official redirects cannot leave the allowlist
+ok 81 - official redirects cannot leave the allowlist
+  ---
+  duration_ms: 1.143843
+  type: 'test'
+  ...
+# Subtest: official redirects may remain within trusted HTTPS
+ok 82 - official redirects may remain within trusted HTTPS
+  ---
+  duration_ms: 2.5729
+  type: 'test'
+  ...
+# Subtest: source body size is bounded even without content-length
+ok 83 - source body size is bounded even without content-length
+  ---
+  duration_ms: 0.549734
+  type: 'test'
+  ...
+# Subtest: source timeout covers a stalled body, not only response headers
+ok 84 - source timeout covers a stalled body, not only response headers
+  ---
+  duration_ms: 22.394494
+  type: 'test'
+  ...
+# Subtest: source timeout also covers a stalled request
+ok 85 - source timeout also covers a stalled request
+  ---
+  duration_ms: 20.532648
+  type: 'test'
+  ...
+# Subtest: transient source failure is retried and a permanent one is not
+ok 86 - transient source failure is retried and a permanent one is not
+  ---
+  duration_ms: 253.075272
+  type: 'test'
+  ...
+# Subtest: declared Russian encoding is decoded correctly
+ok 87 - declared Russian encoding is decoded correctly
+  ---
+  duration_ms: 1.065581
+  type: 'test'
+  ...
+# Subtest: only safe extraction error categories are persisted
+ok 88 - only safe extraction error categories are persisted
+  ---
+  duration_ms: 0.230735
+  type: 'test'
+  ...
+# Subtest: native PDF text extraction reads the actual PDF text layer
+ok 89 - native PDF text extraction reads the actual PDF text layer
+  ---
+  duration_ms: 23.575336
+  type: 'test'
+  ...
+# Subtest: PDF without a text layer fails closed instead of inventing content
+ok 90 - PDF without a text layer fails closed instead of inventing content
+  ---
+  duration_ms: 24.257341
+  type: 'test'
+  ...
+# Subtest: invalid PDF magic is rejected
+ok 91 - invalid PDF magic is rejected
+  ---
+  duration_ms: 0.315247
+  type: 'test'
+  ...
+# Subtest: readable core copy exists for every seed rule and never overwrites later versions
+ok 92 - readable core copy exists for every seed rule and never overwrites later versions
+  ---
+  duration_ms: 0.534688
+  type: 'test'
+  ...
+1..92
+# tests 92
+# suites 0
+# pass 92
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 522.581581

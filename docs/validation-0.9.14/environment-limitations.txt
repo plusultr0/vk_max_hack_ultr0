@@ -1,0 +1,6 @@
+Validation environment limitations for 0.9.14 (2026-09-27)
+
+- Docker CLI is not installed in this execution environment, so compose.test.yaml / PostgreSQL integration / clean-start Docker acceptance could not be executed here.
+- A fresh npm dependency installation was attempted, but registry.npmjs.org resolution failed with EAI_AGAIN. The incomplete node_modules created by that attempt is not part of the deliverable archive.
+- Therefore this report does not claim full workspace typecheck, Vitest workspace execution, Vite production build, React browser regression, or PostgreSQL integration for 0.9.14 in this environment.
+- Offline pure-module tests, syntax transpilation, static Chromium layout tests, seed fixture checks, and dynamic-fact consistency checks were executed and are recorded separately.

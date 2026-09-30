@@ -1,0 +1,6 @@
+{
+  "typescript": "5.8.3",
+  "checks": 9,
+  "status": "ok",
+  "scope": "Pure chatbot routing/copy only; no PostgreSQL or live MAX API."
+}

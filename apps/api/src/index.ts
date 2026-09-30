@@ -4,7 +4,16 @@ import { z } from 'zod';
 import { registerReviewAuth } from './review-auth.js';
 import { getConfig } from '@reg/config';
 import {
+  listBusinessChecks,
+  answerBusinessCheck,
   addImpactFeedback,
+  answerImpactFacts,
+  personalizedRegulatoryFeed,
+  complianceBaseline,
+  companyFactHistory,
+  listFactDefinitions,
+  loadFactObservations,
+  ensureBuiltinFacts,
   answerImpactQuestion,
   confirmProfileDraft,
   ensureDevIdentity,
@@ -14,9 +23,9 @@ import {
   getImpactById,
   getLegalRule,
   getPool,
-  getProfileHistory,
+  getProfileHistory, getProfileHistoryPage,
   getProfileState,
-  listAudit,
+  listAudit, listAuditPage,
   listImpacts,
   listIngestionRuns,
   listNotifications,
@@ -29,6 +38,7 @@ import {
   retryPublicationDelivery,
   enqueueExtraction,
   getExtractionJob,
+  retryExtractionJob,
   recalculateCompany,
   rejectRuleCandidate,
   saveProfileDraft,
@@ -85,7 +95,8 @@ function requireAuth(request: any, reply: any): Authed | null {
 const requireAdmin = registerReviewAuth(app, config);
 app.get('/admin/review-fields', async (request, reply) => {
   if (!requireAdmin(request, reply)) return;
-  return { items: reviewFieldCatalog() };
+  await ensureBuiltinFacts();
+  return { items: reviewFieldCatalog(), factDefinitions: await listFactDefinitions() };
 });
 
 function apiIngestionSources() {
@@ -158,7 +169,7 @@ function apiIngestionSources() {
 app.get('/health', async (_request, reply) => {
   try {
     await getPool().query('SELECT 1');
-    return { status: 'ok', database: 'ok', service: 'api', stage: 's9-delivery-lifecycle' };
+    return { status: 'ok', database: 'ok', service: 'api', stage: 's9.9-autonomous-regulatory-engine' };
   } catch (error) {
     reply.code(503);
     return { status: 'degraded', database: 'error', service: 'api', error: error instanceof Error ? error.message : 'unknown error' };
@@ -223,10 +234,15 @@ app.get('/company/profile', async (request, reply) => {
 
 app.put('/company/profile', async (request, reply) => {
   const auth = requireAuth(request, reply); if (!auth) return;
-  const body = request.body as { patch?: Record<string, unknown>; answeredFields?: string[] } | null;
-  if (!body?.patch || typeof body.patch !== 'object') return reply.code(400).send({ error: 'PATCH_REQUIRED' });
-  try { return await saveProfileDraft({ companyId: auth.claims.companyId, patch: body.patch, answeredFields: body.answeredFields }); }
-  catch (error) { return reply.code(400).send({ error: 'INVALID_PROFILE_DRAFT', message: error instanceof Error ? error.message : 'invalid profile' }); }
+  const body = request.body as { patch?: Record<string, unknown>; answeredFields?: string[]; baseProfileVersion?: number } | null;
+  if (!body?.patch || typeof body.patch !== 'object' || Array.isArray(body.patch)) return reply.code(400).send({ error: 'PATCH_REQUIRED' });
+  if(body.baseProfileVersion!==undefined&&(!Number.isInteger(body.baseProfileVersion)||body.baseProfileVersion<0))
+    return reply.code(400).send({error:'INVALID_PROFILE_DRAFT'});
+  try { return await saveProfileDraft({ companyId: auth.claims.companyId, patch: body.patch, answeredFields: body.answeredFields, baseProfileVersion: body.baseProfileVersion }); }
+  catch (error) {
+    const stale=error instanceof Error && error.message==='PROFILE_DRAFT_STALE';
+    return reply.code(stale?409:400).send({ error:stale?'PROFILE_DRAFT_STALE':'INVALID_PROFILE_DRAFT' });
+  }
 });
 
 app.post('/company/profile/confirm', async (request, reply) => {
@@ -243,7 +259,10 @@ app.post('/company/profile/confirm', async (request, reply) => {
 
 app.get('/company/profile/history', async (request, reply) => {
   const auth = requireAuth(request, reply); if (!auth) return;
-  return { items: await getProfileHistory(auth.claims.companyId) };
+  const q=z.object({beforeVersion:z.coerce.number().int().positive().max(2147483647).optional(),
+    limit:z.coerce.number().int().min(1).max(100).optional()}).safeParse(request.query);
+  if(!q.success)return reply.code(400).send({error:'INVALID_HISTORY_QUERY'});
+  return getProfileHistoryPage(auth.claims.companyId,q.data);
 });
 
 app.get('/impacts', async (request, reply) => {
@@ -272,6 +291,57 @@ app.post('/impacts/:id/answer', async (request, reply) => {
   catch (error) {
     const message = error instanceof Error ? error.message : 'answer failed';
     return reply.code(message === 'STALE_IMPACT' ? 409 : 400).send({ error: message });
+  }
+});
+
+app.post('/impacts/:id/answers', async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  try {
+    const result=await answerImpactFacts(auth.claims.companyId,(request.params as {id:string}).id,request.body,auth.claims.sub);
+    return {...result,impacts:await listImpacts(auth.claims.companyId)};
+  }catch(error){
+    if(error instanceof ReviewError)return reply.code(error.statusCode).send({error:error.code,details:error.details});
+    if(error instanceof z.ZodError)return reply.code(400).send({error:'INVALID_FACT_ANSWERS'});
+    return reply.code(500).send({error:'FACT_ANSWER_FAILED'});
+  }
+});
+app.get('/company/facts',async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  await ensureBuiltinFacts();
+  return {definitions:await listFactDefinitions(),values:await loadFactObservations(auth.claims.companyId)};
+});
+app.get('/company/facts/history',async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  return {items:await companyFactHistory(auth.claims.companyId)};
+});
+app.get('/regulatory/feed',async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  const q=z.object({filter:z.enum(['relevant','all','new','new_relevant','needs_info','upcoming','action_required','checked','not_applicable','verify']).optional(),
+    offset:z.coerce.number().int().min(0).max(100000).optional(),limit:z.coerce.number().int().min(1).max(100).optional()}).safeParse(request.query);
+  if(!q.success)return reply.code(400).send({error:'INVALID_FEED_QUERY'});
+  return personalizedRegulatoryFeed(auth.claims.companyId,q.data);
+});
+app.get('/company/compliance',async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  return complianceBaseline(auth.claims.companyId);
+});
+app.post('/company/compliance/refresh',async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  return complianceBaseline(auth.claims.companyId,true);
+});
+
+app.get('/company/checks',async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  return listBusinessChecks(auth.claims.companyId);
+});
+app.post('/company/checks/answer',async(request,reply)=>{
+  const auth=requireAuth(request,reply);if(!auth)return;
+  try {
+    return await answerBusinessCheck(auth.claims.companyId,auth.claims.sub,request.body);
+  } catch(error) {
+    if(error instanceof ReviewError)return reply.code(error.statusCode).send({error:error.code});
+    if(error instanceof z.ZodError)return reply.code(400).send({error:'INVALID_FACT_ANSWERS'});
+    return reply.code(500).send({error:'CHECK_SAVE_FAILED'});
   }
 });
 
@@ -305,7 +375,10 @@ app.get('/notifications', async (request, reply) => {
 
 app.get('/audit', async (request, reply) => {
   const auth = requireAuth(request, reply); if (!auth) return;
-  return { items: await listAudit(auth.claims.companyId) };
+  const q=z.object({beforeId:z.string().regex(/^[1-9][0-9]{0,17}$/).optional(),
+    limit:z.coerce.number().int().min(1).max(100).optional()}).safeParse(request.query);
+  if(!q.success)return reply.code(400).send({error:'INVALID_HISTORY_QUERY'});
+  return listAuditPage(auth.claims.companyId,q.data);
 });
 
 if (config.NODE_ENV !== 'production') {
@@ -447,6 +520,11 @@ app.get('/admin/extraction-jobs/:id',async(request,reply)=>{
   if(!requireAdmin(request,reply))return;
   return await getExtractionJob((request.params as {id:string}).id) ?? reply.code(404).send({error:'EXTRACTION_JOB_NOT_FOUND'});
 });
+app.post('/admin/extraction-jobs/:id/retry',async(request,reply)=>{
+  if(!requireAdmin(request,reply))return;
+  try{return await retryExtractionJob((request.params as {id:string}).id);}
+  catch(error){return reviewFailure(error,reply);}
+});
 app.get('/admin/candidates/:id/publication',async(request,reply)=>{
   if(!requireAdmin(request,reply))return;
   return await publicationDeliveryStatus((request.params as {id:string}).id) ?? reply.code(404).send({error:'PUBLICATION_NOT_FOUND'});
@@ -524,7 +602,7 @@ app.post('/admin/candidates/:id/review/preview', async (request, reply) => {
   if (!requireAdmin(request, reply)) return;
   try {
     const body = z.object({ revision: z.number().int().positive(), contentHash: z.string().regex(/^[a-f0-9]{64}$/),
-      asOf: calendarDate, profile: CompanyProfileSchema.strict(), tradeObjectId: z.string().trim().min(1).max(200).optional() }).strict().parse(request.body);
+      asOf: calendarDate, profile: CompanyProfileSchema.strict(), factValues: z.record(z.unknown()).optional(), tradeObjectId: z.string().trim().min(1).max(200).optional() }).strict().parse(request.body);
     return await previewCandidateReview((request.params as { id: string }).id, body);
   } catch (error) { return reviewFailure(error, reply); }
 });

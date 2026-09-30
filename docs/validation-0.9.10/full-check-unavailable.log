@@ -1,0 +1,511 @@
+
+> max-regulatory-control@0.9.10 check
+> npm run typecheck && npm test && npm run build:web && npm run test:core
+
+
+> max-regulatory-control@0.9.10 typecheck
+> tsc -p tsconfig.backend.json
+
+apps/api/src/index.ts(1,21): error TS2307: Cannot find module 'fastify' or its corresponding type declarations.
+apps/api/src/index.ts(2,18): error TS2307: Cannot find module '@fastify/cors' or its corresponding type declarations.
+apps/api/src/index.ts(3,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+apps/api/src/index.ts(96,40): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(96,49): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(169,27): error TS7006: Parameter '_request' implicitly has an 'any' type.
+apps/api/src/index.ts(169,37): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(179,30): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(179,39): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(210,30): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(210,39): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(225,28): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(225,37): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(230,36): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(230,45): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(235,36): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(235,45): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(248,45): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(248,54): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(260,44): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(260,53): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(265,28): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(265,37): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(270,35): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(270,43): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(275,32): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(275,41): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(282,40): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(282,49): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(294,40): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(294,48): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(305,32): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(305,40): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(310,40): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(310,48): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(314,34): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(314,42): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(321,37): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(321,45): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(325,46): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(325,54): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(330,33): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(330,41): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(334,41): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(334,49): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(345,42): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(345,51): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(354,34): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(354,43): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(368,34): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(368,43): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(373,26): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(373,35): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(379,31): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(379,40): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(394,37): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(394,46): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(410,37): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(410,46): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(436,44): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(436,53): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(444,34): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(444,43): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(478,51): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(478,60): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(502,43): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(502,52): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(508,56): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(508,64): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(513,44): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(513,52): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(517,51): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(517,59): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(522,51): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(522,59): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(526,58): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(526,66): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(531,37): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(531,46): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(537,41): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(537,50): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(543,49): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(543,58): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(558,105): error TS18046: 'error' is of type 'unknown'.
+apps/api/src/index.ts(563,49): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(563,58): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(573,48): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(573,57): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(582,56): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(582,65): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(589,48): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(589,57): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(595,57): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(595,66): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(604,67): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(604,76): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(614,50): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(614,59): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/index.ts(627,41): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/api/src/index.ts(627,50): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(1,68): error TS2307: Cannot find module 'fastify' or its corresponding type declarations.
+apps/api/src/review-auth.ts(4,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+apps/api/src/review-auth.ts(14,60): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(14,82): error TS7006: Parameter 's' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(20,32): error TS7006: Parameter 'req' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(20,37): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(20,44): error TS7006: Parameter 'payload' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(24,37): error TS7006: Parameter 'req' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(24,42): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(41,36): error TS7006: Parameter 'req' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(41,41): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(55,39): error TS7006: Parameter 'req' implicitly has an 'any' type.
+apps/api/src/review-auth.ts(55,44): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/bot/src/index.ts(1,21): error TS2307: Cannot find module 'fastify' or its corresponding type declarations.
+apps/bot/src/index.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+apps/bot/src/index.ts(10,27): error TS7006: Parameter 'request' implicitly has an 'any' type.
+apps/bot/src/index.ts(10,35): error TS7006: Parameter 'reply' implicitly has an 'any' type.
+apps/worker/src/index.ts(1,24): error TS2307: Cannot find module 'pg-boss' or its corresponding type declarations.
+apps/worker/src/index.ts(9,19): error TS7006: Parameter 'error' implicitly has an 'any' type.
+apps/worker/src/index.ts(45,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+apps/worker/src/index.ts(47,1): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+apps/worker/src/index.ts(48,1): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+apps/worker/src/source-check.ts(5,27): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+apps/worker/src/source-check.ts(27,40): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+apps/worker/src/source-check.ts(34,31): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+apps/worker/src/source-check.ts(37,45): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+apps/worker/src/source-check.ts(37,135): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(splitter: { [Symbol.split](string: string, limit?: number | undefined): string[]; }, limit?: number | undefined): string[]', gave the following error.
+    Argument of type '{}' is not assignable to parameter of type '{ [Symbol.split](string: string, limit?: number | undefined): string[]; }'.
+      Property '[Symbol.split]' is missing in type '{}' but required in type '{ [Symbol.split](string: string, limit?: number | undefined): string[]; }'.
+  Overload 2 of 2, '(separator: string | RegExp, limit?: number | undefined): string[]', gave the following error.
+    Argument of type '{}' is not assignable to parameter of type 'string | RegExp'.
+apps/worker/src/source-check.ts(39,7): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+apps/worker/src/source-check.ts(39,60): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+apps/worker/src/source-check.ts(40,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/config/src/index.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/config/src/index.ts(20,33): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/config/src/index.ts(32,42): error TS7006: Parameter 'v' implicitly has an 'any' type.
+packages/config/src/index.ts(33,41): error TS7006: Parameter 'v' implicitly has an 'any' type.
+packages/config/src/index.ts(42,41): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/config/src/index.ts(43,46): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/config/src/index.ts(44,39): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/config/src/index.ts(45,39): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/config/src/index.ts(46,51): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/config/src/index.ts(57,32): error TS2503: Cannot find namespace 'NodeJS'.
+packages/config/src/index.ts(57,52): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/autonomous.integration.ts(5,20): error TS2307: Cannot find module 'node:assert/strict' or its corresponding type declarations.
+packages/db/src/autonomous.integration.ts(6,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/autonomous.integration.ts(7,34): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/autonomous.integration.ts(8,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/autonomous.integration.ts(24,4): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/autonomous.integration.ts(24,51): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/autonomous.integration.ts(25,19): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/autonomous.integration.ts(31,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/autonomous.integration.ts(31,43): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/autonomous.integration.ts(33,48): error TS7006: Parameter 'n' implicitly has an 'any' type.
+packages/db/src/autonomous.integration.ts(34,39): error TS7006: Parameter 'n' implicitly has an 'any' type.
+packages/db/src/autonomous.integration.ts(39,68): error TS7006: Parameter 'n' implicitly has an 'any' type.
+packages/db/src/autonomous.integration.ts(81,123): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/autonomous.integration.ts(137,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/business-checks.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/business-checks.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/db/src/business-checks.ts(26,33): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/db/src/canonical.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/client.ts(1,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/client.ts(5,29): error TS7006: Parameter 'value' implicitly has an 'any' type.
+packages/db/src/extraction-jobs.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/extraction-jobs.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/db/src/fact-answers.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/fact-answers.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/db/src/fact-answers.ts(19,34): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/db/src/fact-answers.ts(56,125): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/db/src/fact-evaluation.ts(14,30): error TS7006: Parameter 'd' implicitly has an 'any' type.
+packages/db/src/fact-evaluation.ts(57,54): error TS7006: Parameter 'f' implicitly has an 'any' type.
+packages/db/src/fact-evaluation.ts(57,97): error TS7006: Parameter 'field' implicitly has an 'any' type.
+packages/db/src/fact-evaluation.ts(62,19): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ boolean: string; enum: string; multi_enum: string; number: string; date: string; text: string; string_list: string; }'.
+packages/db/src/fact-evaluation.ts(64,31): error TS7006: Parameter 'o' implicitly has an 'any' type.
+packages/db/src/fact-runtime.test.ts(1,39): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/db/src/facts.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/facts.ts(2,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/facts.ts(19,114): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/facts.ts(74,24): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/grounding.integration.ts(1,20): error TS2307: Cannot find module 'node:assert/strict' or its corresponding type declarations.
+packages/db/src/grounding.integration.ts(2,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/grounding.integration.ts(3,35): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/grounding.integration.ts(4,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/grounding.integration.ts(11,5): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/grounding.integration.ts(12,6): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/grounding.integration.ts(13,49): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/grounding.integration.ts(19,28): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/grounding.integration.ts(21,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/grounding.integration.ts(24,55): error TS7006: Parameter 'file' implicitly has an 'any' type.
+packages/db/src/impacts.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/impacts.ts(47,46): error TS7006: Parameter 'row' implicitly has an 'any' type.
+packages/db/src/impacts.ts(48,10): error TS7006: Parameter 'row' implicitly has an 'any' type.
+packages/db/src/impacts.ts(49,120): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/impacts.ts(180,42): error TS7006: Parameter 'o' implicitly has an 'any' type.
+packages/db/src/impacts.ts(231,32): error TS7006: Parameter 'action' implicitly has an 'any' type.
+packages/db/src/ingestion.ts(1,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/ingestion.ts(2,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(1,20): error TS2307: Cannot find module 'node:assert/strict' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(2,39): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(3,34): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(4,31): error TS2307: Cannot find module 'node:url' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(5,30): error TS2307: Cannot find module 'node:http' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(6,41): error TS2307: Cannot find module 'node:child_process' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(7,37): error TS2307: Cannot find module 'node:timers/promises' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(8,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/lifecycle.integration.ts(24,4): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(24,51): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(25,45): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(32,21): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(33,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(33,43): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(35,95): error TS7006: Parameter 'f' implicitly has an 'any' type.
+packages/db/src/lifecycle.integration.ts(58,38): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/db/src/lifecycle.integration.ts(122,48): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(152,27): error TS7006: Parameter 'req' implicitly has an 'any' type.
+packages/db/src/lifecycle.integration.ts(152,31): error TS7006: Parameter 'res' implicitly has an 'any' type.
+packages/db/src/lifecycle.integration.ts(155,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(156,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(156,47): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(178,23): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(179,15): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(228,23): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/lifecycle.integration.ts(229,15): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/migrate.ts(1,35): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/migrate.ts(2,31): error TS2307: Cannot find module 'node:url' or its corresponding type declarations.
+packages/db/src/migrate.ts(21,49): error TS7006: Parameter 'n' implicitly has an 'any' type.
+packages/db/src/migrate.ts(45,128): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/notifications.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/outbox.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/outbox.ts(23,37): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/outbox.ts(27,60): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/profile.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(1,20): error TS2307: Cannot find module 'node:assert/strict' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(2,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(3,35): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(4,31): error TS2307: Cannot find module 'node:url' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(5,30): error TS2307: Cannot find module 'node:net' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(6,42): error TS2307: Cannot find module 'node:child_process' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(7,37): error TS2307: Cannot find module 'node:timers/promises' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(8,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/publication.integration.ts(18,5): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/publication.integration.ts(19,6): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/publication.integration.ts(20,49): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/publication.integration.ts(27,28): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/publication.integration.ts(29,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/publication.integration.ts(32,60): error TS7006: Parameter 'f' implicitly has an 'any' type.
+packages/db/src/publication.integration.ts(172,37): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/db/src/publication.integration.ts(172,44): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/db/src/publication.integration.ts(187,32): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/db/src/publication.integration.ts(187,39): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/db/src/publication.integration.ts(206,15): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/publication.integration.ts(207,15): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/publication.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/publication.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/db/src/publication.ts(79,84): error TS7006: Parameter 't' implicitly has an 'any' type.
+packages/db/src/regulatory-feed.ts(15,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/regulatory-feed.ts(19,29): error TS2339: Property 'publication_date' does not exist on type '{}'.
+packages/db/src/regulatory-feed.ts(19,60): error TS2339: Property 'publication_date' does not exist on type '{}'.
+packages/db/src/regulatory-feed.ts(20,30): error TS2339: Property 'discovered_at' does not exist on type '{}'.
+packages/db/src/regulatory-feed.ts(20,58): error TS2339: Property 'discovered_at' does not exist on type '{}'.
+packages/db/src/regulatory-feed.ts(21,53): error TS2339: Property 'added_at' does not exist on type '{}'.
+packages/db/src/regulatory-feed.ts(21,76): error TS2339: Property 'added_at' does not exist on type '{}'.
+packages/db/src/regulatory-feed.ts(23,59): error TS2339: Property 'added_at' does not exist on type '{}'.
+packages/db/src/regulatory-feed.ts(40,93): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/db/src/regulatory-feed.ts(42,82): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/db/src/repository.ts(20,34): error TS7006: Parameter 'row' implicitly has an 'any' type.
+packages/db/src/review.integration.ts(1,20): error TS2307: Cannot find module 'node:assert/strict' or its corresponding type declarations.
+packages/db/src/review.integration.ts(2,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/review.integration.ts(3,35): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/review.integration.ts(4,31): error TS2307: Cannot find module 'node:url' or its corresponding type declarations.
+packages/db/src/review.integration.ts(5,30): error TS2307: Cannot find module 'node:net' or its corresponding type declarations.
+packages/db/src/review.integration.ts(6,42): error TS2307: Cannot find module 'node:child_process' or its corresponding type declarations.
+packages/db/src/review.integration.ts(7,37): error TS2307: Cannot find module 'node:timers/promises' or its corresponding type declarations.
+packages/db/src/review.integration.ts(8,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/review.integration.ts(15,5): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/review.integration.ts(16,6): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/review.integration.ts(17,49): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/review.integration.ts(24,28): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/review.integration.ts(26,3): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/review.integration.ts(29,60): error TS7006: Parameter 'f' implicitly has an 'any' type.
+packages/db/src/review.integration.ts(100,15): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/review.integration.ts(101,15): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/review.integration.ts(104,46): error TS7006: Parameter 'chunk' implicitly has an 'any' type.
+packages/db/src/review.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/db/src/review.ts(15,33): error TS7006: Parameter 'v' implicitly has an 'any' type.
+packages/db/src/runtime.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/runtime.ts(2,33): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/runtime.ts(16,38): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/db/src/runtime.ts(21,125): error TS7006: Parameter 'd' implicitly has an 'any' type.
+packages/db/src/runtime.ts(30,43): error TS7006: Parameter 'row' implicitly has an 'any' type.
+packages/db/src/runtime.ts(72,31): error TS7006: Parameter 'definition' implicitly has an 'any' type.
+packages/db/src/seed.ts(1,26): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/seed.ts(2,31): error TS2307: Cannot find module 'node:url' or its corresponding type declarations.
+packages/db/src/seed.ts(181,5): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/targeting.ts(20,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/db/src/usability.integration.ts(2,20): error TS2307: Cannot find module 'node:assert/strict' or its corresponding type declarations.
+packages/db/src/usability.integration.ts(3,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/usability.integration.ts(4,34): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/db/src/usability.integration.ts(5,16): error TS2307: Cannot find module 'pg' or its corresponding type declarations.
+packages/db/src/usability.integration.ts(15,4): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/usability.integration.ts(15,51): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/usability.integration.ts(16,16): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/usability.integration.ts(21,97): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/usability.integration.ts(21,137): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/usability.integration.ts(23,48): error TS7006: Parameter 'n' implicitly has an 'any' type.
+packages/db/src/usability.integration.ts(91,109): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/db/src/webhook.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/db/src/webhook.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/domain/src/domain.test.ts(1,30): error TS2307: Cannot find module 'node:fs' or its corresponding type declarations.
+packages/domain/src/domain.test.ts(2,38): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/domain/src/evaluator.ts(59,32): error TS7006: Parameter 'action' implicitly has an 'any' type.
+packages/domain/src/evaluator.ts(96,44): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/domain/src/evaluator.ts(110,44): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/domain/src/evaluator.ts(116,54): error TS7006: Parameter 'gate' implicitly has an 'any' type.
+packages/domain/src/evaluator.ts(132,42): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/domain/src/fact-builtins.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/domain/src/fact-builtins.ts(65,115): error TS7006: Parameter 'g' implicitly has an 'any' type.
+packages/domain/src/fact-builtins.ts(66,33): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/domain/src/fact-logic.ts(37,70): error TS2366: Function lacks ending return statement and return type does not include 'undefined'.
+packages/domain/src/fact-logic.ts(41,66): error TS7006: Parameter 'o' implicitly has an 'any' type.
+packages/domain/src/fact-logic.ts(42,160): error TS7006: Parameter 'o' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/domain/src/fact-schema.ts(6,11): error TS7006: Parameter 'k' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(6,35): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(7,57): error TS7006: Parameter 'v' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(38,26): error TS7006: Parameter 'd' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(38,29): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(41,29): error TS7006: Parameter 'o' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(50,13): error TS7006: Parameter 'v' implicitly has an 'any' type.
+packages/domain/src/fact-schema.ts(50,35): error TS7006: Parameter 'x' implicitly has an 'any' type.
+packages/domain/src/facts.test.ts(1,36): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/domain/src/lifecycle.ts(40,101): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/domain/src/schemas.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/ingestion/src/index.ts(7,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/ingestion/src/index.ts(8,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/ingestion/src/ingestion.test.ts(1,38): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/ingestion/src/pdf-text.ts(1,26): error TS2307: Cannot find module 'node:child_process' or its corresponding type declarations.
+packages/ingestion/src/pdf-text.ts(2,38): error TS2307: Cannot find module 'node:fs/promises' or its corresponding type declarations.
+packages/ingestion/src/pdf-text.ts(3,24): error TS2307: Cannot find module 'node:os' or its corresponding type declarations.
+packages/ingestion/src/pdf-text.ts(4,22): error TS2307: Cannot find module 'node:path' or its corresponding type declarations.
+packages/ingestion/src/pdf-text.ts(8,6): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/ingestion/src/pdf-text.ts(13,137): error TS7006: Parameter 'error' implicitly has an 'any' type.
+packages/ingestion/src/pdf-text.ts(13,143): error TS7006: Parameter 'stdout' implicitly has an 'any' type.
+packages/ingestion/src/pdf-text.ts(14,46): error TS2503: Cannot find namespace 'NodeJS'.
+packages/llm/src/automation-schema.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/llm/src/extraction.test.ts(1,42): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/llm/src/extraction.test.ts(22,26): error TS7006: Parameter 's' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(37,31): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(41,52): error TS7031: Binding element 'index' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(41,59): error TS7031: Binding element 'sourceSegmentIndex' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(41,79): error TS7031: Binding element 'quote' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(119,45): error TS7006: Parameter '_label' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(119,53): error TS7006: Parameter 'fieldHint' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(119,64): error TS7006: Parameter 'operatorHint' implicitly has an 'any' type.
+packages/llm/src/extraction.test.ts(119,78): error TS7006: Parameter 'valueHint' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/llm/src/extraction.ts(179,25): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(179,32): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(182,100): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(182,106): error TS7006: Parameter 'j' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(183,33): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(183,39): error TS7006: Parameter 'j' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(187,28): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(187,34): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(218,50): error TS7006: Parameter 's' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(218,98): error TS7006: Parameter 's' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(222,25): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(222,32): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(226,31): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(226,37): error TS7006: Parameter 'j' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(234,49): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(234,90): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(264,33): error TS7006: Parameter 'action' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(264,41): error TS7006: Parameter 'j' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(276,28): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(276,34): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(300,32): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(300,39): error TS7006: Parameter 'index' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(302,50): error TS7006: Parameter 'other' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(302,57): error TS7006: Parameter 'otherIndex' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(306,32): error TS7006: Parameter 'condition' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(346,48): error TS7006: Parameter 'segment' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(346,108): error TS7006: Parameter 'segment' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(347,85): error TS7006: Parameter 'segment' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(347,94): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/llm/src/extraction.ts(372,34): error TS7006: Parameter 'issue' implicitly has an 'any' type.
+packages/llm/src/index.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/llm/src/llm.test.ts(1,53): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/llm/src/source-segments.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/llm/src/source.ts(3,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/max/src/index.ts(1,45): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/max/src/index.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/max/src/index.ts(13,12): error TS7006: Parameter 'user' implicitly has an 'any' type.
+packages/max/src/index.ts(14,15): error TS7006: Parameter 'user' implicitly has an 'any' type.
+packages/max/src/index.ts(27,35): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(27,59): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(27,68): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(32,16): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(33,17): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(117,16): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(125,16): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(126,17): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/index.ts(135,23): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/max.test.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/max/src/max.test.ts(2,38): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/max/src/max.test.ts(5,29): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/max.test.ts(5,52): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/review-session.test.ts(1,28): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/max/src/review-session.ts(1,58): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/max/src/review-session.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/max/src/review-session.ts(8,16): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/review-session.ts(8,40): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/review-session.ts(15,19): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/max/src/review-session.ts(22,42): error TS2580: Cannot find name 'Buffer'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+packages/review/src/automatic.test.ts(1,39): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/review/src/automatic.test.ts(13,57): error TS7006: Parameter 'd' implicitly has an 'any' type.
+packages/review/src/automatic.ts(65,77): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/automatic.ts(74,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/automatic.ts(80,34): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/src/automatic.ts(80,36): error TS7006: Parameter 'index' implicitly has an 'any' type.
+packages/review/src/automatic.ts(88,40): error TS7006: Parameter 'd' implicitly has an 'any' type.
+packages/review/src/automatic.ts(91,41): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/src/automatic.ts(92,41): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/src/automatic.ts(96,82): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/review/src/automatic.ts(96,84): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/automatic.ts(106,44): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/automatic.ts(106,67): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/src/automatic.ts(119,46): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/automatic.ts(119,69): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/src/automatic.ts(125,22): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/review/src/automatic.ts(126,30): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/automatic.ts(132,31): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/src/automatic.ts(132,33): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/automatic.ts(133,31): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/src/automatic.ts(133,33): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/automatic.ts(134,27): error TS7006: Parameter 'a' implicitly has an 'any' type.
+packages/review/src/catalog.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/review/src/compiler.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/review/src/compiler.ts(2,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/review/src/compiler.ts(52,43): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/src/compiler.ts(55,29): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/review/src/compiler.ts(57,23): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/review/src/compiler.ts(57,30): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/compiler.ts(92,48): error TS7006: Parameter 'v' implicitly has an 'any' type.
+packages/review/src/compiler.ts(92,51): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/compiler.ts(93,32): error TS7006: Parameter 'v' implicitly has an 'any' type.
+packages/review/src/compiler.ts(98,50): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/src/compiler.ts(99,59): error TS7006: Parameter 'd' implicitly has an 'any' type.
+packages/review/src/compiler.ts(135,22): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/review/src/compiler.ts(135,28): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/compiler.ts(157,65): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/src/compiler.ts(161,28): error TS7006: Parameter 'action' implicitly has an 'any' type.
+packages/review/src/compiler.ts(161,36): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/compiler.ts(194,25): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/compiler.ts(206,45): error TS7006: Parameter 'o' implicitly has an 'any' type.
+packages/review/src/compiler.ts(207,59): error TS7006: Parameter 'o' implicitly has an 'any' type.
+packages/review/src/draft.ts(1,28): error TS2307: Cannot find module 'node:crypto' or its corresponding type declarations.
+packages/review/src/draft.ts(8,40): error TS7006: Parameter 'message' implicitly has an 'any' type.
+packages/review/src/draft.ts(8,49): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(9,33): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/review/src/draft.ts(9,39): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(10,30): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/review/src/draft.ts(10,37): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/draft.ts(10,75): error TS7006: Parameter 'message' implicitly has an 'any' type.
+packages/review/src/draft.ts(10,84): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(11,49): error TS7006: Parameter 'warning' implicitly has an 'any' type.
+packages/review/src/draft.ts(36,36): error TS7006: Parameter 'phase' implicitly has an 'any' type.
+packages/review/src/draft.ts(36,43): error TS7006: Parameter 'originIndex' implicitly has an 'any' type.
+packages/review/src/draft.ts(42,43): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/review/src/draft.ts(42,49): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(43,43): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/review/src/draft.ts(43,49): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(44,42): error TS7006: Parameter 'item' implicitly has an 'any' type.
+packages/review/src/draft.ts(44,48): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(50,44): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/draft.ts(50,67): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/src/draft.ts(54,40): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/draft.ts(57,33): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/src/draft.ts(57,35): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(58,33): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/src/draft.ts(58,35): error TS7006: Parameter 'i' implicitly has an 'any' type.
+packages/review/src/draft.ts(78,37): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/lifecycle.test.ts(1,36): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/review/src/review.test.ts(1,30): error TS2307: Cannot find module 'node:fs' or its corresponding type declarations.
+packages/review/src/review.test.ts(2,38): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+packages/review/src/review.test.ts(36,92): error TS7006: Parameter 'kind' implicitly has an 'any' type.
+packages/review/src/review.test.ts(53,25): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/review.test.ts(84,20): error TS7006: Parameter '_name' implicitly has an 'any' type.
+packages/review/src/review.test.ts(84,27): error TS7006: Parameter 'raw' implicitly has an 'any' type.
+packages/review/src/review.test.ts(88,119): error TS7006: Parameter 'revenue' implicitly has an 'any' type.
+packages/review/src/review.test.ts(88,128): error TS7006: Parameter 'verdict' implicitly has an 'any' type.
+packages/review/src/review.test.ts(158,28): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/src/review.test.ts(159,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/src/schema.ts(1,19): error TS2307: Cannot find module 'zod' or its corresponding type declarations.
+packages/review/src/temporal.ts(27,58): error TS7006: Parameter 'd' implicitly has an 'any' type.
+packages/review/test/fixture.ts(24,28): error TS7006: Parameter 'r' implicitly has an 'any' type.
+packages/review/test/fixture.ts(25,23): error TS7006: Parameter 'p' implicitly has an 'any' type.
+packages/review/test/fixture.ts(29,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/test/fixture.ts(30,27): error TS7006: Parameter 'c' implicitly has an 'any' type.
+packages/review/test/fixture.ts(32,24): error TS7006: Parameter 'a' implicitly has an 'any' type.

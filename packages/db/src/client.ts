@@ -1,6 +1,8 @@
 import pg from 'pg';
 import { getConfig } from '@reg/config';
 
+// DATE is a calendar value, not a local-time instant (avoid +/- one day).
+pg.types.setTypeParser(1082,value=>value);
 const { Pool } = pg;
 type PgPool = InstanceType<typeof Pool>;
 let pool: PgPool | null = null;

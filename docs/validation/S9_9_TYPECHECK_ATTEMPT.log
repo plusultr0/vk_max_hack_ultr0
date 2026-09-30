@@ -1,0 +1,37 @@
+
+> max-regulatory-control@0.9.9 typecheck
+> tsc -p tsconfig.backend.json
+
+error TS2688: Cannot find type definition file for 'babel__core'.
+  The file is in the program because:
+    Entry point for implicit type library 'babel__core'
+error TS2688: Cannot find type definition file for 'babel__generator'.
+  The file is in the program because:
+    Entry point for implicit type library 'babel__generator'
+error TS2688: Cannot find type definition file for 'babel__template'.
+  The file is in the program because:
+    Entry point for implicit type library 'babel__template'
+error TS2688: Cannot find type definition file for 'babel__traverse'.
+  The file is in the program because:
+    Entry point for implicit type library 'babel__traverse'
+error TS2688: Cannot find type definition file for 'chai'.
+  The file is in the program because:
+    Entry point for implicit type library 'chai'
+error TS2688: Cannot find type definition file for 'deep-eql'.
+  The file is in the program because:
+    Entry point for implicit type library 'deep-eql'
+error TS2688: Cannot find type definition file for 'estree'.
+  The file is in the program because:
+    Entry point for implicit type library 'estree'
+error TS2688: Cannot find type definition file for 'node'.
+  The file is in the program because:
+    Entry point for implicit type library 'node'
+error TS2688: Cannot find type definition file for 'pg'.
+  The file is in the program because:
+    Entry point for implicit type library 'pg'
+error TS2688: Cannot find type definition file for 'react'.
+  The file is in the program because:
+    Entry point for implicit type library 'react'
+error TS2688: Cannot find type definition file for 'react-dom'.
+  The file is in the program because:
+    Entry point for implicit type library 'react-dom'

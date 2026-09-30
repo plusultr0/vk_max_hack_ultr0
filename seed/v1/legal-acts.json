@@ -45,8 +45,8 @@
     "number": "657",
     "issuer": "Правительство РФ",
     "publicationDate": "2026-06-01",
-    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_535649/",
-    "retrievedAt": "2026-09-16T00:00:00Z",
+    "officialUrl": "https://publication.pravo.gov.ru/document/0001202606010077",
+    "retrievedAt": "2026-09-27T16:30:00.000Z",
     "verificationStatus": "reviewed"
   },
   {
@@ -57,6 +57,250 @@
     "publicationDate": "2025-07-23",
     "officialUrl": "https://government.ru/docs/all/160192/",
     "retrievedAt": "2026-09-16T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_152_2006_current",
+    "title": "Федеральный закон от 27.07.2006 № 152-ФЗ «О персональных данных»",
+    "number": "152-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": "2006-07-27",
+    "officialUrl": "https://mintrud.gov.ru/docs/laws/130",
+    "retrievedAt": "2026-09-27T16:30:00.000Z",
+    "verificationStatus": "reviewed",
+    "rawTextHash": null
+  },
+  {
+    "actId": "consumer_law_2300_1_current",
+    "title": "Закон РФ от 07.02.1992 № 2300-1 «О защите прав потребителей»",
+    "number": "2300-1",
+    "issuer": "Российская Федерация",
+    "publicationDate": "1992-02-07",
+    "officialUrl": "https://zpp.rospotrebnadzor.ru/npa/federal/192115",
+    "retrievedAt": "2026-09-27T16:30:00.000Z",
+    "verificationStatus": "reviewed",
+    "rawTextHash": null
+  },
+  {
+    "actId": "fz_54_2003_kkt_current",
+    "title": "Федеральный закон от 22.05.2003 № 54-ФЗ «О применении контрольно-кассовой техники при осуществлении расчетов в Российской Федерации»",
+    "number": "54-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": "2003-05-22",
+    "officialUrl": "https://www.nalog.gov.ru/rn77/about_fts/docs/3909988/",
+    "retrievedAt": "2026-09-27T16:30:00.000Z",
+    "verificationStatus": "reviewed",
+    "rawTextHash": null
+  },
+  {
+    "actId": "union_state_consumer_rules_6_2024",
+    "title": "Декрет Высшего Государственного Совета Союзного государства от 06.12.2024 № 6 «О единых правилах в области защиты прав потребителей»",
+    "number": "6",
+    "issuer": "Высший Государственный Совет Союзного государства",
+    "publicationDate": "2024-12-18",
+    "officialUrl": "https://xn--c1anggbdpdf.xn--p1ai/docs/item/241307/",
+    "retrievedAt": "2026-09-27T16:30:00.000Z",
+    "verificationStatus": "reviewed",
+    "rawTextHash": null
+  },
+  {
+    "actId": "fz_381_2009_trade",
+    "title": "Федеральный закон от 28.12.2009 № 381-ФЗ «Об основах государственного регулирования торговой деятельности в Российской Федерации»",
+    "number": "381-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_95629/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_29_2000_food",
+    "title": "Федеральный закон от 02.01.2000 № 29-ФЗ «О качестве и безопасности пищевых продуктов»",
+    "number": "29-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_25584/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_52_1999_sanitary",
+    "title": "Федеральный закон от 30.03.1999 № 52-ФЗ «О санитарно-эпидемиологическом благополучии населения»",
+    "number": "52-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_22481/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_184_2002_technical",
+    "title": "Федеральный закон от 27.12.2002 № 184-ФЗ «О техническом регулировании»",
+    "number": "184-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_40241/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "grad_code_190_2004",
+    "title": "Градостроительный кодекс Российской Федерации от 29.12.2004 № 190-ФЗ",
+    "number": "190-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_51040/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "housing_code_188_2004",
+    "title": "Жилищный кодекс Российской Федерации от 29.12.2004 № 188-ФЗ",
+    "number": "188-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_51057/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_259_2007_transport",
+    "title": "Федеральный закон от 08.11.2007 № 259-ФЗ «Устав автомобильного транспорта и городского наземного электрического транспорта»",
+    "number": "259-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_72388/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_132_1996_tourism",
+    "title": "Федеральный закон от 24.11.1996 № 132-ФЗ «Об основах туристской деятельности в Российской Федерации»",
+    "number": "132-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_12462/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_323_2011_health",
+    "title": "Федеральный закон от 21.11.2011 № 323-ФЗ «Об основах охраны здоровья граждан в Российской Федерации»",
+    "number": "323-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_121895/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_61_2010_medicines",
+    "title": "Федеральный закон от 12.04.2010 № 61-ФЗ «Об обращении лекарственных средств»",
+    "number": "61-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_99350/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_273_2012_education",
+    "title": "Федеральный закон от 29.12.2012 № 273-ФЗ «Об образовании в Российской Федерации»",
+    "number": "273-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_140174/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_329_2007_sport",
+    "title": "Федеральный закон от 04.12.2007 № 329-ФЗ «О физической культуре и спорте в Российской Федерации»",
+    "number": "329-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_73038/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_149_2006_information",
+    "title": "Федеральный закон от 27.07.2006 № 149-ФЗ «Об информации, информационных технологиях и о защите информации»",
+    "number": "149-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_61798/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_38_2006_advertising",
+    "title": "Федеральный закон от 13.03.2006 № 38-ФЗ «О рекламе»",
+    "number": "38-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_58968/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_161_2011_payments",
+    "title": "Федеральный закон от 27.06.2011 № 161-ФЗ «О национальной платежной системе»",
+    "number": "161-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_115625/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_402_2011_accounting",
+    "title": "Федеральный закон от 06.12.2011 № 402-ФЗ «О бухгалтерском учете»",
+    "number": "402-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_122855/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_101_2002_agri_land",
+    "title": "Федеральный закон от 24.07.2002 № 101-ФЗ «Об обороте земель сельскохозяйственного назначения»",
+    "number": "101-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_37816/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "law_2487_1_security",
+    "title": "Закон РФ от 11.03.1992 № 2487-1 «О частной детективной и охранной деятельности в Российской Федерации»",
+    "number": "2487-1",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_385/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "fz_89_1998_waste",
+    "title": "Федеральный закон от 24.06.1998 № 89-ФЗ «Об отходах производства и потребления»",
+    "number": "89-ФЗ",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_19109/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
+    "verificationStatus": "reviewed"
+  },
+  {
+    "actId": "law_4979_1_veterinary",
+    "title": "Закон РФ от 14.05.1993 № 4979-1 «О ветеринарии»",
+    "number": "4979-1",
+    "issuer": "Российская Федерация",
+    "publicationDate": null,
+    "officialUrl": "https://www.consultant.ru/document/cons_doc_LAW_4438/",
+    "retrievedAt": "2026-09-30T00:00:00Z",
     "verificationStatus": "reviewed"
   }
 ]

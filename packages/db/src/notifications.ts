@@ -142,7 +142,8 @@ export async function notificationStillRelevant(notification: any) {
   if(notification.type==='bot_welcome' && relevant) return true;
   const impact=(await getPool().query('SELECT * FROM impact_assessments WHERE id=$1 AND company_id=$2',
     [payload.impactId,notification.company_id])).rows[0];
-  relevant = relevant && !!impact && impact.time_state==='active' && impact.verdict==='applies'
+  const acceptedVerdicts=notification.type==='regulatory_update'?['applies','needs_info']:['applies'];
+  relevant = relevant && !!impact && impact.time_state==='active' && acceptedVerdicts.includes(impact.verdict)
     && await impactIsCurrent(impact);
   if(relevant && notification.type==='deadline_reminder') {
     const action=(await getPool().query('SELECT * FROM action_items WHERE id=$1 AND impact_id=$2',[payload.actionId,impact.id])).rows[0];

@@ -132,7 +132,7 @@ export function verifySession(token: string, secret: string, nowSeconds = Math.f
     expiresAt: z.number().int(),
     startParam: z.string().nullable().optional(),
     dev: z.boolean().optional(),
-  }).parse(JSON.parse(Buffer.from(body, 'base64url').toString('utf8')));
+  }).parse(JSON.parse(Buffer.from(body!, 'base64url').toString('utf8')));
   if (claims.expiresAt < nowSeconds) throw new Error('Session expired');
   return claims;
 }
@@ -158,10 +158,30 @@ export function makeSession(input: {
   return { token: signSession(claims, input.secret), claims };
 }
 
+export type MaxInlineButton =
+  | { type: 'callback'; text: string; payload: string }
+  | { type: 'link'; text: string; url: string }
+  | { type: 'open_app'; text: string; web_app: string; payload?: string };
+
+export type MaxButtonRows = MaxInlineButton[][];
+
+function keyboardAttachment(buttons?: MaxButtonRows) {
+  if (!buttons?.length) return undefined;
+  return [{ type: 'inline_keyboard', payload: { buttons } }];
+}
+
+export function openMiniAppButton(botUsername: string, text: string, payload = 'home'): MaxInlineButton {
+  return { type: 'open_app', text, web_app: botUsername, payload };
+}
+
+export function callbackButton(text: string, payload: string): MaxInlineButton {
+  return { type: 'callback', text, payload };
+}
+
 export class MaxApiClient {
   constructor(private readonly config: { apiBaseUrl: string; botToken: string }) {}
 
-  private async request(path: string, init: RequestInit): Promise<unknown> {
+  private async request(path: string, init: RequestInit): Promise<any> {
     const response = await fetch(`${this.config.apiBaseUrl}${path}`, {
       ...init,
       signal: AbortSignal.timeout(15_000),
@@ -172,30 +192,67 @@ export class MaxApiClient {
       },
     });
     const text = await response.text();
-    const body = text ? JSON.parse(text) : null;
+    let body: unknown = null;
+    if (text) {
+      try { body = JSON.parse(text); }
+      catch { body = { message: text.slice(0, 2000) }; }
+    }
     if (!response.ok) throw new Error(`MAX_API_HTTP_${response.status}`);
     return body;
   }
 
-  async sendMessageToUser(input: { userId: string; text: string; button?: { text: string; url: string }; notify?: boolean }) {
-    const attachments = input.button ? [{
-      type: 'inline_keyboard',
-      payload: { buttons: [[{ type: 'link', text: input.button.text, url: input.button.url }]] },
-    }] : undefined;
+  async sendMessageToUser(input: {
+    userId: string;
+    text: string;
+    button?: { text: string; url: string };
+    buttons?: MaxButtonRows;
+    notify?: boolean;
+    format?: 'markdown' | 'html';
+  }) {
+    const buttons = input.buttons ?? (input.button ? [[{ type: 'link' as const, text: input.button.text, url: input.button.url }]] : undefined);
     return this.request(`/messages?user_id=${encodeURIComponent(input.userId)}`, {
       method: 'POST',
-      body: JSON.stringify({ text: input.text, attachments, notify: input.notify ?? true }),
+      body: JSON.stringify({ text: input.text, attachments: keyboardAttachment(buttons), notify: input.notify ?? true, format: input.format }),
     });
   }
 
-  async sendMessageToChat(input: { chatId: string; text: string; button?: { text: string; url: string } }) {
-    const attachments = input.button ? [{
-      type: 'inline_keyboard',
-      payload: { buttons: [[{ type: 'link', text: input.button.text, url: input.button.url }]] },
-    }] : undefined;
+  async sendMessageToChat(input: {
+    chatId: string;
+    text: string;
+    button?: { text: string; url: string };
+    buttons?: MaxButtonRows;
+    notify?: boolean;
+    format?: 'markdown' | 'html';
+  }) {
+    const buttons = input.buttons ?? (input.button ? [[{ type: 'link' as const, text: input.button.text, url: input.button.url }]] : undefined);
     return this.request(`/messages?chat_id=${encodeURIComponent(input.chatId)}`, {
       method: 'POST',
-      body: JSON.stringify({ text: input.text, attachments }),
+      body: JSON.stringify({ text: input.text, attachments: keyboardAttachment(buttons), notify: input.notify ?? true, format: input.format }),
+    });
+  }
+
+  async answerCallback(input: {
+    callbackId: string;
+    text?: string;
+    buttons?: MaxButtonRows;
+    notification?: string;
+    format?: 'markdown' | 'html';
+  }) {
+    const message = input.text === undefined && !input.buttons ? undefined : {
+      text: input.text ?? '',
+      attachments: keyboardAttachment(input.buttons) ?? [],
+      format: input.format,
+    };
+    return this.request(`/answers?callback_id=${encodeURIComponent(input.callbackId)}`, {
+      method: 'POST',
+      body: JSON.stringify({ message, notification: input.notification }),
+    });
+  }
+
+  async setCommands(commands: Array<{ name: string; description: string }>) {
+    return this.request('/me/commands', {
+      method: 'PATCH',
+      body: JSON.stringify({ commands }),
     });
   }
 

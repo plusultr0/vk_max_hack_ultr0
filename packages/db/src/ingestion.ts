@@ -142,9 +142,9 @@ export async function saveRuleCandidate(input: {
 
 export async function getRuleCandidate(id: string) {
   const result = await getPool().query(
-    `SELECT c.*, s.snapshot AS source_snapshot, COALESCE(s.snapshot->>'sourceTitle',d.title) AS source_title
+    `SELECT c.*, a.state AS automation_state,a.issues AS automation_issues,s.snapshot AS source_snapshot, COALESCE(s.snapshot->>'sourceTitle',d.title) AS source_title
      FROM legal_rule_candidates c JOIN source_documents d ON d.id=c.source_document_id
-     LEFT JOIN source_snapshots s ON s.id=c.source_snapshot_id WHERE c.id=$1`, [id],
+     LEFT JOIN source_snapshots s ON s.id=c.source_snapshot_id LEFT JOIN candidate_automation a ON a.candidate_id=c.id WHERE c.id=$1`, [id],
   );
   const candidate = result.rows[0];
   if (!candidate) return null;

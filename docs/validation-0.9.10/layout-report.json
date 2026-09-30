@@ -1,0 +1,50 @@
+{
+  "scope": "CSS fixture only; no React or backend execution",
+  "cases": [
+    {
+      "screen": "list",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "detail",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "checks",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "list",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "detail",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "checks",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "list",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "detail",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "checks",
+      "width": 1440,
+      "status": "passed"
+    }
+  ]
+}

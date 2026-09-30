@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import { CompanyProfileSchema, LegalRuleSchema, type Condition, type LegalRule } from '@reg/domain';
+import { CompanyProfileSchema, LegalRuleSchema, requirementProblems, conditionFields, type FactDefinition, type Condition, type LegalRule } from '@reg/domain';
 import { datesInText, isCalendarDate, validateRegulatoryExtraction, type RegulatoryExtraction } from '@reg/llm';
 import { fieldScope, reviewRequirements } from './draft.js';
 import { parseReviewDocument, type ReviewExpression, type ReviewIssue } from './schema.js';
@@ -95,16 +95,18 @@ export function compileReview(value: unknown, rawExtraction: RegulatoryExtractio
       if ('condition' in input) { const child = expression(input.condition, `${at}.not`); return child ? { op: 'not', condition: child } : null; }
       cite(input.sourceSegmentIndexes, at);
       const shape = CompanyProfileSchema.shape as Record<string, z.ZodTypeAny>;
-      const sourceField = Object.hasOwn(shape, input.field) ? shape[input.field] : undefined;
+      const binding=phase.factRequirements?.find(r=>r.field===input.field);
+      const definition=binding&&doc.factDefinitions?.find(d=>d.key===binding.key&&d.version===binding.definitionVersion);
+      const sourceField = definition ? factValueSchema(definition) : Object.hasOwn(shape, input.field) ? shape[input.field] : undefined;
       if (!sourceField || ['profileVersion', 'confirmedAt'].includes(input.field)) { add('UNKNOWN_FIELD', at, 'Нет поддерживаемого поля профиля.'); return null; }
       let field: z.ZodTypeAny = sourceField;
       while (field instanceof z.ZodOptional || field instanceof z.ZodNullable) field = field.unwrap();
-      if (input.scope !== fieldScope(input.field) || (input.scope === 'trade_object' && phase.scope !== 'trade_object')) {
+      if (input.scope !== (definition?.scope ?? fieldScope(input.field)) || (input.scope === 'trade_object' && phase.scope !== 'trade_object')) {
         add('SCOPE_MISMATCH', at, 'Условие торговой точки нельзя применять как освобождение всей компании.'); return null;
       }
       usedFields.add(input.field);
       const isArray = field instanceof z.ZodArray;
-      const isDate = ['registrationDate', 'incomeAsOf'].includes(input.field);
+      const isDate = definition?.type==='date' || ['registrationDate', 'incomeAsOf'].includes(input.field);
       const validScalar = (v: unknown) => !isArray && field!.safeParse(v).success && v !== null && (!isDate || typeof v === 'string' && isCalendarDate(v));
       const invalid = () => { add('INVALID_OPERATOR_VALUE', at, 'Оператор или значение не соответствует типу поля.'); return null; };
       const op = input.op;
@@ -146,6 +148,15 @@ export function compileReview(value: unknown, rawExtraction: RegulatoryExtractio
     if (!phase.conditionJoin) add('CONDITION_JOIN_REQUIRED', path, 'Явно выберите AND/OR между группами условий.');
     const base: Condition = { op: phase.conditionJoin ?? 'and', conditions: included };
     const applicability: Condition = except.length ? { op: 'and', conditions: [base, { op: 'not', condition: { op: 'or', conditions: except } }] } : base;
+    const complianceFields=new Set<string>();
+    const compliantWhen=phase.compliance?.compliantWhen?expression(phase.compliance.compliantWhen,path+'.compliance.compliantWhen'):null;
+    const actionRequiredWhen=phase.compliance?.actionRequiredWhen?expression(phase.compliance.actionRequiredWhen,path+'.compliance.actionRequiredWhen'):null;
+    for(const f of [...conditionFields(compliantWhen),...conditionFields(actionRequiredWhen)])complianceFields.add(f);
+    if(phase.factRequirements) {
+      for(const problem of requirementProblems(phase.factRequirements,doc.factDefinitions??[]))add('FACT_BINDING_INVALID',path,problem);
+      for(const f of usedFields)if(!phase.factRequirements.some(r=>r.field===f))add('FACT_REQUIREMENT_MISSING',path,f);
+      for(const r of phase.factRequirements)if(!usedFields.has(r.field))add('UNUSED_FACT_REQUIREMENT',path,r.field);
+    } else if([...usedFields].some(f=>f.startsWith('facts.')))add('FACT_REQUIREMENTS_REQUIRED',path,'Dynamic fields need versioned definitions and bindings.');
     const actions: LegalRule['actions'] = [];
     phase.actions.forEach((action, i) => {
       const at = `${path}.actions.${i}`;
@@ -171,10 +182,11 @@ export function compileReview(value: unknown, rawExtraction: RegulatoryExtractio
       legalStatus: phase.validTo.date && checkedAt >= phase.validTo.date ? 'expired' : phase.validFrom.date! > checkedAt ? 'upcoming' : 'active',
       reviewStatus: 'needs_review', validFrom: phase.validFrom.date, validTo: phase.validTo.date, checkedAt,
       applicability: { condition: applicability, requiredFields: [...usedFields].sort(), questionMap: phase.questionMap },
-      manualReviewGates: [], compliance: { mode: 'not_assessed', compliantWhen: null, actionRequiredWhen: null, requiredFields: [] },
+      manualReviewGates: [], compliance: { mode: compliantWhen||actionRequiredWhen ? 'condition' : 'not_assessed', compliantWhen, actionRequiredWhen, requiredFields: [...complianceFields] },
       effectiveFrom: { type: 'rule_valid_from' }, actions,
       evidenceRefs: evidence.map((e) => ({ id: e.id, url: extraction.sourceSnapshot.officialUrl, label: `Сегмент ${e.sourceSegmentIndex}`, note: e.quote })),
       tags: ['review-preview', `scope:${phase.scope}`],
+      ...(phase.factRequirements ? {factModel:{schemaVersion:'facts-v1',definitions:doc.factDefinitions??[],requiredFacts:phase.factRequirements,approvalMode:doc.approvalMode??'human'}} : {}),
     };
     output.push({ phaseId: phase.id, originIndex: phase.originIndex, scope: phase.scope!, temporalPolicy: 'start-inclusive-end-exclusive',
       rule: LegalRuleSchema.parse({ ...rawRule, seedHash: reviewHash(rawRule) }), evidence });
@@ -182,4 +194,16 @@ export function compileReview(value: unknown, rawExtraction: RegulatoryExtractio
   if (!doc.phases.some((p) => p.decision === 'include')) add('NO_INCLUDED_PHASES', 'phases', 'Для готового пакета нужен хотя бы один включённый этап.');
   return { compilerVersion: COMPILER_VERSION, contentHash: reviewHash(doc), sourceTextHash: extraction.sourceSnapshot.textHash,
     ready: issues.length === 0, issues, rules: issues.length ? [] : output };
+}
+
+function factValueSchema(d:FactDefinition):z.ZodTypeAny {
+  switch(d.type) {
+    case 'boolean':return z.boolean();
+    case 'number':{let s=z.number().finite();if(d.min!==null)s=s.min(d.min);if(d.max!==null)s=s.max(d.max);return s;}
+    case 'date':return z.string();
+    case 'text':return z.string().max(2000);
+    case 'string_list':return z.array(z.string().max(200)).max(100);
+    case 'enum':return z.enum(d.options.map(o=>o.value) as [string,...string[]]);
+    case 'multi_enum':return z.array(z.enum(d.options.map(o=>o.value) as [string,...string[]])).max(100);
+  }
 }

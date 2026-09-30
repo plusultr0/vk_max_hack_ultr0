@@ -1,0 +1,570 @@
+{
+  "runner": "node:assert adapter of existing Vitest test bodies (NOT Vitest)",
+  "zod": "3.25.76, installed Playwright distribution",
+  "typescript": "5.8.3",
+  "passed": 140,
+  "failed": 0,
+  "total": 140,
+  "results": [
+    {
+      "name": "domain/domain.test.js / tri-state conditions / rejects equality without a value while retaining explicit null",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / tri-state conditions / short-circuits AND on false and does not request later unknown fields",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / tri-state conditions / returns unknown for an actually required missing field",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / tri-state conditions / treats empty array as known and empty",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / tri-state conditions / known returns unknown instead of silently treating missing as false",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / effective dates / computes first day of the next month without timezone semantics",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / KKT applies to the prepared internet-settlement fixture",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / KKT uses manual review when internet settlement exists but user says KKT is not used",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / USN start applies above 20m and not at exact threshold",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / new 2026 USN company is not applicable to the start-of-year card without asking 2025 income",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / USN current-year threshold computes next-month effective date",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / marking rule applies to supported toy code and is upcoming",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / PD rule separates applicability from compliance",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / distance seller identity creates action when checked fields are missing",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / digital ruble asks for bank category when revenue and agreement qualify",
+      "status": "passed"
+    },
+    {
+      "name": "domain/domain.test.js / seed rules / digital ruble short-circuits low revenue before unknown bank",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 registry and value validation / registers the complete legacy catalog with no duplicate keys",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 registry and value validation / rejects executable metadata and unsafe namespaces",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 registry and value validation / requires enumerations to have distinct options",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 registry and value validation / preserves false, zero and an empty list as known values",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 registry and value validation / rejects numeric strings, Infinity and non-calendar dates",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 registry and value validation / does not expose inherited or prototype properties",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 registry and value validation / rejects unbound fields and ambiguous aliases",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 fact freshness and reuse / distinguishes missing from explicitly unknown",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 fact freshness and reuse / expires exactly at the configured boundary",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 fact freshness and reuse / honors a stricter rule-specific maximum age",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 fact freshness and reuse / never substitutes values from another company or outlet",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 fact freshness and reuse / rejects future confirmation timestamps",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 fact freshness and reuse / reuses one observation for separate rule bindings",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 periods / uses half-open explicit calendar ranges",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 periods / refuses invalid intervals",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 periods / does not reuse a previous year amount for another year",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 periods / keeps YTD measured date and avoids a daily duplicate question",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 periods / does not refresh an old measurement merely by changing confirmedAt",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 periods / schedules exact binding rollover instead of polling every company",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 periods / never writes a historical tax answer over current taxRegime",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 conservative targeting SQL / passes companies with missing OR stale values to full evaluation",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 conservative targeting SQL / binds values, including attempted SQL injection",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 conservative targeting SQL / widens NOT and unsupported scoped predicates without unused binds",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 conservative targeting SQL / preserves OR groups and does not turn them into an AND filter",
+      "status": "passed"
+    },
+    {
+      "name": "domain/facts.test.js / S9.9 conservative targeting SQL / widens a YTD prefilter rather than discarding a dated measurement",
+      "status": "passed"
+    },
+    {
+      "name": "max/max.test.js / MAX auth helpers / roundtrips signed sessions",
+      "status": "passed"
+    },
+    {
+      "name": "max/max.test.js / MAX auth helpers / validates WebAppData",
+      "status": "passed"
+    },
+    {
+      "name": "max/review-session.test.js / binds the review session to admin credential and expiry",
+      "status": "passed"
+    },
+    {
+      "name": "max/review-session.test.js / never accepts an empty configured secret or a malformed cookie",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / preserves whitespace, Unicode and offsets across long chunks",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects empty and oversized sources before contacting the model",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / keeps all three phases and materializes exact server-owned evidence",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects caller changes to quote, snapshot text, or segment offsets",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / repairs schema failures and never accepts model-supplied quotes",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / repairs missing source references exactly once",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / fails closed after a second invalid response",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / repairs malformed JSON but propagates transport errors",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / does not silently lose a later dated phase",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / recognizes dates in supported Russian and numeric formats",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / specializes the provider date schema per source without leaking dates between extractions",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects invented and impossible dates",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects operator text as a deadline",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / derives a preparation deadline from the grounded phase instead of accepting model-owned date copies",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects incompatible condition: boolean with a number distanceSales eq 1",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects incompatible condition: numeric comparison on boolean distanceSales gt 10",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects incompatible condition: in with scalar taxRegime in USN",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects incompatible condition: unknown field inventedField eq true",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / rejects incompatible condition: invalid enum legalForm eq UNSUPPORTED",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / retains an unmappable condition for human review",
+      "status": "passed"
+    },
+    {
+      "name": "llm/extraction.test.js / source-segment extraction / only accepts exact relative deadline phrases",
+      "status": "passed"
+    },
+    {
+      "name": "llm/llm.test.js / LLM adapter / validates deterministic mock output",
+      "status": "passed"
+    },
+    {
+      "name": "llm/llm.test.js / LLM adapter / uses GigaChat OAuth and json_schema structured output",
+      "status": "passed"
+    },
+    {
+      "name": "llm/llm.test.js / LLM adapter / reuses a non-expired GigaChat token",
+      "status": "passed"
+    },
+    {
+      "name": "llm/llm.test.js / LLM adapter / rejects an empty extraction without an explanation",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / ingestion CSV / parses semicolon CSV and quoted values",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / ingestion CSV / resolves a CSV link from a landing page",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / ingestion CSV / normalizes a minimal official dataset row",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / official HTML fallbacks / rejects oversized official text rather than silently dropping the end",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / official HTML fallbacks / extracts matching government document links and ignores navigation",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / official HTML fallbacks / stages a regulator page with readable text",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / official HTML fallbacks / converts HTML to readable compact text",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / official HTML fallbacks / creates manual official fallback documents without losing provenance",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / pilot relevance / scores e-commerce related legal metadata above unrelated metadata",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / S9.9 official transport provenance / blocks an official URL redirecting to an unrelated host",
+      "status": "passed"
+    },
+    {
+      "name": "ingestion/ingestion.test.js / S9.9 official transport provenance / allows a bounded redirect within trusted official HTTPS sources",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / creates a new typed fact and compiles without an administrator",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / keeps server-owned quotes and a deterministic rule identity",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / never accepts a lookalike official domain or manually supplied source",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / retains fallback for unresolved amendments/cross-references",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / blocks unsupported expression operators and missing fact definitions",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / does not treat a model confidence label as legal verification",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / performs one extraction call per document, with no company data in the prompt",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / blocks tampering with automatic dates and action wording after compilation",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 source-grounded automatic compilation / blocks altered automatic definition semantics",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 dynamic review preview and limits / previews a typed new fact without writing a company profile",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 dynamic review preview and limits / rejects unknown preview paths and invalid values",
+      "status": "passed"
+    },
+    {
+      "name": "review/automatic.test.js / S9.9 dynamic review preview and limits / rejects excessively deep model JSON before recursive schema validation",
+      "status": "passed"
+    },
+    {
+      "name": "review/lifecycle.test.js / published rule lifecycle / retains V1 until V2 activation and shows V2 separately without tasks",
+      "status": "passed"
+    },
+    {
+      "name": "review/lifecycle.test.js / published rule lifecycle / never resurrects V1 when V2 is cancelled or expired",
+      "status": "passed"
+    },
+    {
+      "name": "review/lifecycle.test.js / published rule lifecycle / does not reuse facts from a different outlet",
+      "status": "passed"
+    },
+    {
+      "name": "review/lifecycle.test.js / published rule lifecycle / requires bound trade-object context and distinguishes false from missing",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / bounds rule versions to PostgreSQL INTEGER before ready compilation",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / keeps the extraction unchanged and requires explicit review",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / compiles three simultaneous identities with server-owned exact evidence",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / blocks silently removed conditions",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / blocks silently removed exceptions",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / blocks silently removed actions",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / blocks a missing phase and preserves identities across reordering",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / requires reasons for exclusion and does not permit empty publish packages",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / cannot bypass source warnings, duplicate identities, or absent evidence",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / has canonical hashes across JSONB key order and changed content",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review provenance and readiness / rejects excessive nesting before recursive schema parsing",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / blocks numeric string { op: 'gt', field: 'revenuePreviousYear', value: '120' }",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / blocks boolean order { op: 'gt', field: 'usesKkt', value: true }",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / blocks invalid enum { op: 'eq', field: 'taxRegime', value: 'invented' }",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / blocks array equality { op: 'eq', field: 'salesChannels', value: [ 'own_site' ] }",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / blocks unknown field { op: 'eq', field: 'invented', value: true }",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / blocks prototype field { op: 'eq', field: 'toString', value: true }",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / blocks invalid date { op: 'eq', field: 'registrationDate', value: '2026-02-31' }",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / threshold 119 produces not_applicable",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / threshold 120 produces not_applicable",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / threshold 121 produces applies",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / distinguishes unknown, false, and an applicable exception",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / supports nested AND/OR/NOT without flattening the meaning",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / typed conditions and scope / requires outlet scope and explicit outlet preview context",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review time and deadlines / separates upcoming, active and ended dates without inventing phase ends",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review time and deadlines / does not replace relative or unknown deadlines with the phase date",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / review time and deadlines / requires grounded dates and rejects reversed intervals",
+      "status": "passed"
+    },
+    {
+      "name": "review/review.test.js / recorded CBR extraction regression (not approved law) / retains three stages and blocks its unresolved semantic warnings",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / asks for a new dynamic fact while preserving tri-state applicability",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / resolves true to an action plan without claiming an established violation",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / false is a known exclusion and suppresses irrelevant questions",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / a stale previous exclusion must become a confirmation question",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / reuses fresh facts in another rule with no question or model call",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / does not manufacture completion changes on a fresh confirmation",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / preserves future and cancelled lifecycle behavior",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 fact-aware runtime (pure functions) / does not use unknown compliance data as evidence of breach",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 registry conflicts and cohort query boundary / does not silently overwrite an immutable fact definition",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 registry conflicts and cohort query boundary / rejects semantic aliases even under another stable key",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 registry conflicts and cohort query boundary / reusing an identical definition is idempotent",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 registry conflicts and cohort query boundary / keeps previously affected companies in targeted fan-out",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 registry conflicts and cohort query boundary / detects only provable simple contradictions without inventing OR narrowing",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 operator fallback for definition versions / allows a reviewed operator definition without weakening the machine gate",
+      "status": "passed"
+    },
+    {
+      "name": "db/fact-runtime.test.js / S9.9 operator fallback for definition versions / pins previous versions and accepts only the next operator revision",
+      "status": "passed"
+    }
+  ]
+}

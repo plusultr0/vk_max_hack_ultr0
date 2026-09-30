@@ -60,6 +60,8 @@ async function writeRevision(input: { candidateId: string; actorId: string; save
     if (input.save && !head.rowCount) throw new ReviewError('REVIEW_NOT_FOUND', 404);
     if (input.save && input.save.baseRevision !== head.rows[0].current_revision) throw new ReviewError('REVIEW_REVISION_CONFLICT', 409, { currentRevision: head.rows[0].current_revision });
     const document = input.save ? parseReviewDocument(input.save.document) : createReviewDocument(extraction);
+    // Machine provenance may only be asserted by the internal automation actor.
+    if (document.approvalMode==='machine_validated' && actor!=='system:autonomous-v1') document.approvalMode='human';
     if (input.save) {
       try { assertReviewIdentity(parseReviewDocument(head.rows[0].document), document); }
       catch (error) { throw new ReviewError(error instanceof Error ? error.message : 'REVIEW_IDENTITY_CHANGED', 422); }
@@ -77,7 +79,7 @@ async function writeRevision(input: { candidateId: string; actorId: string; save
       VALUES($1,$2,$3,$4,$5,$6,$7,$8)`, [input.candidateId, revision, state, JSON.stringify(document), compilation.contentHash, JSON.stringify(compilation), actor, reason]);
     if (input.save) await client.query('UPDATE review_drafts SET current_revision=$2 WHERE candidate_id=$1', [input.candidateId, revision]);
     await client.query(`INSERT INTO audit_log(actor_type,actor_id,event_type,entity_type,entity_id,data)
-      VALUES('admin',$1,'review.revision_created','legal_rule_candidate',$2,$3)`, [actor, input.candidateId, JSON.stringify({ revision, state, reason, contentHash: compilation.contentHash })]);
+      VALUES($4,$1,'review.revision_created','legal_rule_candidate',$2,$3)`, [actor, input.candidateId, JSON.stringify({ revision, state, reason, contentHash: compilation.contentHash, approvalMode: document.approvalMode ?? 'human' }), actor === 'system:autonomous-v1' ? 'system' : 'admin']);
     const result = await client.query('SELECT r.*,$3::text AS source_snapshot_id FROM review_revisions r WHERE candidate_id=$1 AND revision=$2', [input.candidateId, revision, row.source_snapshot_id]);
     await client.query('COMMIT');
     return hydrate(result.rows[0]);
@@ -89,7 +91,7 @@ export async function saveCandidateReview(candidateId: string, value: unknown, a
   return writeRevision({ candidateId, actorId, save: SaveReviewSchema.parse(value) });
 }
 export async function previewCandidateReview(candidateId: string, input: {
-  revision: number; contentHash: string; asOf: string; profile: Parameters<typeof previewReview>[1]['profile']; tradeObjectId?: string;
+  revision: number; contentHash: string; asOf: string; profile: Parameters<typeof previewReview>[1]['profile']; tradeObjectId?: string; factValues?: Record<string, unknown>;
 }) {
   const saved = await getCandidateReview(candidateId);
   if (!saved) throw new ReviewError('REVIEW_NOT_FOUND', 404);

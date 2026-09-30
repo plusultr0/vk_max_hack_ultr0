@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { LegalActSchema, LegalRuleSchema, DemoProfileFixtureSchema } from '@reg/domain';
 import { getPool, closePool } from './client.js';
 import { seedHash } from './canonical.js';
+import { installFactDefinitions, registerRuleDependencies } from './facts.js';
 
 const seedDir = new URL('../../../seed/v1/', import.meta.url);
 
@@ -70,6 +71,11 @@ async function main() {
       );
     }
 
+    const factDefinitions = rules.flatMap((rule) => rule.factModel?.definitions ?? []);
+    if (factDefinitions.length) {
+      await installFactDefinitions(client, factDefinitions, 'human');
+    }
+
     for (const rule of rules) {
       const existing = await client.query(
         'SELECT seed_hash FROM legal_rules WHERE rule_id = $1 AND version = $2',
@@ -100,6 +106,7 @@ async function main() {
         );
         createdRules += 1;
       }
+      await registerRuleDependencies(client, rule);
     }
 
     for (const relation of relations) {

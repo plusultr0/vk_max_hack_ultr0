@@ -1,0 +1,6 @@
+{
+  "typescript": "5.8.3",
+  "files": 102,
+  "syntaxErrors": 0,
+  "scope": "Syntax/transpilation only; this does not replace typecheck or build."
+}

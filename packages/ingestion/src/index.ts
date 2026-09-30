@@ -1,3 +1,9 @@
+import { normalizeDate, decodeHtml, htmlToText, parseCsv } from './text.js';
+export { htmlToText, parseCsv } from './text.js';
+import { fetchWithRetry, responseText, type FetchOptions } from './transport.js';
+import { pdfText } from './pdf-text.js';
+export { extractionErrorCode } from './transport.js';
+export type { FetchOptions } from './transport.js';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 
@@ -21,13 +27,6 @@ export const SourceDocumentSchema = z.object({
 });
 export type SourceDocument = z.infer<typeof SourceDocumentSchema>;
 
-export type FetchOptions = {
-  fetchImpl?: typeof fetch;
-  timeoutMs?: number;
-  userAgent?: string;
-  retries?: number;
-};
-
 export type OfficialHtmlSource = {
   source: string;
   url: string;
@@ -46,48 +45,6 @@ function normalizeHeader(value: string): string {
   return value.trim().toLowerCase().replace(/[\s._-]+/g, '');
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function fetchWithRetry(url: string, options: FetchOptions = {}): Promise<Response> {
-  const fetchImpl = options.fetchImpl ?? fetch;
-  const attempts = Math.max(1, (options.retries ?? 1) + 1);
-  let lastError: unknown;
-
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? 20_000);
-    try {
-      const response = await fetchImpl(url, {
-        headers: { 'User-Agent': options.userAgent ?? 'max-regulatory-control/0.9' },
-        signal: controller.signal,
-      });
-      if (response.ok) return response;
-      lastError = new Error(`${url} returned HTTP ${response.status}`);
-      if (response.status < 500 && response.status !== 429) throw lastError;
-    } catch (error) {
-      lastError = error;
-    } finally {
-      clearTimeout(timer);
-    }
-    if (attempt < attempts) await sleep(Math.min(1500, 250 * attempt));
-  }
-
-  throw lastError instanceof Error ? lastError : new Error(`Failed to fetch ${url}`);
-}
-
-function normalizeDate(value: string | null): string | null {
-  if (!value) return null;
-  const trimmed = value.trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
-  const ru = trimmed.match(/^(\d{2})[.\/-](\d{2})[.\/-](\d{4})$/);
-  if (ru) return `${ru[3]}-${ru[2]}-${ru[1]}`;
-  const iso = trimmed.match(/^(\d{4})[.\/-](\d{2})[.\/-](\d{2})/);
-  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
-  return null;
-}
-
 function findColumn(row: Record<string, string>, candidates: string[]): string | null {
   const normalized = new Map(Object.entries(row).map(([key, value]) => [normalizeHeader(key), value]));
   for (const candidate of candidates) {
@@ -95,30 +52,6 @@ function findColumn(row: Record<string, string>, candidates: string[]): string |
     if (found !== undefined && found !== '') return found;
   }
   return null;
-}
-
-function decodeHtml(value: string): string {
-  return value
-    .replace(/&nbsp;|&#160;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'")
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&#(\d+);/g, (_match, code: string) => String.fromCodePoint(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_match, code: string) => String.fromCodePoint(Number.parseInt(code, 16)));
-}
-
-export function htmlToText(html: string): string {
-  return decodeHtml(
-    html
-      .replace(/<script\b[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<style\b[\s\S]*?<\/style>/gi, ' ')
-      .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, ' ')
-      .replace(/<[^>]+>/g, ' '),
-  )
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 function pageTitle(html: string): string | null {
@@ -137,57 +70,13 @@ function numberFromText(value: string): string | null {
   return match?.[1] ?? null;
 }
 
-export function parseCsv(text: string): Array<Record<string, string>> {
-  const firstLine = text.split(/\r?\n/, 1)[0] ?? '';
-  const delimiters = [',', ';', '\t'] as const;
-  const delimiter = delimiters.map((d) => ({ d, n: firstLine.split(d).length })).sort((a, b) => b.n - a.n)[0]?.d ?? ',';
-  const rows: string[][] = [];
-  let currentRow: string[] = [];
-  let current = '';
-  let quoted = false;
-
-  for (let i = 0; i < text.length; i += 1) {
-    const char = text[i];
-    if (char === '"') {
-      if (quoted && text[i + 1] === '"') {
-        current += '"';
-        i += 1;
-      } else {
-        quoted = !quoted;
-      }
-      continue;
-    }
-    if (!quoted && char === delimiter) {
-      currentRow.push(current);
-      current = '';
-      continue;
-    }
-    if (!quoted && (char === '\n' || char === '\r')) {
-      if (char === '\r' && text[i + 1] === '\n') i += 1;
-      currentRow.push(current);
-      if (currentRow.some((cell) => cell.trim() !== '')) rows.push(currentRow);
-      currentRow = [];
-      current = '';
-      continue;
-    }
-    current += char;
-  }
-  if (current.length || currentRow.length) {
-    currentRow.push(current);
-    if (currentRow.some((cell) => cell.trim() !== '')) rows.push(currentRow);
-  }
-  if (rows.length < 2) return [];
-  const headers = rows[0]!.map((value, index) => value.trim() || `column_${index + 1}`);
-  return rows.slice(1).map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index]?.trim() ?? ''])));
-}
-
 export async function resolveCsvUrl(input: {
   openDataUrl: string;
 } & FetchOptions): Promise<string> {
   const response = await fetchWithRetry(input.openDataUrl, input);
   const contentType = response.headers.get('content-type') ?? '';
   if (contentType.includes('text/csv') || input.openDataUrl.toLowerCase().endsWith('.csv')) return input.openDataUrl;
-  const html = await response.text();
+  const html = await responseText(response);
   const matches = [...html.matchAll(/href=["']([^"']+\.csv(?:\?[^"']*)?)["']/gi)];
   if (matches.length === 0) throw new Error('CSV link was not found on the official open-data page');
   return new URL(matches[0]![1]!, input.openDataUrl).toString();
@@ -198,7 +87,7 @@ export async function fetchPravoOpenData(input: {
 } & FetchOptions): Promise<{ datasetUrl: string; documents: SourceDocument[]; rawCount: number }> {
   const datasetUrl = await resolveCsvUrl(input);
   const response = await fetchWithRetry(datasetUrl, input);
-  const text = await response.text();
+  const text = await responseText(response);
   const rows = parseCsv(text);
   const documents = rows.flatMap((row, index) => {
     const title = findColumn(row, ['name', 'title', 'documentname', 'Наименование документа', 'Название']) ?? '';
@@ -248,7 +137,7 @@ export async function fetchOfficialHtmlSource(input: OfficialHtmlSource & FetchO
   if (!contentType.includes('text/html') && !contentType.includes('text/plain') && contentType !== '') {
     throw new Error(`${input.source} returned unsupported content type: ${contentType}`);
   }
-  const html = await response.text();
+  const html = await responseText(response);
   const text = htmlToText(html);
 
   if (input.mode === 'page') {
@@ -292,7 +181,7 @@ export async function fetchOfficialHtmlSource(input: OfficialHtmlSource & FetchO
       title,
       number: numberFromText(title),
       issuer: input.issuer,
-      publicationDate: dateFromText(title),
+      publicationDate: null, // Act date in a title is NOT its publication date.
       officialUrl,
       sourceDatasetUrl: input.url,
       rawHash: sha256(`${title}|${officialUrl}`),
@@ -300,6 +189,7 @@ export async function fetchOfficialHtmlSource(input: OfficialHtmlSource & FetchO
         sourceKind: 'official-html-index',
         anchorText: title,
         sourcePageUrl: input.url,
+        actDateFromTitle: dateFromText(title),
       },
     }));
     if (documents.length >= (input.maxDocuments ?? 250)) break;
@@ -311,12 +201,15 @@ export async function fetchOfficialHtmlSource(input: OfficialHtmlSource & FetchO
 
 export async function fetchReadableOfficialText(input: { url: string } & FetchOptions): Promise<string> {
   const response = await fetchWithRetry(input.url, input);
-  const contentType = response.headers.get('content-type') ?? '';
-  if (contentType && !contentType.includes('text/html') && !contentType.includes('text/plain')) {
-    throw new Error(`Automatic extraction supports HTML/text only; received ${contentType}`);
+  const contentType = (response.headers.get('content-type') ?? '').toLowerCase();
+  if (contentType.includes('application/pdf'))return pdfText(new Uint8Array(await response.arrayBuffer()));
+  if (contentType && !contentType.includes('text/html') && !contentType.includes('text/plain') && !contentType.includes('application/xhtml+xml')) {
+    throw new Error('SOURCE_UNSUPPORTED_CONTENT_TYPE');
   }
-  const text = htmlToText(await response.text());
-  if (text.length < 80) throw new Error('Official page did not contain enough readable text');
+  const raw = await responseText(response);
+  // Preserve plain text literally. HTML alone needs markup removal.
+  const text = contentType.includes('text/plain') ? raw : htmlToText(raw);
+  if (text.trim().length < 80) throw new Error('SOURCE_TEXT_REQUIRED');
   return requireCompleteText(text);
 }
 

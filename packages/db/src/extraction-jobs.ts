@@ -14,10 +14,12 @@ export async function enqueueExtraction(sourceId:string,value:unknown) {
   const text=body.sourceText ?? source.raw?.text ?? '';
   const input={sourceTitle:source.title,officialUrl:source.official_url,sourceText:text,
     sourceTextOrigin:body.sourceText || source.raw?.sourceKind==='manual-official' ? 'request' : 'staged-official-page',
-    sourceRetrievedAt:new Date(source.last_seen_at).toISOString()};
+    sourceRetrievedAt:new Date(source.last_seen_at).toISOString(),sourceRawHash:source.raw_hash,
+    sourceMetadata:{number:source.number??null,issuer:source.issuer??null,
+      publicationDate:source.publication_date?new Date(source.publication_date).toISOString().slice(0,10):null}};
   const result=await getPool().query(`INSERT INTO extraction_jobs(id,source_document_id,request_key,input)
     VALUES($1,$2,$3,$4) ON CONFLICT(request_key) DO UPDATE SET request_key=EXCLUDED.request_key RETURNING id,status,candidate_id`,
-  [randomUUID(),sourceId,'extraction:'+sourceId+':'+seedHash({input,hash:source.raw_hash}),JSON.stringify(input)]);
+  [randomUUID(),sourceId,'extraction:'+sourceId+':'+seedHash({sourceId,sourceText:text,hash:source.raw_hash,version:'s9.9'}),JSON.stringify(input)]);
   return result.rows[0];
 }
 export async function getExtractionJob(id:string) {
@@ -47,7 +49,25 @@ export async function completeExtractionJob(job:any,draft:RegulatoryExtraction,p
     await db.query('COMMIT');return id;
   }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();}
 }
-export async function failExtractionJob(job:any) {
-  await getPool().query(`UPDATE extraction_jobs SET status='failed',last_error='EXTRACTION_FAILED',finished_at=now(),
-    lease_until=NULL,claim_token=NULL,available_at=now()+interval '2 minutes' WHERE id=$1 AND claim_token=$2`,[job.id,job.claim_token]);
+export async function failExtractionJob(job:any,code='EXTRACTION_FAILED') {
+  await getPool().query(`UPDATE extraction_jobs SET status='failed',last_error=$3,finished_at=now(),
+    lease_until=NULL,claim_token=NULL,available_at=now()+interval '2 minutes' WHERE id=$1 AND claim_token=$2`,[job.id,job.claim_token,/^[A-Z][A-Z0-9_]{2,80}$/.test(code)?code:'EXTRACTION_FAILED']);
+}
+
+/** An operator can retry a terminal failure without deleting sources or history. */
+export async function retryExtractionJob(id:string) {
+  const db=await getPool().connect();
+  try{
+    await db.query('BEGIN');
+    const job=(await db.query('SELECT * FROM extraction_jobs WHERE id=$1 FOR UPDATE',[id])).rows[0];
+    if(!job)throw new ReviewError('EXTRACTION_JOB_NOT_FOUND',404);
+    if(job.status==='failed'){
+      await db.query(`UPDATE extraction_jobs SET status='pending',attempts=0,available_at=now(),last_error=NULL,
+        claim_token=NULL,lease_until=NULL,finished_at=NULL WHERE id=$1`,[id]);
+      await db.query(`INSERT INTO audit_log(actor_type,actor_id,event_type,entity_type,entity_id,data)
+        VALUES('admin','admin-token','extraction.retry','extraction_job',$1,$2)`,[id,JSON.stringify({previousAttempts:job.attempts})]);
+    }
+    await db.query('COMMIT');
+    return getExtractionJob(id);
+  }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();}
 }

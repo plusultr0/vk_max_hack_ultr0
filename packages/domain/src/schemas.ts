@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { FactRuleMetadataSchema } from './fact-schema.js';
+import { INDUSTRY_VALUES, REQUIRED_PROFILE_FIELDS } from './profile-ui.js';
 
 const DateStringSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const DateTimeStringSchema = z.string().datetime();
@@ -29,6 +31,7 @@ export const CompanyProfileSchema = z.object({
   profileVersion: z.number().int().positive(),
   tradeObjectId: z.string().trim().min(1).max(200).nullable().optional(),
   legalForm: z.enum(['IP', 'LLC', 'other']).nullable().optional(),
+  industry: z.enum(INDUSTRY_VALUES).nullable().optional(),
   registrationDate: DateStringSchema.nullable().optional(),
   region: z.string().nullable().optional(),
   taxRegime: z.enum(['USN', 'OSNO', 'other']).nullable().optional(),
@@ -86,16 +89,7 @@ export const DemoProfileFixtureSchema = CompanyProfileSchema.extend({
 });
 export type DemoProfileFixture = z.infer<typeof DemoProfileFixtureSchema>;
 
-export const BASIC_ONBOARDING_FIELDS = [
-  'legalForm',
-  'region',
-  'taxRegime',
-  'sellsToConsumers',
-  'salesChannels',
-  'distanceSales',
-  'onlinePayment',
-  'collectsPersonalData',
-] as const;
+export const BASIC_ONBOARDING_FIELDS = REQUIRED_PROFILE_FIELDS;
 
 export const CompanyProfileDraftSchema = z.object({
   data: CompanyProfileSchema.omit({ profileVersion: true, confirmedAt: true }).partial(),
@@ -165,7 +159,7 @@ export const LegalRuleSchema = z.object({
   ruleId: z.string(),
   version: z.number().int().positive(),
   actId: z.string(),
-  category: z.enum(['kkt', 'tax', 'marking', 'personal_data', 'distance_sales', 'payments']),
+  category: z.enum(['kkt', 'tax', 'marking', 'personal_data', 'distance_sales', 'payments', 'other']),
   title: z.string(),
   userTitle: z.string(),
   summary: z.string(),
@@ -206,6 +200,7 @@ export const LegalRuleSchema = z.object({
     note: z.string().nullable().optional(),
   })).min(1),
   tags: z.array(z.string()).default([]),
+  factModel: FactRuleMetadataSchema.optional(),
   seedHash: z.string(),
 });
 export type LegalRule = z.infer<typeof LegalRuleSchema>;

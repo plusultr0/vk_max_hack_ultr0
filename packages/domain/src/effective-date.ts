@@ -1,12 +1,14 @@
 import type { CompanyProfile, LegalRule } from './schemas.js';
 
+import { getFactPath, calendarDate } from './fact-logic.js';
+
 function readField(profile: CompanyProfile, field: string): unknown {
-  return (profile as Record<string, unknown>)[field];
+  return getFactPath(profile, field);
 }
 
 export function firstDayNextMonth(date: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
-  if (!match) throw new Error(`Invalid date: ${date}`);
+  if (!match || !calendarDate(date)) throw new Error(`Invalid date: ${date}`);
   const year = Number(match[1]);
   const month = Number(match[2]);
   const nextYear = month === 12 ? year + 1 : year;

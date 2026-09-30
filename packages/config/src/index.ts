@@ -29,6 +29,10 @@ const ConfigSchema = z.object({
   LLM_MODEL: z.string().optional(),
   LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(45000),
 
+  AUTONOMOUS_RULES_ENABLED: z.preprocess(v=>typeof v==='string'?['true','1','yes','on'].includes(v.toLowerCase()):v,z.boolean()).default(true),
+  AUTO_EXTRACTION_ENABLED: z.preprocess(v=>typeof v==='string'?['true','1','yes','on'].includes(v.toLowerCase()):v,z.boolean()).default(true),
+  AUTO_EXTRACTION_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(10),
+
   PRAVO_OPEN_DATA_URL: z.string().url().default('https://publication.pravo.gov.ru/OpenData/7710349494-legalacts-90'),
   GOVERNMENT_DOCS_URL: z.string().url().default('https://government.ru/docs/all/'),
   FNS_CHANGES_URL: z.string().url().default('https://www.nalog.gov.ru/new2026/'),

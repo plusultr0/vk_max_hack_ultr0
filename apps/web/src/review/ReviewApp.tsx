@@ -3,6 +3,7 @@ import type { Candidate, Field, HistoryItem, Preview, Review, ReviewDocument } f
 import { TextField, ValueInput } from './Fields.js';
 import { documentChanges, newPhase } from './model.js';
 import PhaseEditor from './PhaseEditor.js';
+import { FactMetadataEditor, boundFactFields } from './FactMetadataEditor.js';
 import './review.css';
 
 type Session = { actor: string; csrf: string; expiresAt: number };
@@ -32,7 +33,8 @@ export default function ReviewApp() {
   const readOnly=historical || candidate?.review_state!=='pending';
   const phase=document?.phases.find(p=>p.id===phaseId) ?? document?.phases[0];
   const segments=candidate?.source_snapshot?.segments ?? [];
-  const previewFields=[...new Set(review?.compilation.rules.flatMap(r=>r.rule.applicability.requiredFields) ?? [])];
+  const allFields=[...fields,...boundFactFields(document).filter(f=>!fields.some(old=>old.name===f.name))];
+  const previewFields=[...new Set(review?.compilation.rules.flatMap(r=>[...r.rule.applicability.requiredFields,...(r.rule.factModel?.requiredFacts.map(f=>f.field) ?? [])]) ?? [])];
   const changes=document && review ? documentChanges(historical ? document : review.document, historical ? head!.document : document) : [];
 
   async function request<T>(path:string, init:RequestInit={}):Promise<T> {
@@ -107,6 +109,7 @@ export default function ReviewApp() {
     {!candidate?<section className="rv-welcome"><span className="rv-eyebrow">ПРОВЕРКА ЧЕЛОВЕКОМ</span><h2>От источника к проверенному правилу</h2><p>Выберите документ слева. Сопоставьте условия, исключения и сроки с цитатами, затем проверьте результат на примере компании.</p><ol><li>Прочитайте неизменяемый снимок источника.</li><li>Зафиксируйте решения и основания правок.</li><li>Сохраните ревизию и выполните предпросмотр.</li></ol><p className="rv-help">Готовая ревизия сама по себе не публикует нормы и не отправляет уведомления.</p></section>:<>
     <aside className="rv-source"><div className="rv-source-head"><span className="rv-eyebrow">ИСХОДНЫЙ ДОКУМЕНТ</span><h2>{candidate.source_title}</h2>
       {candidate.source_snapshot?.officialUrl.startsWith('https://')&&<a href={candidate.source_snapshot.officialUrl} target="_blank" rel="noopener noreferrer">Открыть источник ↗</a>}
+      {candidate.automation_state==='needs_review'&&<div className="rv-alert"><b>{'Автопубликация остановлена'}</b>{candidate.automation_issues?.map(issue=><p key={issue}>{issue}</p>)}</div>}
       {candidate.source_snapshot&&<details><summary>Снимок и происхождение</summary><p>Сохранён {date(candidate.source_snapshot.capturedAt)}</p><p>{candidate.source_snapshot.origin}</p><p className="rv-mono">SHA-256: {candidate.source_snapshot.textHash}</p><p>Снимок текста после разбора страницы. Не изменяется при редактировании.</p></details>}
     </div><div className="rv-source-scroll">{!segments.length&&<p>У этого кандидата нет сохранённого снимка. Нужно повторное извлечение.</p>}{segments.map(segment=><article key={segment.sourceSegmentIndex} id={`source-${segment.sourceSegmentIndex}`} className={activeSegment===segment.sourceSegmentIndex?'highlight':''}>
       <span className="rv-segment-number">§ {segment.sourceSegmentIndex+1}</span><p>{segment.text}</p></article>)}</div></aside>
@@ -130,13 +133,14 @@ export default function ReviewApp() {
       <nav className="rv-phases" aria-label="Этапы документа">{document.phases.map((p,i)=><button key={p.id} className={phase?.id===p.id?'selected':''} onClick={()=>setPhaseId(p.id)}><b>Этап {i+1}</b><span>{p.validFrom.date ?? 'Дата не определена'}</span><small>{decisionLabels[p.decision]}</small></button>)}</nav>
       <fieldset disabled={readOnly||busy} className="rv-editable"><div className="rv-phase-tools"><button type="button" disabled={document.phases.length>=50} onClick={()=>{const p=newPhase();changeDocument({...document,phases:[...document.phases,p]});setPhaseId(p.id);}}>+ Добавить этап</button>
         {phase&&<button type="button" disabled={document.phases[0]?.id===phase.id} onClick={()=>{const list=[...document.phases],i=list.findIndex(p=>p.id===phase.id);[list[i-1],list[i]]=[list[i]!,list[i-1]!];changeDocument({...document,phases:list});}}>Переместить этап выше</button>}</div>
-        {phase&&<PhaseEditor key={phase.id} phase={phase} onChange={p=>changeDocument({...document,phases:document.phases.map(v=>v.id===p.id?p:v)})} fields={fields} segments={segments} onCite={cite}/>} </fieldset>
+        {document.factDefinitions&&<FactMetadataEditor key={review?.revision} document={document} onChange={changeDocument}/>}
+        {phase&&<PhaseEditor key={phase.id} phase={phase} onChange={p=>changeDocument({...document,phases:document.phases.map(v=>v.id===p.id?p:v)})} fields={allFields} segments={segments} onCite={cite}/>} </fieldset>
       <section className="rv-section rv-preview"><h2>Предпросмотр для компании</h2><p className="rv-help">Гипотетический расчёт сохранённой ревизии. Профиль компании, действия и уведомления не изменяются.</p>
         {!review.compilation.ready&&<p>Сначала устраните замечания к структуре и сохраните ревизию.</p>}
         <fieldset disabled={!review.compilation.ready||dirty||historical||busy} className="rv-editable"><TextField label="Дата расчёта" value={asOf} type="date" onChange={v=>{setAsOf(v);setPreview(null);}}/>
           {review.compilation.rules.some(r=>r.scope==='trade_object')&&<TextField label="Обозначение тестовой торговой точки" value={outlet} onChange={v=>{setOutlet(v);setPreview(null);}}/>}
-          <div className="rv-form-grid">{previewFields.map(name=>{const field=fields.find(f=>f.name===name);return <ValueInput key={name} field={field} label={field?.label ?? name} value={testProfile[name] as never ?? null} multiple={field?.type==='array'} onChange={value=>{setTestProfile({...testProfile,[name]:value});setPreview(null);}}/>;})}</div>
-          <button onClick={()=>void run(async()=>setPreview(await request<Preview>(`/admin/candidates/${candidate.id}/review/preview`,{method:'POST',body:JSON.stringify({revision:review.revision,contentHash:review.contentHash,asOf,profile:testProfile,...(outlet?{tradeObjectId:outlet}:{})})})))}>Выполнить предпросмотр</button>
+          <div className="rv-form-grid">{previewFields.map(name=>{const field=allFields.find(f=>f.name===name);return <ValueInput key={name} field={field} label={field?.label ?? name} value={testProfile[name] as never ?? null} multiple={field?.type==='array'} onChange={value=>{setTestProfile({...testProfile,[name]:value});setPreview(null);}}/>;})}</div>
+          <button onClick={()=>void run(async()=>setPreview(await request<Preview>(`/admin/candidates/${candidate.id}/review/preview`,{method:'POST',body:JSON.stringify({revision:review.revision,contentHash:review.contentHash,asOf,profile:Object.fromEntries(Object.entries(testProfile).filter(([key])=>!key.startsWith('facts.'))),factValues:Object.fromEntries(Object.entries(testProfile).filter(([key])=>key.startsWith('facts.'))),...(outlet?{tradeObjectId:outlet}:{})})})))}>Выполнить предпросмотр</button>
         </fieldset>
         {preview&&<div className="rv-preview-results" role="status"><p>Ревизия {preview.revision} · на {preview.asOf}</p>{preview.items.map(item=><article key={item.phaseId}><h3>{document.phases.find(p=>p.id===item.phaseId)?.userTitle ?? item.ruleId}</h3><span>{{active:'Действует',upcoming:'Предстоящий этап',ended:'Действие завершено'}[item.timeState]}</span>
           <b>{item.contextRequired?'Укажите тестовую торговую точку':item.evaluation?({applies:'Относится к профилю',not_applicable:'Не относится',needs_info:'Нужно уточнить'}[item.evaluation.verdict]):'На эту дату расчёт не выполняется'}</b>

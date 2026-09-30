@@ -8,10 +8,13 @@ services:
     ports: ["5432:5432"]
     volumes: ["postgres_data:/var/lib/postgresql/data"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-regcontrol} -d ${POSTGRES_DB:-regcontrol}"]
+      # pg_isready can report success while the entrypoint is still creating POSTGRES_DB.
+      # A real SQL query against that exact database prevents migrate from racing first boot.
+      test: ["CMD-SHELL", "psql -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\" -tAc 'SELECT 1' >/dev/null 2>&1"]
       interval: 3s
       timeout: 3s
       retries: 20
+      start_period: 5s
 
   migrate:
     build: .
@@ -52,7 +55,7 @@ services:
     build: .
     env_file: .env
     environment:
-      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+      VITE_API_URL: ${VITE_API_URL:-}
       API_PROXY_TARGET: http://api:3000
     command: ["npm", "run", "dev", "--workspace", "@reg/web", "--", "--host", "0.0.0.0"]
     ports: ["5173:5173"]

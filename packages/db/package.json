@@ -7,7 +7,11 @@
   "scripts": {
     "migrate": "tsx src/migrate.ts",
     "seed": "tsx src/seed.ts",
-    "test:integration": "tsx src/grounding.integration.ts && tsx src/review.integration.ts && tsx src/publication.integration.ts && tsx src/lifecycle.integration.ts"
+    "test:integration": "tsx src/grounding.integration.ts && tsx src/review.integration.ts && tsx src/publication.integration.ts && tsx src/lifecycle.integration.ts && tsx src/autonomous.integration.ts && tsx src/usability.integration.ts && tsx src/journey.integration.ts",
+    "test": "vitest run",
+    "test:s99": "tsx src/autonomous.integration.ts",
+    "test:usability": "tsx src/usability.integration.ts",
+    "test:journey": "tsx src/journey.integration.ts"
   },
   "dependencies": {
     "@reg/config": "0.1.0",

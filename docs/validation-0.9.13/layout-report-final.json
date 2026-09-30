@@ -1,0 +1,405 @@
+{
+  "scope": "CSS fixture only; optimized final verification; no React/backend",
+  "cases": [
+    {
+      "screen": "check",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "check_empty_attention",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_questions",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_action",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_stale",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_review",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_not_applicable",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_upcoming",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "documents",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "documents_recheck",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "profile",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "profile_saved",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "feed",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "history",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "messages",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "stress_long_text",
+      "width": 320,
+      "status": "passed"
+    },
+    {
+      "screen": "check",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "check_empty_attention",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_questions",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_action",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_stale",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_review",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_not_applicable",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_upcoming",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "documents",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "documents_recheck",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "profile",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "profile_saved",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "feed",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "history",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "messages",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "stress_long_text",
+      "width": 375,
+      "status": "passed"
+    },
+    {
+      "screen": "check",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "check_empty_attention",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_questions",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_action",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_stale",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_review",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_not_applicable",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_upcoming",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "documents",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "documents_recheck",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "profile",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "profile_saved",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "feed",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "history",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "messages",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "stress_long_text",
+      "width": 768,
+      "status": "passed"
+    },
+    {
+      "screen": "check",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "check_empty_attention",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_questions",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_action",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_stale",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_review",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_not_applicable",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_upcoming",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "documents",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "documents_recheck",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "profile",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "profile_saved",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "feed",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "history",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "messages",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "stress_long_text",
+      "width": 1024,
+      "status": "passed"
+    },
+    {
+      "screen": "check",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "check_empty_attention",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_questions",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_action",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_stale",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_review",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_not_applicable",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "detail_upcoming",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "documents",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "documents_recheck",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "profile",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "profile_saved",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "feed",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "history",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "messages",
+      "width": 1440,
+      "status": "passed"
+    },
+    {
+      "screen": "stress_long_text",
+      "width": 1440,
+      "status": "passed"
+    }
+  ]
+}

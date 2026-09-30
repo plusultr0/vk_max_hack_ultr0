@@ -1,0 +1,47 @@
+{
+  "method": "WCAG relative luminance calculation",
+  "pairs": [
+    {
+      "name": "primary_text_on_background",
+      "foreground": "#060606",
+      "background": "#F3F3F0",
+      "contrast_ratio": 18.23,
+      "passes_AA_normal_text": true
+    },
+    {
+      "name": "accent_on_background",
+      "foreground": "#661B0E",
+      "background": "#F3F3F0",
+      "contrast_ratio": 10.93,
+      "passes_AA_normal_text": true
+    },
+    {
+      "name": "warning_text_on_warning_background",
+      "foreground": "#7A4B11",
+      "background": "#F6E9D4",
+      "contrast_ratio": 6.17,
+      "passes_AA_normal_text": true
+    },
+    {
+      "name": "success_text_on_success_background",
+      "foreground": "#2F6245",
+      "background": "#E7F0EA",
+      "contrast_ratio": 6.11,
+      "passes_AA_normal_text": true
+    },
+    {
+      "name": "info_text_on_info_background",
+      "foreground": "#59411B",
+      "background": "#EEE7D9",
+      "contrast_ratio": 7.77,
+      "passes_AA_normal_text": true
+    },
+    {
+      "name": "selected_text_on_selected_background",
+      "foreground": "#4D1209",
+      "background": "#F0E4E0",
+      "contrast_ratio": 12.0,
+      "passes_AA_normal_text": true
+    }
+  ]
+}

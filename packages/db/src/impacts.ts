@@ -1,5 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { LegalRuleSchema } from '@reg/domain';
+import { LegalRuleSchema, FIELD_COPY, VALUE_LABELS, formatValue, plainText, describeRequirement } from '@reg/domain';
+import { loadFactObservations } from './facts.js';
+import { targetCompanyPage } from './targeting.js';
+import { evaluateWithFacts, factQuestion } from './fact-evaluation.js';
+import { answerImpactFacts } from './fact-answers.js';
 import { getPool } from './client.js';
 import { getLatestConfirmedProfile, createConfirmedProfileVersion } from './profile.js';
 import { recalculateCompanyAtomic, selectedRules, impactIsCurrent, isoDate } from './runtime.js';
@@ -12,11 +16,14 @@ export async function recalculateCompany(companyId: string, reason: RecalcReason
 }
 
 export async function recalculateRuleForAllCompanies(ruleId: string, version: number) {
-  const rule = await getPool().query('SELECT 1 FROM legal_rules WHERE rule_id=$1 AND version=$2',[ruleId,version]);
-  if (!rule.rowCount) throw new Error('RULE_NOT_FOUND');
-  const companies = await getPool().query('SELECT DISTINCT company_id FROM company_profiles');
-  const results=[];
-  for(const row of companies.rows) results.push(...await recalculateCompany(row.company_id,'regulatory_update'));
+  const row=(await getPool().query('SELECT data FROM legal_rules WHERE rule_id=$1 AND version=$2',[ruleId,version])).rows[0];
+  if(!row)throw new Error('RULE_NOT_FOUND');
+  const rule=LegalRuleSchema.parse(row.data);let cursor:string|null=null;const results=[];
+  for(;;) {
+    const page=await targetCompanyPage(getPool(),[rule],cursor,500);
+    for(const companyId of page.companyIds)results.push(...await recalculateCompanyAtomic(companyId,'regulatory_update',undefined,[ruleId]));
+    if(page.companyIds.length<500)break;cursor=page.companyIds.at(-1)!;
+  }
   return results;
 }
 
@@ -27,12 +34,21 @@ export async function listImpacts(companyId: string, history = false) {
     JOIN legal_rules lr ON lr.rule_id=ia.rule_id AND lr.version=ia.rule_version
     WHERE ia.company_id=$1 ORDER BY ia.created_at DESC,ia.id DESC`,[companyId]);
   const selections=await selectedRules();
+  const observations=await loadFactObservations(companyId);
+  const now=new Date().toISOString();
+  const calculations=new Map(selections.map(s=>[s.rule.ruleId+':'+s.rule.version+':'+s.timeState,evaluateWithFacts(s,profile,observations,companyId,now)]));
+  const keys=new Map([...calculations].map(([key,value])=>[key,value.calculationKey]));
   const impacts=[];
   for(const row of rows.rows) {
-    const current=row.profile_version===profile.profileVersion && selections.some(s=>s.rule.ruleId===row.rule_id && s.rule.version===row.rule_version && s.timeState===row.time_state);
-    if(history || current) impacts.push(await hydrateImpact({...row,is_current:current}));
+    const expected=keys.get(row.rule_id+':'+row.rule_version+':'+row.time_state);
+    const current=row.profile_version===profile.profileVersion && !!expected && row.calculation_key!=='legacy' && row.calculation_key===expected;
+    if(history || current) impacts.push(await hydrateImpact({...row,is_current:current},calculations.get(row.rule_id+':'+row.rule_version+':'+row.time_state)));
   }
-  return {profileVersion:profile.profileVersion,impacts};
+  const currentKeys=new Set(rows.rows.filter(row=>row.profile_version===profile.profileVersion&&row.calculation_key!=='legacy'&&row.calculation_key===keys.get(row.rule_id+':'+row.rule_version+':'+row.time_state))
+    .map(row=>row.rule_id+':'+row.rule_version+':'+row.time_state));
+  const outdated=selections.some(s=>!currentKeys.has(s.rule.ruleId+':'+s.rule.version+':'+s.timeState)&&rows.rows.some(r=>r.rule_id===s.rule.ruleId));
+  const jobs=(await getPool().query("SELECT count(*) FILTER(WHERE status='pending')::int AS pending,count(*) FILTER(WHERE status='failed')::int AS failed FROM company_recalculation_jobs WHERE company_id=$1 AND status<>'processed'",[companyId])).rows[0];
+  return {profileVersion:profile.profileVersion,impacts,refreshPending:outdated||jobs.pending>0,refreshFailures:jobs.failed};
 }
 
 type QuestionInputType = 'boolean' | 'select' | 'multi_select' | 'number' | 'date' | 'text' | 'string_list';
@@ -136,18 +152,49 @@ const QUESTION_TEXT: Record<string, string> = {
 
 function describeQuestion(field: string, text: string) {
   const meta = QUESTION_META[field] ?? { inputType: 'text' as const };
-  return { field, text: text.startsWith('Уточните значение:') ? (QUESTION_TEXT[field] ?? text) : text, ...meta };
+  const copy=FIELD_COPY[field];
+  return { field, text:copy?.question??plainText(text,'Уточните данные для этой проверки'),
+    hint:copy?.hint, ...meta, placeholder:copy?.placeholder??meta.placeholder };
 }
 
-async function hydrateImpact(row: Record<string, any>) {
+async function hydrateImpact(row: Record<string, any>,calculated?:ReturnType<typeof evaluateWithFacts>) {
   const rule = LegalRuleSchema.parse(row.rule_data);
   const current = row.is_current ?? await impactIsCurrent(row);
   const actions = await getPool().query('SELECT * FROM action_items WHERE impact_id=$1 ORDER BY created_at', [row.id]);
   const missingFields = row.missing_fields ?? [];
-  const questions = (missingFields as string[]).map((field) => describeQuestion(
+  let explanation: { facts: Array<{label:string;value:string;status:string}>; requirement:string } = {
+    facts:[], requirement:'Условия приведены в официальном источнике.'
+  };
+  let questions: any[] = (missingFields as string[]).map((field) => describeQuestion(
     field,
     rule.applicability.questionMap[field] ?? `Уточните значение: ${field}`,
   ));
+  let editableQuestions:any[]=[];
+  if (current) {
+    const selected=calculated?undefined:(await selectedRules()).find(s=>s.rule.ruleId===row.rule_id&&s.rule.version===row.rule_version&&s.timeState===row.time_state);
+    const profile=calculated?null:await getLatestConfirmedProfile(row.company_id);
+    if(calculated||selected&&profile) {
+      const evaluated=calculated??evaluateWithFacts(selected!,profile!,await loadFactObservations(row.company_id),row.company_id,new Date().toISOString());
+      const fields=evaluated.resolutions.map(r=>({
+        field:r.requirement.field,title:(r.definition.legacyField?FIELD_COPY[r.definition.legacyField]?.title:undefined)??plainText(r.definition.title,'Дополнительные данные'),
+        options:r.definition.options.map(o=>({...o,label:VALUE_LABELS[o.value]??o.label})),unit:r.definition.unit
+      }));
+      editableQuestions=evaluated.resolutions.filter(r=>r.status==='fresh'&&
+        (r.definition.scope==='company'||!!profile?.tradeObjectId||!!calculated)).map(factQuestion);
+      explanation={
+        facts:evaluated.resolutions.map((r,index)=>({
+          label:fields[index]!.title,status:r.status,
+          value:r.status==='fresh'?formatValue(r.observation?.value,fields[index]!.options,r.definition.unit):
+            r.status==='stale'?'Нужно подтвердить актуальность':'Нужно уточнить',
+        })),
+        requirement:describeRequirement(rule.applicability.condition,fields)
+      };
+      questions=(missingFields as string[]).map(field=>{
+        const r=evaluated.resolutions.find(r=>r.requirement.field===field);
+        return r?factQuestion(r):describeQuestion(field,rule.applicability.questionMap[field]??field);
+      });
+    }
+  }
   return {
     id: row.id,
     companyId: row.company_id,
@@ -159,7 +206,11 @@ async function hydrateImpact(row: Record<string, any>) {
     verdict: row.verdict,
     reviewState: row.review_state,
     complianceState: row.compliance_state,
+    clarificationState: row.clarification_state ?? null,
+    calculationKey: row.calculation_key,
+    factContext: row.fact_context,
     reasons: row.reasons ?? [],
+    explanation,
     missingFields,
     reviewReasons: row.review_reasons ?? [],
     effectiveFrom: row.effective_from ? isoDate(row.effective_from) : null,
@@ -173,8 +224,10 @@ async function hydrateImpact(row: Record<string, any>) {
       validFrom: rule.validFrom,
       checkedAt: rule.checkedAt,
       evidenceRefs: rule.evidenceRefs,
+      approvalMode: rule.factModel?.approvalMode ?? 'human',
     },
     questions,
+    editableQuestions,
     actions: actions.rows.map((action) => ({
       id: action.id,
       actionKey: action.action_key,
@@ -208,37 +261,11 @@ export async function answerImpactQuestion(input: {
   value: unknown;
   actorId?: string;
 }) {
-  const impact = await getImpactById(input.companyId, input.impactId);
-  if (!impact) throw new Error('IMPACT_NOT_FOUND');
-  const current = await getLatestConfirmedProfile(input.companyId);
-  if (!impact.isCurrent || !current || current.profileVersion !== impact.profileVersion) throw new Error('STALE_IMPACT');
-  if (!impact.missingFields.includes(input.field)) throw new Error('FIELD_NOT_REQUESTED');
-  const next = await createConfirmedProfileVersion({ companyId: input.companyId, patch: { [input.field]: input.value }, actorId: input.actorId });
-  await recalculateCompany(input.companyId, 'context_answer');
-  return { profile: next, impacts: await listImpacts(input.companyId) };
+  const result=await answerImpactFacts(input.companyId,input.impactId,{requestId:randomUUID(),answers:[{field:input.field,value:input.value}]},input.actorId??'user');
+  return {...result,profile:await getLatestConfirmedProfile(input.companyId),impacts:await listImpacts(input.companyId)};
 }
 
-export async function updateActionStatus(input: { companyId: string; actionId: string; status: 'open'|'in_progress'|'completed'|'dismissed'; actorId?: string }) {
-  const db=await getPool().connect();
-  try {
-    await db.query('BEGIN');
-    await db.query('SELECT id FROM companies WHERE id=$1 FOR UPDATE',[input.companyId]);
-    const row=(await db.query(`SELECT i.*,a.execution_status FROM action_items a JOIN impact_assessments i ON i.id=a.impact_id
-      WHERE a.id=$1 AND i.company_id=$2`,[input.actionId,input.companyId])).rows[0];
-    if(!row){await db.query('COMMIT');return null;}
-    if(!await impactIsCurrent(row,db) || row.time_state!=='active') throw new Error('STALE_ACTION');
-    const result=await db.query(`UPDATE action_items SET execution_status=$2,
-      completed_at=CASE WHEN $2='completed' THEN COALESCE(completed_at,now()) ELSE NULL END WHERE id=$1 RETURNING *`,[input.actionId,input.status]);
-    await db.query(`INSERT INTO audit_log(company_id,actor_type,actor_id,event_type,entity_type,entity_id,data)
-      VALUES($1,'user',$2,'action.status','action_item',$3,$4)`,[input.companyId,input.actorId??null,input.actionId,JSON.stringify({status:input.status})]);
-    if(['completed','dismissed'].includes(input.status)) await db.query(`UPDATE notifications SET state='cancelled',terminal_at=now()
-      WHERE company_id=$1 AND payload->>'actionId'=$2 AND state IN ('pending','retry')`,[input.companyId,input.actionId]);
-    else await db.query(`UPDATE notifications SET state='pending',terminal_at=NULL
-      WHERE company_id=$1 AND payload->>'actionId'=$2 AND state='cancelled' AND sent_at IS NULL`,
-    [input.companyId,input.actionId]);
-    await db.query('COMMIT');return result.rows[0];
-  }catch(error){await db.query('ROLLBACK');throw error;}finally{db.release();}
-}
+export { updateActionStatus } from './actions.js';
 
 export async function addImpactFeedback(input: { companyId: string; impactId: string; value: string; comment?: string; actorId?: string }) {
   const impact = await getImpactById(input.companyId, input.impactId);
@@ -261,4 +288,14 @@ export async function listAudit(companyId: string, limit = 100) {
     [companyId, limit],
   );
   return result.rows;
+}
+
+/** IDs are immutable and monotonic; new events cannot shift subsequent pages. */
+export async function listAuditPage(companyId:string,options:{beforeId?:string;limit?:number}={}) {
+  const limit=Math.min(100,Math.max(1,options.limit??50));
+  const rows=(await getPool().query(`SELECT * FROM audit_log WHERE company_id=$1
+    AND ($2::bigint IS NULL OR id<$2::bigint) ORDER BY id DESC LIMIT $3`,
+    [companyId,options.beforeId??null,limit+1])).rows;
+  const items=rows.slice(0,limit);
+  return {items,nextCursor:rows.length>limit?String(items.at(-1)!.id):null};
 }

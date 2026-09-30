@@ -1,7 +1,7 @@
 import { PgBoss } from 'pg-boss';
 import { getConfig } from '@reg/config';
 import { dispatchNotifications, runRegulatoryIngestion } from './jobs.js';
-import { enqueueScheduledRecalculations, processPublicationDelivery } from '@reg/db';
+import { enqueueScheduledRecalculations, processPublicationDelivery, backfillBusinessFactIndex, processPendingAutomation, enqueueAutomaticExtractions } from '@reg/db';
 import { processExtractionJob } from './extraction.js';
 
 const config = getConfig();
@@ -14,6 +14,9 @@ await boss.createQueue('pravo-ingest', { retryLimit: 2, retryDelay: 120, retryBa
 await boss.createQueue('publication-delivery', { retryLimit: 3, retryDelay: 30, retryBackoff: true });
 await boss.createQueue('extraction', { retryLimit: 2, retryDelay: 60, expireInSeconds: 900 });
 await boss.work('publication-delivery', async () => {
+  await backfillBusinessFactIndex(200);
+  if(config.AUTO_EXTRACTION_ENABLED)await enqueueAutomaticExtractions(config.AUTO_EXTRACTION_BATCH_SIZE);
+  if(config.AUTONOMOUS_RULES_ENABLED)await processPendingAutomation(5);
   await enqueueScheduledRecalculations();
   await processPublicationDelivery();
 });

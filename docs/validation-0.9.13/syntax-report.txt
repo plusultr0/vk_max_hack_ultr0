@@ -1,0 +1,10 @@
+
+> max-regulatory-control@0.9.13 check:syntax
+> node scripts/check-syntax.mjs
+
+{
+  "typescript": "5.8.3",
+  "files": 98,
+  "syntaxErrors": 0,
+  "scope": "Syntax/transpilation only; this does not replace typecheck or build."
+}

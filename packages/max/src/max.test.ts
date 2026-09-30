@@ -1,12 +1,19 @@
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { makeSession, validateWebAppData, verifySession } from './index.js';
+import { callbackButton, makeSession, openMiniAppButton, validateWebAppData, verifySession } from './index.js';
 
 function hmac(key: string | Buffer, data: string | Buffer) {
   return createHmac('sha256', key).update(data).digest();
 }
 
 describe('MAX auth helpers', () => {
+  it('builds native callback and mini-app buttons', () => {
+    expect(openMiniAppButton('t106_hakaton_max_bot','Открыть','feed')).toEqual({
+      type:'open_app',text:'Открыть',web_app:'t106_hakaton_max_bot',payload:'feed',
+    });
+    expect(callbackButton('Статус','nav:status')).toEqual({type:'callback',text:'Статус',payload:'nav:status'});
+  });
+
   it('roundtrips signed sessions', () => {
     const signed = makeSession({ userId: '42', companyId: 'c1', secret: '1234567890123456', ttlSeconds: 60, nowSeconds: 100 });
     expect(verifySession(signed.token, '1234567890123456', 110).companyId).toBe('c1');

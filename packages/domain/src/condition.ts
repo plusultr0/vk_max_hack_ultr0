@@ -8,7 +8,7 @@ function getPath(input: unknown, path: string): unknown | UnknownValue {
   let current: unknown = input;
   for (const part of parts) {
     if (current === null || current === undefined || typeof current !== 'object') return UNKNOWN;
-    if (!(part in current)) return UNKNOWN;
+    if (['__proto__', 'prototype', 'constructor'].includes(part) || !Object.hasOwn(current, part)) return UNKNOWN;
     current = (current as Record<string, unknown>)[part];
   }
   return current === null || current === undefined ? UNKNOWN : current;

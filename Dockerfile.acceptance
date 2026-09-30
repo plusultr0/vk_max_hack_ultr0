@@ -1,0 +1,10 @@
+FROM node:22-bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv chromium poppler-utils ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN python3 -m venv /opt/browser-tests \
+    && /opt/browser-tests/bin/pip install --no-cache-dir -r tests/browser/requirements.txt
+ENV PATH="/opt/browser-tests/bin:${PATH}"
+CMD ["sh", "scripts/acceptance-container.sh"]

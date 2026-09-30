@@ -27,10 +27,12 @@ export function selectRuleVersions(rows: RuntimeRule[], asOf: string): SelectedR
     const current = group.filter(r => r.effectiveOn <= asOf).sort((a,b) => b.rule.version-a.rule.version)[0];
     if (current) selected.push({ ...current, timeState: current.cancelled || current.rule.legalStatus === 'repealed' ? 'cancelled'
       : current.rule.legalStatus === 'expired' || (current.rule.validTo && asOf >= current.rule.validTo) ? 'ended' : 'active' });
-    // Future editions are visible, but cannot produce duties before activation.
-    for (const future of group.filter(r => r.effectiveOn > asOf && r.rule.version > (current?.rule.version ?? 0))) {
-      selected.push({ ...future, timeState: 'upcoming' });
-    }
+    // Show only the next chronological future edition. If several reviewed
+    // revisions start on the same date, the highest version supersedes the rest.
+    const futureRows = group.filter(r => r.effectiveOn > asOf && r.rule.version > (current?.rule.version ?? 0));
+    const nextDate = futureRows.map(r=>r.effectiveOn).sort()[0];
+    const future = nextDate ? futureRows.filter(r=>r.effectiveOn===nextDate).sort((a,b)=>b.rule.version-a.rule.version)[0] : undefined;
+    if(future) selected.push({ ...future, timeState: 'upcoming' });
   }
   return selected;
 }
